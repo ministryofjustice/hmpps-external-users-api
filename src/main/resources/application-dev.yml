@@ -1,0 +1,3 @@
+server:
+  shutdown: immediate
+  port: 8088

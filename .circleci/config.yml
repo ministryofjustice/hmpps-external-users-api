@@ -6,7 +6,7 @@ orbs:
 parameters:
   alerts-slack-channel:
     type: string
-    default: dps_alerts_security
+    default: dps_tech_security
   releases-slack-channel:
     type: string
     default: dps-releases
@@ -15,7 +15,7 @@ jobs:
   validate:
     executor:
       name: hmpps/java
-      tag: "17.0"
+      tag: "18.0"
     steps:
       - checkout
       - restore_cache:
