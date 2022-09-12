@@ -18,7 +18,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
       listOf(
         Server().url("https://external-users-api.hmpps.service.justice.gov.uk").description("Prod"),
         Server().url("https://external-users-api-preprod.hmpps.service.justice.gov.uk").description("PreProd"),
-        Server().url("https://mexternal-users-api-dev.hmpps.service.justice.gov.uk").description("Development"),
+        Server().url("https://external-users-api-dev.hmpps.service.justice.gov.uk").description("Development"),
         Server().url("http://localhost:8080").description("Local"),
       )
     )
