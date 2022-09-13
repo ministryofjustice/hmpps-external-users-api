@@ -13,7 +13,6 @@ import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.config.AuthDbConfig
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.Authority
 
-
 @DataJpaTest
 @ActiveProfiles("test")
 @Import(AuthDbConfig::class)

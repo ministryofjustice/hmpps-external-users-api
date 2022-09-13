@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppsexternalusersapi.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.jpa.repository.RoleRepository
 
 @Service
 

@@ -4,9 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.AuthUserRole
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.service.AuthUserRoleService
-import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.AuthUserRole
 
 class AuthAllRolesControllerTest {
   private val authUserRoleService: AuthUserRoleService = mock()

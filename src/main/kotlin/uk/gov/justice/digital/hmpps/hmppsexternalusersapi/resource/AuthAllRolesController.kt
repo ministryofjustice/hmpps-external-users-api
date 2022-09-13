@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.service.AuthUserRoleService
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.AuthUserRole
 import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.model.ErrorDetail
+import uk.gov.justice.digital.hmpps.hmppsexternalusersapi.service.AuthUserRoleService
 
 @RestController
 @Tag(name = "/api/authroles", description = "Auth All Roles Controller")
