@@ -4,3 +4,11 @@ server:
 management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
+
+flyway:
+  locations: classpath:db/auth
+
+api:
+  base:
+    url:
+      oauth: http://localhost:8080/auth
