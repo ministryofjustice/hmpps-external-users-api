@@ -22,7 +22,9 @@ spring:
   profiles:
     group:
       test:
-        - "stdout"
+        - "dev"
+        - "auth-seed"
+        - "local-postgres"
 
 server:
   port: 8080
