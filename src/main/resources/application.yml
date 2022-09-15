@@ -9,6 +9,10 @@ spring:
     max-in-memory-size: 10MB
   flyway:
     enabled: false
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
 
   security:
     oauth2:
