@@ -6,7 +6,7 @@ management.endpoint:
   info.cache.time-to-live: 0
 
 flyway:
-  locations: classpath:db/auth
+  locations: classpath:db/migration/auth
 
 api:
   base:
