@@ -1,6 +1,7 @@
 spring:
   flyway:
     locations: classpath:db/auth,db/dev/data/auth_{vendor},db/dev/data/auth
+    enabled: true
 
   jpa:
     properties:
