@@ -78,7 +78,7 @@ workflows:
           jira_env_type: testing
           context:
             - hmpps-common-vars
-            - hmpps-auth-stage
+            - hmpps-external-users-api-stage
           requires:
             - request-stage-approval
 
