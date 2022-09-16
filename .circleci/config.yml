@@ -67,10 +67,25 @@ workflows:
             - build_docker
             - helm_lint
 
-      - request-preprod-approval:
+      - request-stage-approval:
           type: approval
           requires:
             - deploy_dev
+      - hmpps/deploy_env:
+          name: deploy_stage
+          env: "stage"
+          jira_update: true
+          jira_env_type: testing
+          context:
+            - hmpps-common-vars
+            - hmpps-auth-stage
+          requires:
+            - request-stage-approval
+
+      - request-preprod-approval:
+          type: approval
+          requires:
+            - deploy_stage
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
