@@ -7,12 +7,15 @@ own database.
 Until all data can be moved, hmpps-external-users will depend upon the current HMPPS-Auth service, specifically its 
 database, auth-db.
 
+[[![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-external-users-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-external-users-api)
+[![API docs](https://img.shields.io/badge/API_docs_-view-85EA2D.svg?logo=swagger)](https://external-users-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html?configUrl=/v3/api-docs)
+
 # Instructions
 
 ## Running Locally
 To be able to run the application locally, hmpps-auth needs to be running and so does a local postgres database.
 Follow instructions in the hmpps-auth service readme, to run auth against a local postgres database.
-Once this is up and running, external-users can be running, using the **dev,local-postgres** profile.  This will mean
+Once this is up and running, external-users can be started using the **dev,local-postgres** profile.  This will mean
 that external-users will access the local postgres database (auth-db) directly to get its data.
 
 ## Running Tests Locally
@@ -25,4 +28,3 @@ To run tests
 ```
 docker stop auth-db && docker rm auth-db && docker-compose -f docker-compose-test.yml up
 ```
-

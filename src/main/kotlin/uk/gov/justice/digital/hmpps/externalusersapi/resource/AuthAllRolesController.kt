@@ -13,9 +13,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AuthUserRoleService
 
 @RestController
-@Tag(name = "/api/authroles", description = "Auth All Roles Controller")
+@Tag(name = "/authroles", description = "Auth All Roles Controller")
 class AuthAllRolesController(private val authUserRoleService: AuthUserRoleService) {
-  @GetMapping("/api/authroles")
+  @GetMapping("/authroles")
   @Operation(
     summary = "Get all possible roles.",
     description = "Get all roles allowed for auth users."
