@@ -66,3 +66,6 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+application:
+  email.domain.exclude: gmail.com,hotmail.co.uk,hotmail.com,yahoo.co.uk,outlook.com,yahoo.com,icloud.com,live.co.uk,sky.com,googlemail.com,btinternet.com,aol.com,msn.com,live.com,me.com,ntlworld.com,virginmedia.com,talktalk.net,aol.co.uk,blueyonder.co.uk,mail.com,ymail.com,rocketmail.com,btopenworld.com,tiscali.co.uk,gmail.co.uk,wip.pl,gmx.co.uk,gmx.com,protonmail.com,talk21.com,outlook.co.uk,btconnect.com,hotmail.it,aim.com,email.com,cloud.com,virgin.net

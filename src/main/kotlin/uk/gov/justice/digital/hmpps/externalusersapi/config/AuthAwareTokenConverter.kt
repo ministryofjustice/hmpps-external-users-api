@@ -44,11 +44,11 @@ class AuthAwareTokenConverter : Converter<Jwt, AbstractAuthenticationToken> {
 
 class AuthAwareAuthenticationToken(
   jwt: Jwt,
-  val userName: String?,
-  val clientId: String,
+  private val userName: String?,
+  private val clientId: String,
   authorities: Collection<GrantedAuthority>
 ) : JwtAuthenticationToken(jwt, authorities) {
-  override fun getPrincipal(): Any {
+  override fun getPrincipal(): String {
     return userName ?: clientId
   }
 }
