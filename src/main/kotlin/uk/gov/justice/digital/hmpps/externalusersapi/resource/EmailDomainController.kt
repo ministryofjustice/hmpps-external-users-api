@@ -18,7 +18,6 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
-
 @Controller
 class EmailDomainController(
   private val emailDomainService: EmailDomainService,
@@ -53,7 +52,7 @@ class EmailDomainController(
 
     return try {
       emailDomainService.addDomain(emailDomain)
-      recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess","domain", emailDomain.name)
+      recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", "domain", emailDomain.name)
       redirectToDomainListView()
     } catch (e: EmailDomainAdditionBarredException) {
       newEmailDomainView(emailDomain).addObject("error", e.message)
@@ -64,7 +63,7 @@ class EmailDomainController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
   fun deleteEmailDomain(@PathVariable id: UUID): ModelAndView {
     emailDomainService.removeDomain(id)
-    recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess","id", id.toString())
+    recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess", "id", id.toString())
     return redirectToDomainListView()
   }
 
