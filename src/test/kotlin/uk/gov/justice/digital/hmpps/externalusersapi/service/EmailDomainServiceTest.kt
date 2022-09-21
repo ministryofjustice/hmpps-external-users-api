@@ -80,6 +80,7 @@ class EmailDomainServiceTest {
   @Test
   fun shouldPersistDomainWithAddedPercentPrefixWhenDomainNotAlreadyPresentOrExcluded() {
 
+    whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), newDomain.name, newDomain.description))
     service.addDomain(newDomain)
 
     val emailDomainCaptor = argumentCaptor<EmailDomain>()
@@ -94,6 +95,7 @@ class EmailDomainServiceTest {
   fun shouldNotAddPercentPrefixWhenDomainNameAlreadyHasPercentPrefix() {
 
     val domain = CreateEmailDomainDto("%123.co.uk", "test")
+    whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), domain.name, domain.description))
     service.addDomain(domain)
 
     val emailDomainCaptor = argumentCaptor<EmailDomain>()
