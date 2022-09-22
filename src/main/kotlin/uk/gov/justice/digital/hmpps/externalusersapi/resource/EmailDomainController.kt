@@ -3,10 +3,16 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource
 import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.SecurityUserContext
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainService
-import java.util.UUID
+import java.util.*
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
@@ -60,7 +66,11 @@ data class EmailDomainDto(val id: String, val domain: String, val description: S
 
 data class CreateEmailDomainDto(
   @field:NotBlank(message = "email domain name must be supplied")
-  @field:Size(min = 6, max = 100, message = "email domain name must be between 6 and 100 characters in length (inclusive)")
+  @field:Size(
+    min = 6,
+    max = 100,
+    message = "email domain name must be between 6 and 100 characters in length (inclusive)"
+  )
   val name: String = "",
 
   @field:Size(max = 200, message = "email domain description cannot be greater than 200 characters in length")
