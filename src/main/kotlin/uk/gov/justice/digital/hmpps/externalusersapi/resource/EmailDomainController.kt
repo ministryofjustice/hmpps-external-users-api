@@ -1,13 +1,9 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import com.microsoft.applicationinsights.TelemetryClient
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.*
 import uk.gov.justice.digital.hmpps.externalusersapi.config.SecurityUserContext
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainService
 import java.util.UUID
@@ -15,7 +11,7 @@ import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
-@Controller
+@RestController
 class EmailDomainController(
   private val emailDomainService: EmailDomainService,
   private val telemetryClient: TelemetryClient,
@@ -35,8 +31,9 @@ class EmailDomainController(
   }
 
   @PostMapping("/email-domains")
+  @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun addEmailDomain(@Valid @ModelAttribute emailDomain: CreateEmailDomainDto): EmailDomainDto {
+  fun addEmailDomain(@RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
     val emailDomainDto = emailDomainService.addDomain(emailDomain)
     recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", "domain", emailDomain.name)
     return emailDomainDto
