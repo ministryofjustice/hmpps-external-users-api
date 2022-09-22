@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsrestrictedpatientsapi.security
+package uk.gov.justice.digital.hmpps.externalusersapi.security
 
 interface AuthenticationFacade {
   val currentUsername: String?
