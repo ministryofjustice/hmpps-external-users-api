@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.integration.resource
 
-import java.util.Optional
-import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -14,6 +12,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
+import java.util.Optional
+import java.util.UUID
 
 class EmailDomainsIntTest : IntegrationTestBase() {
 
