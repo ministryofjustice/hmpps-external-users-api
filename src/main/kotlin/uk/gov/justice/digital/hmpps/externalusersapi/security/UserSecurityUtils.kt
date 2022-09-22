@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppsrestrictedpatientsapi.security
+package uk.gov.justice.digital.hmpps.externalusersapi.security
 
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
