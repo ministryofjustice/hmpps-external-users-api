@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.integration.resource
 
+import java.util.Optional
+import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -12,7 +14,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
-import java.util.*
 
 class EmailDomainsIntTest : IntegrationTestBase() {
 
@@ -22,10 +23,12 @@ class EmailDomainsIntTest : IntegrationTestBase() {
   @Test
   fun `should retrieve email domain list`() {
 
-    whenever(emailDomainRepository.findAll()).thenReturn(listOf(
-      emailDomain(UUID.randomUUID(), "%advancecharity.org.uk", "ADVANCE"),
-      emailDomain(UUID.randomUUID(), "%bidvestnoonan.com", "BIDVESTNOONA"),
-    ))
+    whenever(emailDomainRepository.findAll()).thenReturn(
+      listOf(
+        emailDomain(UUID.randomUUID(), "%advancecharity.org.uk", "ADVANCE"),
+        emailDomain(UUID.randomUUID(), "%bidvestnoonan.com", "BIDVESTNOONA"),
+      )
+    )
 
     webTestClient
       .get().uri("/email-domains")
@@ -42,7 +45,15 @@ class EmailDomainsIntTest : IntegrationTestBase() {
   @Test
   fun `should retrieve single email domain`() {
     val id = UUID.randomUUID()
-    whenever(emailDomainRepository.findById(id)).thenReturn(Optional.of(emailDomain(id, "%advancecharity.org.uk", "ADVANCE")))
+    whenever(emailDomainRepository.findById(id)).thenReturn(
+      Optional.of(
+        emailDomain(
+          id,
+          "%advancecharity.org.uk",
+          "ADVANCE"
+        )
+      )
+    )
     webTestClient
       .get().uri("/email-domains/$id")
       .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
