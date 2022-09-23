@@ -36,16 +36,11 @@ class EmailDomainService(
 
   @Throws(EmailDomainNotFoundException::class)
   fun domain(id: UUID): EmailDomainDto {
-    val emailDomain = retrieveDomain(id, "retrieve")
-    return EmailDomainDto(
-      emailDomain.id.toString(),
-      cleanDomainNameForDisplay(emailDomain.name),
-      emailDomain.description.toString()
-    )
+    return toDto(retrieveDomain(id, "retrieve"))
   }
 
   @Throws(EmailDomainAdditionBarredException::class)
-  fun addDomain(newDomain: CreateEmailDomainDto) {
+  fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
     val domainNameInternal = if (newDomain.name.startsWith(PERCENT)) newDomain.name else PERCENT + newDomain.name
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
@@ -56,13 +51,21 @@ class EmailDomainService(
     if (emailDomainExclusions.contains(newDomain.name)) {
       throw EmailDomainAdditionBarredException(newDomain.name, "domain present in excluded list")
     }
-    emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description))
+    return toDto(emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description)))
   }
 
   @Throws(EmailDomainNotFoundException::class)
   fun removeDomain(id: UUID) {
     val emailDomain = retrieveDomain(id, "delete")
     emailDomainRepository.delete(emailDomain)
+  }
+
+  private fun toDto(emailDomain: EmailDomain): EmailDomainDto {
+    return EmailDomainDto(
+      emailDomain.id.toString(),
+      cleanDomainNameForDisplay(emailDomain.name),
+      emailDomain.description.toString()
+    )
   }
 
   private fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
