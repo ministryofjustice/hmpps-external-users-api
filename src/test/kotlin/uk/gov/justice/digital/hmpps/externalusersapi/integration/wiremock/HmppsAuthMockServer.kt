@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.externalusersapi.integration.wiremock
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
-import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo
 import com.github.tomakehurst.wiremock.http.HttpHeader
@@ -29,37 +28,4 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
         )
     )
   }
-
-  fun stubGetAllRolesFilterAdminType() {
-    stubFor(
-      get(urlEqualTo("/auth/api/roles?adminTypes=EXT_ADM"))
-        .willReturn(
-          aResponse()
-            .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
-            .withBody(
-              apiResponseBody()
-            )
-        )
-    )
-  }
-
-  fun apiResponseBody() = """
-    [
-        {
-            "roleCode": "ACCOUNT_MANAGER",
-            "roleName": "The group account manager",
-            "roleDescription": "A group account manager - responsible for managing groups",
-            "adminType": [
-                {
-                    "adminTypeCode": "EXT_ADM",
-                    "adminTypeName": "External Administrator"
-                },
-                {
-                    "adminTypeCode": "DPS_ADM",
-                    "adminTypeName": "DPS Central Administrator"
-                }
-            ]
-        }
-    ]
-  """.trimIndent()
 }
