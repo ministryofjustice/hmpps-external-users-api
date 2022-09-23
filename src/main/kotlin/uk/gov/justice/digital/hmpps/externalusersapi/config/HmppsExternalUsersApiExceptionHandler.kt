@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -16,6 +17,20 @@ import javax.validation.ValidationException
 
 @RestControllerAdvice
 class HmppsExternalUsersApiExceptionHandler {
+
+  @ExceptionHandler(AccessDeniedException::class)
+  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
+    log.debug("Forbidden (403) returned with message {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.FORBIDDEN)
+      .body(
+        ErrorResponse(
+          status = HttpStatus.FORBIDDEN,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
 
   @ExceptionHandler(ValidationException::class)
   fun handleValidationException(e: Exception): ResponseEntity<ErrorResponse> {
