@@ -32,6 +32,17 @@ class EmailDomainControllerTest {
   }
 
   @Test
+  fun shouldRespondWithSingleEmailDomain() {
+    val id = UUID.randomUUID()
+    val emailDomain = EmailDomainDto(id.toString(), "123.co.uk", "test")
+    whenever(emailDomainService.domain(id)).thenReturn(emailDomain)
+
+    val actualEmailDomain = controller.domain(id)
+
+    assertEquals(emailDomain, actualEmailDomain)
+  }
+
+  @Test
   fun shouldAddEmailDomain() {
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
     controller.addEmailDomain(newEmailDomain)
