@@ -226,4 +226,56 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.totalPages").isEqualTo(24)
         .jsonPath("$.last").isEqualTo(false)
   }
+
+  @Nested
+  inner class RoleDetails {
+
+    @Test
+    fun `Role details endpoint not accessible without valid token`() {
+      webTestClient.get().uri("/roles/ANY_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Role details endpoint returns forbidden when does not have admin role`() {
+      webTestClient
+        .get().uri("/roles/ANY_ROLE")
+        .headers(setAuthorisation("bob"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Role details endpoint returns error when role does not exist`() {
+      webTestClient
+        .get().uri("/roles/ROLE_DOES_NOT_EXIST")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "error" to "Not Found",
+              "error_description" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
+              "field" to "role"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Role details endpoint returns success`() {
+      webTestClient
+        .get().uri("/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("role_details.json".readFile())
+    }
+  }
 }

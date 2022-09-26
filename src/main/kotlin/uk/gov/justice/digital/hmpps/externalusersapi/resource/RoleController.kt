@@ -14,6 +14,7 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
@@ -113,6 +114,49 @@ class RoleController(
       pageable
     )
       .map { RoleDetails(it) }
+
+  @GetMapping("/roles/{role}")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Role detail.",
+    description = "Get Role Details"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun getRoleDetails(
+    @Parameter(description = "The Role code of the role.", required = true)
+    @PathVariable
+    role: String
+  ): RoleDetails {
+    val returnedRole: Authority = roleService.getRoleDetails(role)
+    return RoleDetails(returnedRole)
+  }
 }
 
 @Schema(description = "Role Details")

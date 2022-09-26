@@ -1,8 +1,10 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
@@ -149,6 +152,29 @@ class RoleServiceTest {
         },
         eq(unpaged)
       )
+    }
+  }
+
+  @Nested
+  inner class RoleDetails {
+
+    @Test
+    fun `get role details`() {
+      val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role")
+      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(dbRole)
+
+      val role = rolesService.getRoleDetails("RO1")
+      assertThat(role).isEqualTo(dbRole)
+      verify(roleRepository).findByRoleCode("RO1")
+    }
+
+    @Test
+    fun `get role details when no role matches`() {
+      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        rolesService.getRoleDetails("RO1")
+      }.isInstanceOf(RoleNotFoundException::class.java)
     }
   }
 }

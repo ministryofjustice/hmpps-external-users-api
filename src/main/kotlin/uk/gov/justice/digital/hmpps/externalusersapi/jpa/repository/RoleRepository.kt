@@ -11,4 +11,6 @@ interface RoleRepository : CrudRepository<Authority, String>, JpaSpecificationEx
   @NonNull
   @Query("Select * from Roles r where r.admin_type LIKE %:adminType% order by r.role_name", nativeQuery = true)
   fun findAllByOrderByRoleNameLike(@Param("adminType") adminType: String): List<Authority>
+
+  fun findByRoleCode(roleCode: String?): Authority?
 }
