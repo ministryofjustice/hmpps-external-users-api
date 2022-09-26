@@ -7,6 +7,10 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -49,14 +53,66 @@ class RoleController(
   )
   fun getRoles(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
-    @RequestParam(
-      required = false
-    )
+    @RequestParam(required = false)
     adminTypes: List<AdminType>?
   ): List<RoleDetails> = roleService.getRoles(adminTypes)
     .map {
       RoleDetails(it)
     }
+
+  @GetMapping("/api/roles/paged")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "get all paged Roles.",
+    description = "getAllPagedRoles"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Roles not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorDetail::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun getRoles(
+    @Parameter(description = "Role name or partial of a role name")
+    @RequestParam(required = false)
+    roleName: String?,
+    @Parameter(description = "Role code or partial of a role code")
+    @RequestParam(required = false)
+    roleCode: String?,
+    @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
+    @RequestParam(required = false)
+    adminTypes: List<AdminType>?,
+    @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable
+  ): Page<RoleDetails> =
+    roleService.getRoles(
+      roleName,
+      roleCode,
+      adminTypes,
+      pageable
+    )
+      .map { RoleDetails(it) }
 }
 
 @Schema(description = "Role Details")

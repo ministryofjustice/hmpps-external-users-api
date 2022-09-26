@@ -1,0 +1,187 @@
+{
+  "content": [
+    {
+      "roleCode": "ADD_SENSITIVE_CASE_NOTES",
+      "roleName": "Add Secure Case Notes",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "APPROVE_CATEGORISATION",
+      "roleName": "Approve Category assessments",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "ARTEMIS_USER",
+      "roleName": "Artemis user",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "CREATE_CATEGORISATION",
+      "roleName": "Create Category assessments",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_CA",
+      "roleName": "Licence Case Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_DM",
+      "roleName": "Licence Decision Maker",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_RO_READONLY",
+      "roleName": "Licence RO Read Only",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_RO",
+      "roleName": "Licence Responsible Officer",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_READONLY",
+      "roleName": "Licence read only",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "MAINTAIN_IEP",
+      "roleName": "Maintain IEP",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 3,
+  "totalElements": 23,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "first": true,
+  "numberOfElements": 10,
+  "empty": false
+}
