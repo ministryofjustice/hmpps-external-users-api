@@ -1,0 +1,166 @@
+{
+  "content": [
+    {
+      "roleCode": "ADD_SENSITIVE_CASE_NOTES",
+      "roleName": "Add Secure Case Notes",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "CENTRAL_ADMIN",
+      "roleName": "All Powerful Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "APPROVE_CATEGORISATION",
+      "roleName": "Approve Category assessments",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "ARTEMIS_USER",
+      "roleName": "Artemis user",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "AUDIT_VIEWER",
+      "roleName": "Audit viewer",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "OAUTH_ADMIN",
+      "roleName": "Auth Client Management (admin)",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "AUTH_GROUP_MANAGER",
+      "roleName": "Auth Group Manager",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "CMD_MIGRATED_MFA",
+      "roleName": "Check my diary",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "CRS_PROVIDER",
+      "roleName": "Commissioned rehabilitative services (CRS) provider",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "CREATE_CATEGORISATION",
+      "roleName": "Create Category assessments",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": false,
+  "totalPages": 8,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "first": true,
+  "numberOfElements": 10,
+  "empty": false
+}

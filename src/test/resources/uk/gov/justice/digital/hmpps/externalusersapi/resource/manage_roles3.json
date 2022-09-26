@@ -1,0 +1,163 @@
+{
+  "content": [
+    {
+      "roleCode": "CENTRAL_ADMIN",
+      "roleName": "All Powerful Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "OAUTH_ADMIN",
+      "roleName": "Auth Client Management (admin)",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "NOMIS_BATCHLOAD",
+      "roleName": "Licence Batch Load (admin)",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "LICENCE_CA",
+      "roleName": "Licence Case Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "MAINTAIN_ACCESS_ROLES_ADMIN",
+      "roleName": "Maintain Access Roles Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "MAINTAIN_OAUTH_USERS",
+      "roleName": "Maintain Auth Users (admin)",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "OMIC_ADMIN",
+      "roleName": "Omic Administrator",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "PECS_SYSTEM_ADMIN",
+      "roleName": "PECS System Administrator",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "PCMS_GLOBAL_ADMIN",
+      "roleName": "PCMS Global Admin",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    },
+    {
+      "roleCode": "ROLES_ADMIN",
+      "roleName": "role administrator",
+      "roleDescription": "Role to create roles and update role name and description",
+      "adminType": [
+        {
+          "adminTypeCode": "EXT_ADM",
+          "adminTypeName": "External Administrator"
+        }
+      ]
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 10,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "empty": false,
+    "sorted": true,
+    "unsorted": false
+  },
+  "numberOfElements": 10,
+  "first": true,
+  "empty": false
+}

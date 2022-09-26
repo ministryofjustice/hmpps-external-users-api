@@ -4,9 +4,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 
@@ -33,6 +36,40 @@ class RoleControllerTest {
 
       val noRoles = roleController.getRoles(listOf())
       verify(roleService).getRoles(listOf())
+      assertThat(noRoles.size).isEqualTo(0)
+    }
+  }
+
+  @Nested
+  inner class GetPagedRoles {
+    @Test
+    fun `get roles`() {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
+      val roles = listOf(role1, role2)
+      whenever(roleService.getRoles(isNull(), isNull(), any(), any())).thenReturn(PageImpl(roles))
+
+      val allRoles = roleController.getRoles(null, null, listOf(), Pageable.unpaged())
+      verify(roleService).getRoles(
+        null,
+        null,
+        listOf(),
+        Pageable.unpaged(),
+      )
+      assertThat(allRoles.size).isEqualTo(2)
+    }
+
+    @Test
+    fun `No Roles Found`() {
+      whenever(roleService.getRoles(isNull(), isNull(), any(), any())).thenReturn(PageImpl(listOf()))
+
+      val noRoles = roleController.getRoles(null, null, listOf(), Pageable.unpaged())
+      verify(roleService).getRoles(
+        null,
+        null,
+        listOf(),
+        Pageable.unpaged(),
+      )
       assertThat(noRoles.size).isEqualTo(0)
     }
   }

@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
 class RolesControllerIntTest : IntegrationTestBase() {
@@ -75,5 +76,154 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
     }
+  }
+
+  @Nested
+  inner class GetRolesDefaultPaging {
+
+    @Test
+    fun `Get Paged Roles endpoint not accessible without valid token`() {
+      webTestClient.get().uri("/roles/paged")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .get().uri("/roles/paged")
+        .headers(setAuthorisation("bob"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns (default size=10) roles when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/roles/paged")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles.json".readFile())
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filtered by requested roleCode`() {
+      webTestClient
+        .get().uri("/roles/paged?roleCode=GLOBAL")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles2.json".readFile())
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filter requested roleName when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/roles/paged?roleName=admin")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles3.json".readFile())
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filter requested adminType when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/roles/paged?adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("manage_roles1.json".readFile())
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filter requested multiple adminTypes when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/roles/paged?adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.content[0].roleName").isEqualTo("Add Secure Case Notes")
+        .jsonPath("$.content[0].roleCode").isEqualTo("ADD_SENSITIVE_CASE_NOTES")
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+    }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filter requested when user has role ROLE_ROLES_ADMIN`() {
+      webTestClient
+        .get().uri("/roles/paged?roleName=add&roleCode=ADD_SENSITIVE_CASE_NOTES&adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.content[0].roleName").isEqualTo("Add Secure Case Notes")
+        .jsonPath("$.content[0].roleCode").isEqualTo("ADD_SENSITIVE_CASE_NOTES")
+        .jsonPath("$.content[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$.content[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+        .jsonPath("$.content[0].adminType[2].adminTypeCode").doesNotExist()
+        .jsonPath("$.totalElements").isEqualTo(1)
+    }
+  }
+
+  @Nested
+  inner class GetRolesPaged {
+    @Test
+    fun `find page of roles with default sort`() {
+      webTestClient.get().uri("/roles/paged?page=0&size=3")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .assertPageOfMany()
+        .jsonPath("$.content[2].roleName").isEqualTo("Approve Category assessments")
+        .jsonPath("$.content[2].roleCode").isEqualTo("APPROVE_CATEGORISATION")
+    }
+
+    @Test
+    fun `find page of roles sorting by role code`() {
+      webTestClient.get().uri("/roles/paged?page=5&size=3&sort=roleCode")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .assertPageOfMany()
+        .jsonPath("$.content[1].roleName").isEqualTo("HWPV Band 5")
+        .jsonPath("$.content[1].roleCode").isEqualTo("HWPV_CASEWORK_MANAGER_BAND_5")
+    }
+
+    @Test
+    fun `find page of roles sorting by role code descending`() {
+      webTestClient.get().uri("/roles/paged?page=7&size=3&sort=roleCode,desc")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .assertPageOfMany()
+        .jsonPath("$.content[1].roleName").isEqualTo("PECS Person Escort Record Author")
+        .jsonPath("$.content[1].roleCode").isEqualTo("PECS_PER_AUTHOR")
+        .jsonPath("$.content[1].roleDescription").isEmpty
+        .jsonPath("$.content[1].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
+        .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("External Administrator")
+    }
+
+    private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
+      this.jsonPath("$.content.length()").isEqualTo(3)
+        .jsonPath("$.size").isEqualTo(3)
+        .jsonPath("$.totalElements").isEqualTo(72)
+        .jsonPath("$.totalPages").isEqualTo(24)
+        .jsonPath("$.last").isEqualTo(false)
   }
 }
