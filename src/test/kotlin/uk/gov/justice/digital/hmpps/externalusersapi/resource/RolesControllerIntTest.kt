@@ -83,7 +83,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Get Paged Roles endpoint not accessible without valid token`() {
-      webTestClient.get().uri("/api/roles/paged")
+      webTestClient.get().uri("/roles/paged")
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -91,7 +91,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns forbidden when does not have admin role `() {
       webTestClient
-        .get().uri("/api/roles/paged")
+        .get().uri("/roles/paged")
         .headers(setAuthorisation("bob"))
         .exchange()
         .expectStatus().isForbidden
@@ -100,7 +100,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns (default size=10) roles when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
-        .get().uri("/api/roles/paged")
+        .get().uri("/roles/paged")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -112,7 +112,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns roles filtered by requested roleCode`() {
       webTestClient
-        .get().uri("/api/roles/paged?roleCode=GLOBAL")
+        .get().uri("/roles/paged?roleCode=GLOBAL")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -124,7 +124,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested roleName when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
-        .get().uri("/api/roles/paged?roleName=admin")
+        .get().uri("/roles/paged?roleName=admin")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -136,7 +136,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested adminType when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
-        .get().uri("/api/roles/paged?adminTypes=DPS_LSA")
+        .get().uri("/roles/paged?adminTypes=DPS_LSA")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -148,7 +148,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested multiple adminTypes when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
-        .get().uri("/api/roles/paged?adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .get().uri("/roles/paged?adminTypes=DPS_ADM&adminTypes=DPS_LSA")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -163,7 +163,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
-        .get().uri("/api/roles/paged?roleName=add&roleCode=ADD_SENSITIVE_CASE_NOTES&adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .get().uri("/roles/paged?roleName=add&roleCode=ADD_SENSITIVE_CASE_NOTES&adminTypes=DPS_ADM&adminTypes=DPS_LSA")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -182,7 +182,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
   inner class GetRolesPaged {
     @Test
     fun `find page of roles with default sort`() {
-      webTestClient.get().uri("/api/roles/paged?page=0&size=3")
+      webTestClient.get().uri("/roles/paged?page=0&size=3")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -194,7 +194,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `find page of roles sorting by role code`() {
-      webTestClient.get().uri("/api/roles/paged?page=5&size=3&sort=roleCode")
+      webTestClient.get().uri("/roles/paged?page=5&size=3&sort=roleCode")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk
@@ -206,7 +206,7 @@ class RolesControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `find page of roles sorting by role code descending`() {
-      webTestClient.get().uri("/api/roles/paged?page=7&size=3&sort=roleCode,desc")
+      webTestClient.get().uri("/roles/paged?page=7&size=3&sort=roleCode,desc")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .exchange()
         .expectStatus().isOk

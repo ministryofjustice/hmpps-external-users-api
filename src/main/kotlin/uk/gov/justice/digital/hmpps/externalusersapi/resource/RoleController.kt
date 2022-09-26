@@ -60,7 +60,7 @@ class RoleController(
       RoleDetails(it)
     }
 
-  @GetMapping("/api/roles/paged")
+  @GetMapping("/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "get all paged Roles.",
