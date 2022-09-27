@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -10,8 +11,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleControllerTest {
   private val roleService: RoleService = mock()
@@ -71,6 +74,46 @@ class RoleControllerTest {
         Pageable.unpaged(),
       )
       assertThat(noRoles.size).isEqualTo(0)
+    }
+  }
+
+  @Nested
+  inner class RoleDetail {
+    @Test
+    fun `Get role details`() {
+      val role = Authority(
+        roleCode = "RO1",
+        roleName = "Role1",
+        roleDescription = "First Role",
+        adminType = listOf(DPS_ADM)
+      )
+
+      whenever(roleService.getRoleDetails(any())).thenReturn(role)
+
+      val roleDetails = roleController.getRoleDetails("RO1")
+      assertThat(roleDetails).isEqualTo(
+        RoleDetails(
+          roleCode = "RO1",
+          roleName = "Role1",
+          roleDescription = "First Role",
+          adminType = listOf(DPS_ADM)
+        )
+      )
+    }
+
+    @Test
+    fun `Get role details with no match throws exception`() {
+      whenever(roleService.getRoleDetails(any())).thenThrow(
+        RoleNotFoundException(
+          "find",
+          "NoRole",
+          "not found"
+        )
+      )
+
+      Assertions.assertThatThrownBy { roleController.getRoleDetails("ROLE_DOES_NOT_EXIST") }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
 }

@@ -1,0 +1,15 @@
+{
+  "roleCode": "GLOBAL_SEARCH",
+  "roleName": "Global Search",
+  "roleDescription": "Allow user to search globally for a user",
+  "adminType": [
+    {
+      "adminTypeCode": "DPS_ADM",
+      "adminTypeName": "DPS Central Administrator"
+    },
+    {
+      "adminTypeCode": "EXT_ADM",
+      "adminTypeName": "External Administrator"
+    }
+  ]
+}

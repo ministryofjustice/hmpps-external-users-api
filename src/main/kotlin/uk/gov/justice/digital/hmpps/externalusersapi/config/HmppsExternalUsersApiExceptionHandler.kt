@@ -11,8 +11,10 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import uk.gov.justice.digital.hmpps.externalusersapi.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -100,6 +102,14 @@ class HmppsExternalUsersApiExceptionHandler {
           developerMessage = e.message
         )
       )
+  }
+
+  @ExceptionHandler(RoleNotFoundException::class)
+  fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorDetail> {
+    log.debug("Role not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(ErrorDetail(NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "role"))
   }
 
   companion object {
