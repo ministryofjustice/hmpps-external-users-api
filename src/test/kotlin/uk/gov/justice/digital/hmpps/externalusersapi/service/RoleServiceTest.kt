@@ -20,13 +20,97 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
-  private val rolesService = RoleService(roleRepository, telemetryClient, authenticationFacade)
+  private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
+
+  @Nested
+  inner class CreateRoles {
+    @Test
+    fun `create role`() {
+      val createRole = CreateRole(
+        roleCode = "ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableSetOf(AdminType.EXT_ADM)
+      )
+      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+      whenever(authenticationFacade.currentUsername).thenReturn("user")
+
+      roleService.createRole(createRole)
+      val authority = Authority("ROLE", " Role Name", "Role description", mutableListOf(AdminType.EXT_ADM))
+      verify(roleRepository).findByRoleCode("ROLE")
+      verify(roleRepository).save(authority)
+      verify(telemetryClient).trackEvent(
+        "RoleCreateSuccess",
+        mapOf(
+          "username" to "user",
+          "roleCode" to "ROLE",
+          "roleName" to "Role Name",
+          "roleDescription" to "Role description",
+          "adminType" to "[EXT_ADM]"
+        ),
+        null
+      )
+    }
+
+    @Test
+    fun `create role - having adminType DPS_LSA will auto add DPS_ADM`() {
+      val createRole = CreateRole(
+        roleCode = "ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableSetOf(AdminType.DPS_LSA)
+      )
+      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+      whenever(authenticationFacade.currentUsername).thenReturn("user")
+
+      roleService.createRole(createRole)
+      val authority =
+        Authority("ROLE", " Role Name", "Role description", mutableListOf(AdminType.DPS_LSA, AdminType.DPS_ADM))
+      verify(roleRepository).findByRoleCode("ROLE")
+      verify(roleRepository).save(authority)
+      verify(telemetryClient).trackEvent(
+        "RoleCreateSuccess",
+        mapOf(
+          "username" to "user",
+          "roleCode" to "ROLE",
+          "roleName" to "Role Name",
+          "roleDescription" to "Role description",
+          "adminType" to "[DPS_LSA, DPS_ADM]"
+        ),
+        null
+      )
+    }
+
+    @Test
+    fun `Create role exists`() {
+      val createRole = CreateRole(
+        roleCode = "NEW_ROLE",
+        roleName = "Role Name",
+        roleDescription = "Role description",
+        adminType = mutableSetOf(AdminType.DPS_LSA)
+      )
+      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(
+        Authority(
+          roleCode = "NEW_ROLE",
+          roleName = "Role Name",
+          roleDescription = "Role description",
+          adminType = mutableListOf(AdminType.DPS_LSA)
+        )
+      )
+
+      Assertions.assertThatThrownBy {
+        roleService.createRole(createRole)
+      }.isInstanceOf(RoleService.RoleExistsException::class.java)
+        .hasMessage("Unable to create role: NEW_ROLE with reason: role code already exists")
+    }
+  }
 
   @Nested
   inner class GetRoles {
@@ -36,7 +120,7 @@ class RoleServiceTest {
       val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
       whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
 
-      val allRoles = rolesService.getRoles(null)
+      val allRoles = roleService.getRoles(null)
       assertThat(allRoles.size).isEqualTo(2)
     }
 
@@ -44,7 +128,7 @@ class RoleServiceTest {
     fun `get roles returns no roles`() {
       whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf())
 
-      val allRoles = rolesService.getRoles(null)
+      val allRoles = roleService.getRoles(null)
       assertThat(allRoles.size).isEqualTo(0)
     }
 
@@ -54,7 +138,7 @@ class RoleServiceTest {
       val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
       whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
 
-      rolesService.getRoles(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
+      roleService.getRoles(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
       verify(roleRepository).findAll(
         check {
           assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.DPS_ADM, AdminType.DPS_LSA))
@@ -73,7 +157,7 @@ class RoleServiceTest {
       val roles = listOf(role1, role2)
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(PageImpl(roles))
 
-      val allRoles = rolesService.getRoles(null, null, null, Pageable.unpaged())
+      val allRoles = roleService.getRoles(null, null, null, Pageable.unpaged())
       assertThat(allRoles.size).isEqualTo(2)
     }
 
@@ -81,7 +165,7 @@ class RoleServiceTest {
     fun `get all roles returns no roles`() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
 
-      val allRoles = rolesService.getRoles(null, null, null, Pageable.unpaged())
+      val allRoles = roleService.getRoles(null, null, null, Pageable.unpaged())
       assertThat(allRoles.size).isEqualTo(0)
     }
 
@@ -89,7 +173,7 @@ class RoleServiceTest {
     fun `get All Roles check filter - multiple `() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
       val unpaged = Pageable.unpaged()
-      rolesService.getRoles(
+      roleService.getRoles(
         "Admin",
         "HWPV",
         listOf(AdminType.EXT_ADM, AdminType.DPS_LSA),
@@ -108,7 +192,7 @@ class RoleServiceTest {
     fun `get All Roles check filter - roleName`() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
       val unpaged = Pageable.unpaged()
-      rolesService.getRoles(
+      roleService.getRoles(
         "Admin",
         null,
         null,
@@ -126,7 +210,7 @@ class RoleServiceTest {
     fun `get All Roles check filter - roleCode`() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
       val unpaged = Pageable.unpaged()
-      rolesService.getRoles(
+      roleService.getRoles(
         null,
         "HWPV",
         null,
@@ -144,7 +228,7 @@ class RoleServiceTest {
     fun `get All Roles check filter - adminType`() {
       whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
       val unpaged = Pageable.unpaged()
-      rolesService.getRoles(
+      roleService.getRoles(
         null,
         null,
         listOf(AdminType.DPS_ADM, AdminType.DPS_LSA),
@@ -167,7 +251,7 @@ class RoleServiceTest {
       val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role")
       whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(dbRole)
 
-      val role = rolesService.getRoleDetails("RO1")
+      val role = roleService.getRoleDetails("RO1")
       assertThat(role).isEqualTo(dbRole)
       verify(roleRepository).findByRoleCode("RO1")
     }
@@ -177,7 +261,7 @@ class RoleServiceTest {
       whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        rolesService.getRoleDetails("RO1")
+        roleService.getRoleDetails("RO1")
       }.isInstanceOf(RoleNotFoundException::class.java)
     }
   }
