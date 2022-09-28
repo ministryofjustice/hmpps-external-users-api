@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
@@ -22,7 +24,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNot
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
-  private val rolesService = RoleService(roleRepository)
+  private val telemetryClient: TelemetryClient = mock()
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val rolesService = RoleService(roleRepository, telemetryClient, authenticationFacade)
 
   @Nested
   inner class GetRoles {
