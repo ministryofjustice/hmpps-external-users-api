@@ -4,7 +4,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
-import java.util.Optional
 import java.util.UUID
 
 class UserHelper {
