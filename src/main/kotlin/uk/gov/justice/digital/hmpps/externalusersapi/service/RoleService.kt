@@ -46,6 +46,6 @@ class RoleService(
     return role
   }
 
-  class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
-    Exception("Unable to $action role: $role with reason: $errorCode")
+  class RoleNotFoundException(val action: String, val roleCode: String, val errorCode: String) :
+    Exception("Unable to $action role: $roleCode with reason: $errorCode")
 }

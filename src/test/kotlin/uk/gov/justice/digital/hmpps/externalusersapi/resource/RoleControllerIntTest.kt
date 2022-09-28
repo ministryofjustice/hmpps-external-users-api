@@ -3,11 +3,12 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
-class RolesControllerIntTest : IntegrationTestBase() {
+class RoleControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class GetRoles {
@@ -256,11 +257,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          assertThat(it).containsAllEntriesOf(
             mapOf(
-              "error" to "Not Found",
-              "error_description" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
-              "field" to "role"
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
+              "userMessage" to "Unable to find role: Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound"
             )
           )
         }
