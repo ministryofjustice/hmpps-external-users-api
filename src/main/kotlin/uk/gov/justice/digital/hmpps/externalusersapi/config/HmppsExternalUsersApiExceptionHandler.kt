@@ -4,9 +4,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -16,6 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
 
@@ -137,10 +140,10 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleAuthUserGroupRelationshipException(e: AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth user group relationship exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
+      .status(FORBIDDEN)
       .body(
         ErrorResponse(
-          status = HttpStatus.FORBIDDEN,
+          status = FORBIDDEN,
           userMessage = "Auth user group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
@@ -151,10 +154,10 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleAuthGroupRelationshipException(e: AuthGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth maintain group relationship exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
+      .status(FORBIDDEN)
       .body(
         ErrorResponse(
-          status = HttpStatus.FORBIDDEN,
+          status = FORBIDDEN,
           userMessage = "Auth maintain group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
