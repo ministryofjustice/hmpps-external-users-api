@@ -4,9 +4,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -23,10 +25,10 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
     log.debug("Forbidden (403) returned with message {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
+      .status(FORBIDDEN)
       .body(
         ErrorResponse(
-          status = HttpStatus.FORBIDDEN,
+          status = FORBIDDEN,
           userMessage = e.message,
           developerMessage = e.message
         )
@@ -112,6 +114,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Unable to find role: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(HttpMessageConversionException::class)
+  fun handleMismatchedInputException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> {
+    log.info("Validation exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Validation failure: ${e.message}",
           developerMessage = e.message
         )
       )
