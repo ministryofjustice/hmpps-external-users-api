@@ -38,7 +38,7 @@ import javax.validation.constraints.Size
 class RoleController(
   private val roleService: RoleService,
 ) {
-  @PostMapping("/api/roles")
+  @PostMapping("/roles")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Create role.",
@@ -69,7 +69,7 @@ class RoleController(
     ]
   )
   @ResponseStatus(HttpStatus.CREATED)
-  @Throws(RoleService.RoleExistsException::class, RoleService.RoleNotFoundException::class)
+  @Throws(RoleService.RoleExistsException::class)
   fun createRole(
     @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody

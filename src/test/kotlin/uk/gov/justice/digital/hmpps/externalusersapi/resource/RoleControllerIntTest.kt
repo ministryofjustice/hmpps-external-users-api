@@ -22,7 +22,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -46,7 +46,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role passes regex validation`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -70,7 +70,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role with empty role description`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -94,7 +94,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role with no role description`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -117,7 +117,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role error`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -140,7 +140,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role length too long`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -166,7 +166,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role admin type empty`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLE_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -189,7 +189,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role failed regex`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -217,7 +217,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role endpoint returns forbidden when does not have admin role `() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("bob"))
         .body(
           BodyInserters.fromValue(
@@ -241,7 +241,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Create role - role already exists`() {
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -257,7 +257,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isCreated
 
       webTestClient
-        .post().uri("/api/roles")
+        .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           BodyInserters.fromValue(
@@ -287,7 +287,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Create role endpoint not accessible without valid token`() {
-      webTestClient.post().uri("/api/roles")
+      webTestClient.post().uri("/roles")
         .exchange()
         .expectStatus().isUnauthorized
     }

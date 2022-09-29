@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
@@ -18,14 +17,13 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleServiceTest {
@@ -33,12 +31,6 @@ class RoleServiceTest {
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
-
-  init {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-    // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
-    System.setProperty("http.keepAlive", "false")
-  }
 
   @Nested
   inner class CreateRoles {
@@ -116,9 +108,9 @@ class RoleServiceTest {
         )
       )
 
-      Assertions.assertThatThrownBy {
+      assertThatThrownBy {
         roleService.createRole(createRole)
-      }.isInstanceOf(RoleService.RoleExistsException::class.java)
+      }.isInstanceOf(RoleExistsException::class.java)
         .hasMessage("Unable to create role: NEW_ROLE with reason: role code already exists")
     }
   }
@@ -274,7 +266,7 @@ class RoleServiceTest {
 
       assertThatThrownBy {
         roleService.getRoleDetails("RO1")
-        Assertions.assertThatThrownBy {
+        assertThatThrownBy {
           roleService.getRoleDetails("RO1")
         }.isInstanceOf(RoleNotFoundException::class.java)
       }
@@ -287,7 +279,7 @@ class RoleServiceTest {
         val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(AdminType.EXT_ADM))
         whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
-        Assertions.assertThatThrownBy {
+        assertThatThrownBy {
           roleService.updateRoleAdminType("RO1", roleAmendment)
         }.isInstanceOf(RoleNotFoundException::class.java)
         verifyNoInteractions(telemetryClient)
