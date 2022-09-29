@@ -11,10 +11,11 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthGroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
 
@@ -105,8 +106,8 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
 
-  @ExceptionHandler(GroupsService.GroupNotFoundException::class)
-  fun handleGroupNotFoundException(e: GroupsService.GroupNotFoundException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(GroupNotFoundException::class)
+  fun handleGroupNotFoundException(e: GroupNotFoundException): ResponseEntity<ErrorResponse> {
     log.debug("Username not found exception caught: {}", e.message)
     return ResponseEntity
       .status(NOT_FOUND)
@@ -118,8 +119,8 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-  @ExceptionHandler(MaintainUserCheck.AuthUserGroupRelationshipException::class)
-  fun handleAuthUserGroupRelationshipException(e: MaintainUserCheck.AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(AuthUserGroupRelationshipException::class)
+  fun handleAuthUserGroupRelationshipException(e: AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth user group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
@@ -132,8 +133,8 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
 
-  @ExceptionHandler(MaintainUserCheck.AuthGroupRelationshipException::class)
-  fun handleAuthGroupRelationshipException(e: MaintainUserCheck.AuthGroupRelationshipException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(AuthGroupRelationshipException::class)
+  fun handleAuthGroupRelationshipException(e: AuthGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth maintain group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
