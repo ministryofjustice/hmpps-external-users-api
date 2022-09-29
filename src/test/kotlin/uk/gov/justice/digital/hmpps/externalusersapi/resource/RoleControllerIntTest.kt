@@ -309,6 +309,16 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation())
         .exchange()
         .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied"
+            )
+          )
+        }
     }
 
     @Test
@@ -560,6 +570,59 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .json("role_details.json".readFile())
+    }
+  }
+
+  @Nested
+  inner class AmendRoleAdminType {
+
+    @Test
+    fun `Change role adminType endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE/admintype")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role adminType endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE/admintype")
+        .headers(setAuthorisation("bob"))
+        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role admin type returns error when role not found`() {
+      webTestClient
+        .put().uri("/roles/Not_A_Role/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
+            )
+          )
+        }
     }
   }
 }

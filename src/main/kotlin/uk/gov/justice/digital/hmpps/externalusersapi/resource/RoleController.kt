@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -206,6 +207,53 @@ class RoleController(
     val returnedRole: Authority = roleService.getRoleDetails(role)
     return RoleDetails(returnedRole)
   }
+
+  @PutMapping("/roles/{roleCode}/admintype")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend role admin type.",
+    description = "Amend role admin type."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendRoleAdminType(
+    @Parameter(description = "The role code of the role.", required = true)
+    @PathVariable
+    roleCode: String,
+    @Parameter(
+      description = "Details of the role to be updated.",
+      required = true
+    )
+    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
+  ) {
+    roleService.updateRoleAdminType(roleCode, roleAmendment)
+  }
 }
 
 @Schema(description = "Role Details")
@@ -265,6 +313,13 @@ data class CreateRole(
     description = "adminType, can be used if multiple admin types required",
     example = "[\"EXT_ADM\", \"DPS_ADM\"]"
   )
+  @field:NotEmpty(message = "Admin type cannot be empty")
+  val adminType: Set<AdminType>
+)
+
+@Schema(description = "Role Administration Types")
+data class RoleAdminTypeAmendment(
+  @Schema(required = true, description = "Role Administration Types", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>
 )

@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
 
 @Service
 @Transactional(readOnly = true)
@@ -86,4 +87,18 @@ class RoleService(
 
   class RoleExistsException(val role: String, val errorCode: String) :
     Exception("Unable to create role: $role with reason: $errorCode")
+  @Transactional
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+    val immutableAdminTypesInDb = roleToUpdate.adminType.filter { it != AdminType.DPS_LSA }
+
+    roleToUpdate.adminType = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
+    roleRepository.save(roleToUpdate)
+    telemetryClient.trackEvent(
+      "RoleAdminTypeUpdateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
+      null
+    )
+  }
 }
