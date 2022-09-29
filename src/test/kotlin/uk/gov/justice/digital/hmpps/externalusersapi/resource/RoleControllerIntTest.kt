@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters
@@ -340,6 +341,40 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
             )
           )
+        }
+    }
+
+    @Test
+    fun `Change role adminType returns bad request for no admin type`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("adminType" to listOf<String>())))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [Admin type cannot be empty]")
+        }
+    }
+
+    @Test
+    fun `Change role admin type returns bad request when adminType does not exist`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/admintype")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DOES_NOT_EXIST"))))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("JSON parse error")
         }
     }
   }
