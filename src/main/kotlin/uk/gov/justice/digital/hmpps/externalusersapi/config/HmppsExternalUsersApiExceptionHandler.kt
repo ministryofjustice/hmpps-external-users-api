@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
 
@@ -71,6 +72,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = INTERNAL_SERVER_ERROR,
           userMessage = "Unexpected error: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(RoleService.RoleExistsException::class)
+  fun handleRoleExistsException(e: RoleService.RoleExistsException): ResponseEntity<ErrorResponse?>? {
+    log.error("Unable to add role", e)
+    return ResponseEntity
+      .status(CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = "Unable to add role: ${e.message}",
           developerMessage = e.message
         )
       )
