@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -51,7 +51,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       ),
@@ -61,7 +61,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       )
@@ -95,7 +95,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       )
@@ -113,7 +113,7 @@ class RoleController(
   @GetMapping("/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
-    summary = "get all paged Roles.",
+    summary = "Get all paged Roles.",
     description = "getAllPagedRoles"
   )
   @ApiResponses(
@@ -128,7 +128,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       ),
@@ -138,7 +138,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       )
@@ -182,7 +182,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       ),
@@ -192,7 +192,7 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorDetail::class)
+            schema = Schema(implementation = ErrorResponse::class)
           )
         ]
       )

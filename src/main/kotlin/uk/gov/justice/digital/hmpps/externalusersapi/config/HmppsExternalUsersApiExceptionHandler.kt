@@ -11,7 +11,6 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ErrorDetail
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
@@ -64,7 +63,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(java.lang.Exception::class)
-  fun handleException(e: java.lang.Exception): ResponseEntity<ErrorResponse?>? {
+  fun handleException(e: java.lang.Exception): ResponseEntity<ErrorResponse> {
     log.error("Unexpected exception", e)
     return ResponseEntity
       .status(INTERNAL_SERVER_ERROR)
@@ -92,7 +91,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(EmailDomainAdditionBarredException::class)
-  fun handleEmailDomainAdditionBarredException(e: EmailDomainAdditionBarredException): ResponseEntity<ErrorResponse?>? {
+  fun handleEmailDomainAdditionBarredException(e: EmailDomainAdditionBarredException): ResponseEntity<ErrorResponse> {
     log.error("Unable to add email domain", e)
     return ResponseEntity
       .status(CONFLICT)
@@ -106,7 +105,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(EmailDomainNotFoundException::class)
-  fun handleEmailDomainNotFoundException(e: EmailDomainNotFoundException): ResponseEntity<ErrorResponse?>? {
+  fun handleEmailDomainNotFoundException(e: EmailDomainNotFoundException): ResponseEntity<ErrorResponse> {
     log.error("Unable to find email domain", e)
     return ResponseEntity
       .status(NOT_FOUND)
@@ -120,11 +119,17 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(RoleNotFoundException::class)
-  fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorDetail> {
+  fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorResponse> {
     log.debug("Role not found exception caught: {}", e.message)
     return ResponseEntity
       .status(NOT_FOUND)
-      .body(ErrorDetail(NOT_FOUND.reasonPhrase, e.message ?: "Error message not set", "role"))
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Unable to find role: ${e.message}",
+          developerMessage = e.message
+        )
+      )
   }
 
   companion object {

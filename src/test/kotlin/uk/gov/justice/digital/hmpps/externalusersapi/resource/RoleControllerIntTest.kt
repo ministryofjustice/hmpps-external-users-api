@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 
-class RolesControllerIntTest : IntegrationTestBase() {
+class RoleControllerIntTest : IntegrationTestBase() {
 
   @Autowired
   private lateinit var roleRepository: RoleRepository
@@ -540,11 +540,11 @@ class RolesControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          assertThat(it).containsAllEntriesOf(
             mapOf(
-              "error" to "Not Found",
-              "error_description" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
-              "field" to "role"
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
+              "userMessage" to "Unable to find role: Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound"
             )
           )
         }

@@ -3,9 +3,10 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
@@ -39,7 +40,7 @@ class RoleServiceTest {
         roleDescription = "Role description",
         adminType = mutableSetOf(AdminType.EXT_ADM)
       )
-      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
       whenever(authenticationFacade.currentUsername).thenReturn("user")
 
       roleService.createRole(createRole)
@@ -67,7 +68,7 @@ class RoleServiceTest {
         roleDescription = "Role description",
         adminType = mutableSetOf(AdminType.DPS_LSA)
       )
-      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
       whenever(authenticationFacade.currentUsername).thenReturn("user")
 
       roleService.createRole(createRole)
@@ -96,7 +97,7 @@ class RoleServiceTest {
         roleDescription = "Role description",
         adminType = mutableSetOf(AdminType.DPS_LSA)
       )
-      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(
         Authority(
           roleCode = "NEW_ROLE",
           roleName = "Role Name",
@@ -249,7 +250,7 @@ class RoleServiceTest {
     @Test
     fun `get role details`() {
       val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role")
-      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(dbRole)
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       val role = roleService.getRoleDetails("RO1")
       assertThat(role).isEqualTo(dbRole)
@@ -258,9 +259,9 @@ class RoleServiceTest {
 
     @Test
     fun `get role details when no role matches`() {
-      whenever(roleRepository.findByRoleCode(ArgumentMatchers.anyString())).thenReturn(null)
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
-      Assertions.assertThatThrownBy {
+      assertThatThrownBy {
         roleService.getRoleDetails("RO1")
       }.isInstanceOf(RoleNotFoundException::class.java)
     }
