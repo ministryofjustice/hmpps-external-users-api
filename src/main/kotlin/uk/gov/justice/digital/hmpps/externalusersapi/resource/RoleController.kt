@@ -248,7 +248,7 @@ class RoleController(
     roleAmendment: RoleNameAmendment
   ) = roleService.updateRoleName(role, roleAmendment)
 
-  @PutMapping("/api/roles/{role}/description")
+  @PutMapping("/roles/{role}/description")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role description.",

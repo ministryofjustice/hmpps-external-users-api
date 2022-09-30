@@ -717,7 +717,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Change role description endpoint not accessible without valid token`() {
-      webTestClient.put().uri("/api/roles/ANY_ROLE/description")
+      webTestClient.put().uri("/roles/ANY_ROLE/description")
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -725,7 +725,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description endpoint returns forbidden when does not have admin role `() {
       webTestClient
-        .put().uri("/api/roles/ANY_ROLE/description")
+        .put().uri("/roles/ANY_ROLE/description")
         .headers(setAuthorisation("bob"))
         .body(fromValue(mapOf("roleDescription" to "new role description")))
         .exchange()
@@ -746,7 +746,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description returns error when role not found`() {
       webTestClient
-        .put().uri("/api/roles/Not_A_Role/description")
+        .put().uri("/roles/Not_A_Role/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to "new role description")))
         .exchange()
@@ -767,7 +767,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description returns error when length too long`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           fromValue(
@@ -790,7 +790,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description failed regex`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           fromValue(
@@ -813,7 +813,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description success`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to "new role description")))
         .exchange()
@@ -823,7 +823,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description returns success for empty roleDescription`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to "")))
         .exchange()
@@ -833,7 +833,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description returns success for no role description`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to null)))
         .exchange()
@@ -843,7 +843,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change role description passes regex validation`() {
       webTestClient
-        .put().uri("/api/roles/OAUTH_ADMIN/description")
+        .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
           fromValue(
