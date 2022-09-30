@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.isNull
@@ -153,6 +153,26 @@ class RoleControllerTest {
   }
 
   @Nested
+  inner class AmendRoleName {
+    @Test
+    fun `amend role name`() {
+      val roleAmendment = RoleNameAmendment("role")
+      roleController.amendRoleName("role1", roleAmendment)
+      verify(roleService).updateRoleName("role1", roleAmendment)
+    }
+
+    @Test
+    fun `amend role name with no match throws exception`() {
+      whenever(roleService.updateRoleName(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      val roleAmendment = RoleNameAmendment("role")
+
+      Assertions.assertThatThrownBy { roleController.amendRoleName("NoRole", roleAmendment) }
+        .isInstanceOf(RoleNotFoundException::class.java)
+        .withFailMessage("Unable to find role: NoRole with reason: not found")
+    }
+  }
+
+  @Nested
   inner class AmendRoleAdminType {
     @Test
     fun `amend role admin type`() {
@@ -163,7 +183,7 @@ class RoleControllerTest {
 
     @Test
     fun `amend role admin type with no match throws exception`() {
-      whenever(roleService.updateRoleAdminType(ArgumentMatchers.anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
+      whenever(roleService.updateRoleAdminType(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
       val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(DPS_ADM))
 
       Assertions.assertThatThrownBy { roleController.amendRoleAdminType("NoRole", roleAmendment) }

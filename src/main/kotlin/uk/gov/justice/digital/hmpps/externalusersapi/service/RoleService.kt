@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
 
 @Service
 @Transactional(readOnly = true)
@@ -80,13 +81,21 @@ class RoleService(
     return role
   }
 
-  private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
+  @Transactional
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
-  class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
-    Exception("Unable to $action role: $role with reason: $errorCode")
+    roleToUpdate.roleName = roleAmendment.roleName
+    roleRepository.save(roleToUpdate)
 
-  class RoleExistsException(val role: String, val errorCode: String) :
-    Exception("Unable to create role: $role with reason: $errorCode")
+    telemetryClient.trackEvent(
+      "RoleNameUpdateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
+      null
+    )
+  }
+
   @Transactional
   @Throws(RoleNotFoundException::class)
   fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
@@ -101,4 +110,12 @@ class RoleService(
       null
     )
   }
+
+  private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
+
+  class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
+    Exception("Unable to $action role: $role with reason: $errorCode")
+
+  class RoleExistsException(val role: String, val errorCode: String) :
+    Exception("Unable to create role: $role with reason: $errorCode")
 }

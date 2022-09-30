@@ -575,6 +575,144 @@ class RoleControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class AmendRoleName {
+
+    @Test
+    fun `Change role name endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role name endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE")
+        .headers(setAuthorisation("bob"))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role name returns error when role not found`() {
+      webTestClient
+        .put().uri("/roles/Not_A_Role")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role name returns error when length too short`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "tim")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [roleName],100,4]; default message [size must be between 4 and 100]]")
+        }
+    }
+
+    @Test
+    fun `Change role name returns error when length too long`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleName" to "12345".repeat(20) + "y",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [roleName],100,4]; default message [size must be between 4 and 100]]")
+        }
+    }
+
+    @Test
+    fun `Change role name failed regex`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleName" to "a\$here",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
+        }
+    }
+
+    @Test
+    fun `Change role name success`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role name passes regex validation`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "roleName" to "good's & Role(),.-"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
   inner class AmendRoleAdminType {
 
     @Test
