@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
@@ -300,6 +301,37 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleNameUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleName" to "UpdatedName"),
+        null
+      )
+    }
+  }
+
+  @Nested
+  inner class AmendRoleDescription {
+    @Test
+    fun `update role description when no role matches`() {
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
+
+      assertThatThrownBy {
+        roleService.updateRoleDescription("RO1", roleAmendment)
+      }.isInstanceOf(RoleNotFoundException::class.java)
+      verifyNoInteractions(telemetryClient)
+    }
+
+    @Test
+    fun `update role description successfully`() {
+      val dbRole = Authority(roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc")
+      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      whenever(authenticationFacade.currentUsername).thenReturn("user")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
+
+      roleService.updateRoleDescription("RO1", roleAmendment)
+      verify(roleRepository).findByRoleCode("RO1")
+      verify(roleRepository).save(dbRole)
+      verify(telemetryClient).trackEvent(
+        "RoleDescriptionUpdateSuccess",
+        mapOf("username" to "user", "roleCode" to "RO1", "newRoleDescription" to "UpdatedDescription"),
         null
       )
     }

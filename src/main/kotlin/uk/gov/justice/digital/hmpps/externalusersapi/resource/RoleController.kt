@@ -74,9 +74,7 @@ class RoleController(
     @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody
     createRole: CreateRole
-  ) {
-    roleService.createRole(createRole)
-  }
+  ) = roleService.createRole(createRole)
 
   @GetMapping("/roles")
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
@@ -203,10 +201,7 @@ class RoleController(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
     role: String
-  ): RoleDetails {
-    val returnedRole: Authority = roleService.getRoleDetails(role)
-    return RoleDetails(returnedRole)
-  }
+  ): RoleDetails = RoleDetails(roleService.getRoleDetails(role))
 
   @PutMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -251,9 +246,52 @@ class RoleController(
       required = true
     ) @Valid @RequestBody
     roleAmendment: RoleNameAmendment
-  ) {
-    roleService.updateRoleName(role, roleAmendment)
-  }
+  ) = roleService.updateRoleName(role, roleAmendment)
+
+  @PutMapping("/api/roles/{role}/description")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend role description.",
+    description = "Amend role description."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendRoleDescription(
+    @Parameter(description = "The role code of the role.", required = true)
+    @PathVariable
+    role: String,
+    @Parameter(
+      description = "Details of the role to be updated.",
+      required = true
+    ) @Valid @RequestBody
+    roleAmendment: RoleDescriptionAmendment
+  ) = roleService.updateRoleDescription(role, roleAmendment)
 
   @PutMapping("/roles/{roleCode}/admintype")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -298,9 +336,7 @@ class RoleController(
       required = true
     )
     @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
-  ) {
-    roleService.updateRoleAdminType(roleCode, roleAmendment)
-  }
+  ) = roleService.updateRoleAdminType(roleCode, roleAmendment)
 }
 
 @Schema(description = "Role Details")
@@ -371,6 +407,14 @@ data class RoleNameAmendment(
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val roleName: String
+)
+
+@Schema(description = "Role Description")
+data class RoleDescriptionAmendment(
+  @Schema(required = true, description = "Role Description", example = "Maintaining admin users")
+  @field:Size(max = 1024)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
+  val roleDescription: String?
 )
 
 @Schema(description = "Role Administration Types")

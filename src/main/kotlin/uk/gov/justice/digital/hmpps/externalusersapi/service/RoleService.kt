@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
 
 @Service
@@ -92,6 +93,21 @@ class RoleService(
     telemetryClient.trackEvent(
       "RoleNameUpdateSuccess",
       mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
+      null
+    )
+  }
+
+  @Transactional
+  @Throws(RoleNotFoundException::class)
+  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+
+    roleToUpdate.roleDescription = roleAmendment.roleDescription
+    roleRepository.save(roleToUpdate)
+
+    telemetryClient.trackEvent(
+      "RoleDescriptionUpdateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
       null
     )
   }
