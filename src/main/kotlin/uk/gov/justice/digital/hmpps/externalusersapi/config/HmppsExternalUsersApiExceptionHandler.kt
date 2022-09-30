@@ -13,8 +13,11 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthGroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
@@ -116,6 +119,47 @@ class HmppsExternalUsersApiExceptionHandler {
           status = NOT_FOUND,
           userMessage = "Unable to find email domain: ${e.message}",
           developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(GroupNotFoundException::class)
+  fun handleGroupNotFoundException(e: GroupNotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Username not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Group Not found: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+  @ExceptionHandler(AuthUserGroupRelationshipException::class)
+  fun handleAuthUserGroupRelationshipException(e: AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("Auth user group relationship exception caught: {}", e.message)
+    return ResponseEntity
+      .status(FORBIDDEN)
+      .body(
+        ErrorResponse(
+          status = FORBIDDEN,
+          userMessage = "Auth user group relationship exception: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
+  @ExceptionHandler(AuthGroupRelationshipException::class)
+  fun handleAuthGroupRelationshipException(e: AuthGroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("Auth maintain group relationship exception caught: {}", e.message)
+    return ResponseEntity
+      .status(FORBIDDEN)
+      .body(
+        ErrorResponse(
+          status = FORBIDDEN,
+          userMessage = "Auth maintain group relationship exception: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
         )
       )
   }
