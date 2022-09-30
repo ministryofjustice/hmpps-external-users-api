@@ -208,6 +208,53 @@ class RoleController(
     return RoleDetails(returnedRole)
   }
 
+  @PutMapping("/roles/{role}")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Amend role name.",
+    description = "AmendRoleName"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendRoleName(
+    @Parameter(description = "The role code of the role.", required = true)
+    @PathVariable
+    role: String,
+    @Parameter(
+      description = "Details of the role to be updated.",
+      required = true
+    ) @Valid @RequestBody
+    roleAmendment: RoleNameAmendment
+  ) {
+    roleService.updateRoleName(role, roleAmendment)
+  }
+
   @PutMapping("/roles/{roleCode}/admintype")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
@@ -315,6 +362,15 @@ data class CreateRole(
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>
+)
+
+@Schema(description = "Role Name")
+data class RoleNameAmendment(
+  @Schema(required = true, description = "Role Name", example = "Central admin")
+  @field:NotBlank(message = "Role name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val roleName: String
 )
 
 @Schema(description = "Role Administration Types")
