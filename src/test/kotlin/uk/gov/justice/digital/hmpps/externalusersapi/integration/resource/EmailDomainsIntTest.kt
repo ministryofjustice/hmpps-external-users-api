@@ -7,6 +7,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
@@ -125,6 +126,22 @@ class EmailDomainsIntTest : IntegrationTestBase() {
       )
       .exchange()
       .expectStatus().is4xxClientError
+  }
+
+  @Test
+  fun `should respond with bad request on attempt to retrieve email domain with invalid identifier`() {
+    val invalidId = 3
+    webTestClient
+      .get().uri("/email-domains/$invalidId")
+      .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
+      .exchange()
+      .expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("$").value<Map<String, Any>> {
+        assertThat(it["status"] as Int).isEqualTo(HttpStatus.BAD_REQUEST.value())
+        assertThat(it["userMessage"] as String).startsWith("Validation failure: Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'")
+        assertThat(it["developerMessage"] as String).startsWith("Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'")
+      }
   }
 
   @Test
