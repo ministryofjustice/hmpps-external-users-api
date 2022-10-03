@@ -7,18 +7,18 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserReposito
 @Service
 class MaintainUserCheck(
   private val userRepository: UserRepository,
-  private val authenticationFacade: AuthenticationFacade
 ) {
   @Throws(AuthGroupRelationshipException::class)
   fun ensureMaintainerGroupRelationship(
-    groupCode: String
+    userName: String?,
+    groupCode: String,
   ) {
     // if they have maintain privileges then all good
     if (AuthenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
     val maintainer =
-      userRepository.findByUsername(authenticationFacade.currentUsername).orElseThrow()
+      userRepository.findByUsername(userName).orElseThrow()
     // otherwise group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
       // no group in common, so disallow

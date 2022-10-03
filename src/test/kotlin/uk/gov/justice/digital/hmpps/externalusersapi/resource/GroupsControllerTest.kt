@@ -10,9 +10,6 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
@@ -22,9 +19,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
-  private val authentication: Authentication = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
-  private val groupsController = GroupsController(groupsService, authenticationFacade)
+  private val groupsController = GroupsController(groupsService)
 
   @Test
   fun `get group details`() {
@@ -72,9 +67,7 @@ class GroupsControllerTest {
   @Test
   fun `amend child group name`() {
     val groupAmendment = GroupAmendment("groupie")
-    whenever(authenticationFacade.currentUsername).thenReturn("user")
-    SecurityContextHolder.getContext().authentication = authentication
     groupsController.amendChildGroupName("group1", groupAmendment)
-    verify(groupsService).updateChildGroup("user", "group1", groupAmendment)
+    verify(groupsService).updateChildGroup("group1", groupAmendment)
   }
 }

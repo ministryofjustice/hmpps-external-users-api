@@ -147,7 +147,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Change group name endpoint returns forbidden when dose not have admin role `() {
+    fun `Change group name endpoint returns forbidden when does not have admin role`() {
       webTestClient
         .put().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("bob"))

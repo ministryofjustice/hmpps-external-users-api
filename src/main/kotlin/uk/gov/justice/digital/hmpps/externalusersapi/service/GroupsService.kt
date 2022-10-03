@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
@@ -17,6 +18,7 @@ class GroupsService(
   private val maintainUserCheck: MaintainUserCheck,
   private val childGroupRepository: ChildGroupRepository,
   private val telemetryClient: TelemetryClient,
+  private val authenticationFacade: AuthenticationFacade,
 ) {
 
   @Throws(GroupNotFoundException::class)
@@ -26,13 +28,13 @@ class GroupsService(
 
     Hibernate.initialize(requestedGroup.assignableRoles)
     Hibernate.initialize(requestedGroup.children)
-    maintainUserCheck.ensureMaintainerGroupRelationship(groupCode)
+    maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.currentUsername, groupCode)
     return requestedGroup
   }
 
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
-  fun updateChildGroup(username: String?, groupCode: String, groupAmendment: GroupAmendment) {
+  fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) {
     val groupToUpdate = childGroupRepository.findByGroupCode(groupCode) ?: throw
     GroupNotFoundException("maintain", groupCode, "notfound")
 
@@ -41,7 +43,7 @@ class GroupsService(
 
     telemetryClient.trackEvent(
       "GroupChildUpdateSuccess",
-      mapOf("username" to username, "childGroupCode" to groupCode, "newChildGroupName" to groupAmendment.groupName),
+      mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode, "newChildGroupName" to groupAmendment.groupName),
       null
     )
   }

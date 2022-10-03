@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
@@ -26,8 +25,7 @@ import javax.validation.constraints.Size
 @Validated
 @RestController
 class GroupsController(
-  private val groupsService: GroupsService,
-  private val authenticationFacade: AuthenticationFacade
+  private val groupsService: GroupsService
 ) {
 
   @GetMapping("/groups/{group}")
@@ -118,7 +116,7 @@ class GroupsController(
     groupAmendment: GroupAmendment
 
   ) {
-    groupsService.updateChildGroup(authenticationFacade.currentUsername, group, groupAmendment)
+    groupsService.updateChildGroup(group, groupAmendment)
   }
 }
 @Schema(description = "Group Name")
