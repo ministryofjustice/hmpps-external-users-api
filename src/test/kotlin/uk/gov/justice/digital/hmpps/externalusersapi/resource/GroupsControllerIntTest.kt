@@ -5,8 +5,8 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.FORBIDDEN
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
