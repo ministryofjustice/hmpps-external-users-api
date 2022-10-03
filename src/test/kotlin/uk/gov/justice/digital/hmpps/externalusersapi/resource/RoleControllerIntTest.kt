@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 
@@ -26,7 +26,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "RC",
               "roleName" to " New role",
@@ -50,7 +50,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "RC",
               "roleName" to "good's & Role(),.-",
@@ -74,7 +74,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "RC",
               "roleName" to " New role",
@@ -98,7 +98,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "RC",
               "roleName" to " New role",
@@ -121,7 +121,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "",
               "roleName" to "",
@@ -144,7 +144,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "x".repeat(30) + "x",
               "roleName" to "x".repeat(128) + "y",
@@ -170,7 +170,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLE_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "xxxx", "roleName" to "123456", "adminType" to listOf<String>()
             )
@@ -193,7 +193,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "a-b",
               "roleName" to "a\$here",
@@ -221,7 +221,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("bob"))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
@@ -245,7 +245,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
@@ -261,7 +261,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .post().uri("/roles")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
@@ -589,7 +589,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/ANY_ROLE")
         .headers(setAuthorisation("bob"))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isForbidden
         .expectBody()
@@ -609,7 +609,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/Not_A_Role")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(APPLICATION_JSON)
@@ -630,7 +630,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "tim")))
+        .body(fromValue(mapOf("roleName" to "tim")))
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
@@ -647,7 +647,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleName" to "12345".repeat(20) + "y",
             )
@@ -669,7 +669,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleName" to "a\$here",
             )
@@ -690,7 +690,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("roleName" to "new role name")))
+        .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -701,9 +701,154 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .put().uri("/roles/OAUTH_ADMIN")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(
-          BodyInserters.fromValue(
+          fromValue(
             mapOf(
               "roleName" to "good's & Role(),.-"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+  }
+
+  @Nested
+  inner class AmendRoleDescription {
+
+    @Test
+    fun `Change role description endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE/description")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Change role description endpoint returns forbidden when does not have admin role `() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE/description")
+        .headers(setAuthorisation("bob"))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role description returns error when role not found`() {
+      webTestClient
+        .put().uri("/roles/Not_A_Role/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Change role description returns error when length too long`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleDescription" to "12345".repeat(205) + "y",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [roleDescription],1024,0]; default message [size must be between 0 and 1024]]")
+        }
+    }
+
+    @Test
+    fun `Change role description failed regex`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleDescription" to "a\$here",
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+          assertThat(it["developerMessage"] as String).contains("default message [roleDescription],[Ljavax.validation.constraints.Pattern")
+        }
+    }
+
+    @Test
+    fun `Change role description success`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description returns success for empty roleDescription`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to "")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description returns success for no role description`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to null)))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change role description passes regex validation`() {
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo"
             )
           )
         )
@@ -727,7 +872,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/ANY_ROLE/admintype")
         .headers(setAuthorisation("bob"))
-        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
         .exchange()
         .expectStatus().isForbidden
         .expectHeader().contentType(APPLICATION_JSON)
@@ -748,7 +893,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/Not_A_Role/admintype")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
+        .body(fromValue(mapOf("adminType" to listOf("DPS_ADM"))))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(APPLICATION_JSON)
@@ -769,7 +914,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("adminType" to listOf<String>())))
+        .body(fromValue(mapOf("adminType" to listOf<String>())))
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(APPLICATION_JSON)
@@ -786,7 +931,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .put().uri("/roles/OAUTH_ADMIN/admintype")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
-        .body(BodyInserters.fromValue(mapOf("adminType" to listOf("DOES_NOT_EXIST"))))
+        .body(fromValue(mapOf("adminType" to listOf("DOES_NOT_EXIST"))))
         .exchange()
         .expectStatus().isBadRequest
         .expectHeader().contentType(APPLICATION_JSON)
