@@ -8,9 +8,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
@@ -65,8 +64,10 @@ class GroupsControllerTest {
       .withFailMessage("Unable to find group: NotGroup with reason: not found")
   }
 
-  companion object {
-    private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
-    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+  @Test
+  fun `amend child group name`() {
+    val groupAmendment = GroupAmendment("groupie")
+    groupsController.amendChildGroupName("group1", groupAmendment)
+    verify(groupsService).updateChildGroup("group1", groupAmendment)
   }
 }

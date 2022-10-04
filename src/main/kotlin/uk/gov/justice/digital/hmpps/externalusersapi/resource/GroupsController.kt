@@ -10,6 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
@@ -68,7 +70,61 @@ class GroupsController(
     val returnedGroup: Group = groupsService.getGroupDetail(group)
     return GroupDetails(returnedGroup)
   }
+
+  @PutMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Amend child group name.",
+    description = "Amend a Child Group Name"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendChildGroupName(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+    @Parameter(
+      description = "Details of the child group to be updated.",
+      required = true
+    ) @RequestBody
+    groupAmendment: GroupAmendment
+
+  ) {
+    groupsService.updateChildGroup(group, groupAmendment)
+  }
 }
+@Schema(description = "Group Name")
+data class GroupAmendment(
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  @field:NotBlank(message = "parent group code must be supplied")
+  val groupName: String
+)
 
 @Schema(description = "User Role")
 data class AuthUserAssignableRole(
