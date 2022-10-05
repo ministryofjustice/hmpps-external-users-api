@@ -4,8 +4,10 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -16,6 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
@@ -69,5 +72,28 @@ class GroupsControllerTest {
     val groupAmendment = GroupAmendment("groupie")
     groupsController.amendChildGroupName("group1", groupAmendment)
     verify(groupsService).updateChildGroup("group1", groupAmendment)
+  }
+
+  @Nested
+  inner class `create group` {
+    @Test
+    fun create() {
+      val childGroup = CreateGroup("CG", "Group")
+      groupsController.createGroup(childGroup)
+      verify(groupsService).createGroup(childGroup)
+    }
+
+    @Test
+    fun `create - group already exist exception`() {
+      doThrow(GroupExistsException("_code", "group code already exists")).whenever(groupsService)
+        .createGroup(
+          any()
+        )
+
+      @Suppress("ClassName") val Group = CreateGroup("_code", " group")
+      assertThatThrownBy { groupsController.createGroup(Group) }
+        .isInstanceOf(GroupExistsException::class.java)
+        .withFailMessage("Unable to maintain group: code with reason: group code already exists")
+    }
   }
 }

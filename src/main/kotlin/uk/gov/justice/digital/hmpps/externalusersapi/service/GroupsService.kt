@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 
@@ -44,6 +45,24 @@ class GroupsService(
     telemetryClient.trackEvent(
       "GroupChildUpdateSuccess",
       mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode, "newChildGroupName" to groupAmendment.groupName),
+      null
+    )
+  }
+
+  @Transactional
+  @Throws(GroupExistsException::class)
+  fun createGroup(createGroup: CreateGroup) {
+    val groupCode = createGroup.groupCode.trim().uppercase()
+    val groupFromDb = groupRepository.findByGroupCode(groupCode)
+    groupFromDb?.let { throw GroupExistsException(groupCode, "group code already exists") }
+
+    val groupName = createGroup.groupName.trim()
+    val group = Group(groupCode = groupCode, groupName = groupName)
+    groupRepository.save(group)
+
+    telemetryClient.trackEvent(
+      "GroupCreateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
       null
     )
   }
