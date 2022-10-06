@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
 
 class GroupsServiceTest {
   private val groupRepository: GroupRepository = mock()
@@ -68,6 +67,23 @@ class GroupsServiceTest {
     verify(telemetryClient).trackEvent(
       "GroupChildUpdateSuccess",
       mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
+      null
+    )
+  }
+
+  @Test
+  fun `update group details`() {
+    val dbGroup = Group("bob", "disc")
+    val groupAmendment = GroupAmendment("Joe")
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+    groupsService.updateGroup("bob", groupAmendment)
+
+    verify(groupRepository).findByGroupCode("bob")
+    verify(groupRepository).save(dbGroup)
+    verify(telemetryClient).trackEvent(
+      "GroupUpdateSuccess",
+      mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
       null
     )
   }

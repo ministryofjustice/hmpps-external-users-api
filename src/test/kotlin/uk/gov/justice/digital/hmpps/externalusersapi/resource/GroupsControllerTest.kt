@@ -17,8 +17,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
@@ -57,13 +58,13 @@ class GroupsControllerTest {
   @Test
   fun `Group Not Found`() {
 
-    doThrow(GroupsService.GroupNotFoundException("find", "NotGroup", "not found")).whenever(groupsService)
+    doThrow(GroupNotFoundException("find", "NotGroup", "not found")).whenever(groupsService)
       .getGroupDetail(
         anyString()
       )
 
     assertThatThrownBy { groupsController.getGroupDetail("NotGroup") }
-      .isInstanceOf(GroupsService.GroupNotFoundException::class.java)
+      .isInstanceOf(GroupNotFoundException::class.java)
       .withFailMessage("Unable to find group: NotGroup with reason: not found")
   }
 
@@ -72,6 +73,13 @@ class GroupsControllerTest {
     val groupAmendment = GroupAmendment("groupie")
     groupsController.amendChildGroupName("group1", groupAmendment)
     verify(groupsService).updateChildGroup("group1", groupAmendment)
+  }
+
+  @Test
+  fun `amend group name`() {
+    val groupAmendment = GroupAmendment("groupie")
+    groupsController.amendGroupName("group1", groupAmendment)
+    verify(groupsService).updateGroup("group1", groupAmendment)
   }
 
   @Nested

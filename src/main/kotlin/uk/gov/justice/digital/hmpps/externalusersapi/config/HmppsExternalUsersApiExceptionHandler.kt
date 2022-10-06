@@ -18,8 +18,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
