@@ -67,4 +67,21 @@ class GroupsServiceTest {
       null
     )
   }
+
+  @Test
+  fun `update group details`() {
+    val dbGroup = Group("bob", "disc")
+    val groupAmendment = GroupAmendment("Joe")
+    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+    groupsService.updateGroup("bob", groupAmendment)
+
+    verify(groupRepository).findByGroupCode("bob")
+    verify(groupRepository).save(dbGroup)
+    verify(telemetryClient).trackEvent(
+      "GroupUpdateSuccess",
+      mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
+      null
+    )
+  }
 }

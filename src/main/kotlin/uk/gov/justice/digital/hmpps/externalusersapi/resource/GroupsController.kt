@@ -71,6 +71,54 @@ class GroupsController(
     return GroupDetails(returnedGroup)
   }
 
+  @PutMapping("/groups/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Amend group name.",
+    description = "AmendGroupName"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun amendGroupName(
+    @Parameter(description = "The group code of the group.", required = true)
+    @PathVariable
+    group: String,
+    @Parameter(
+      description = "Details of the group to be updated.",
+      required = true
+    ) @RequestBody
+    groupAmendment: GroupAmendment
+
+  ) {
+    groupsService.updateGroup(group, groupAmendment)
+  }
+
   @PutMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(

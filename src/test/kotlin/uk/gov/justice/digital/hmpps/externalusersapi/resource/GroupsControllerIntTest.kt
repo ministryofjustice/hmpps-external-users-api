@@ -135,6 +135,59 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class ChangeGroupName {
+    @Test
+    fun `Change group name`() {
+      webTestClient
+        .put().uri("/groups/SITE_9_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Change group name endpoint returns forbidden when dose not have admin role `() {
+      webTestClient
+        .put().uri("/groups/SITE_9_GROUP_1")
+        .headers(setAuthorisation("bob"))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
+          assertThat(it["userMessage"] as String).startsWith("Access is denied")
+          assertThat(it["developerMessage"] as String).startsWith("Access is denied")
+        }
+    }
+
+    @Test
+    fun `Change group name returns error when group not found`() {
+      webTestClient
+        .put().uri("/groups/Not_A_Group")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
+          assertThat(it["userMessage"] as String).startsWith("Group Not found: Unable to maintain group: Not_A_Group with reason: notfound")
+          assertThat(it["developerMessage"] as String).startsWith("Unable to maintain group: Not_A_Group with reason: notfound")
+        }
+    }
+
+    @Test
+    fun `Group details endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/groups/SITE_9_GROUP_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
   inner class ChangeChildGroupName {
     @Test
     fun `Change group name`() {

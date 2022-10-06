@@ -33,6 +33,22 @@ class GroupsService(
   }
 
   @Transactional
+  @Throws(GroupNotFoundException::class)
+  fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) {
+    val groupToUpdate = groupRepository.findByGroupCode(groupCode) ?: throw
+    GroupNotFoundException("maintain", groupCode, "notfound")
+
+    groupToUpdate.groupName = groupAmendment.groupName
+    groupRepository.save(groupToUpdate)
+
+    telemetryClient.trackEvent(
+      "GroupUpdateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "newGroupName" to groupAmendment.groupName),
+      null
+    )
+  }
+
+  @Transactional
   @Throws(ChildGroupNotFoundException::class)
   fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) {
     val groupToUpdate = childGroupRepository.findByGroupCode(groupCode) ?: throw
@@ -47,18 +63,18 @@ class GroupsService(
       null
     )
   }
-  class GroupNotFoundException(val action: String, val group: String, val errorCode: String) :
+  class GroupNotFoundException(action: String, group: String, errorCode: String) :
     Exception("Unable to $action group: $group with reason: $errorCode")
 
-  class GroupHasChildGroupException(val group: String, val errorCode: String) :
+  class GroupHasChildGroupException(group: String, errorCode: String) :
     Exception("Unable to delete group: $group with reason: $errorCode")
 
-  class ChildGroupNotFoundException(val group: String, val errorCode: String) :
+  class ChildGroupNotFoundException(group: String, errorCode: String) :
     Exception("Unable to maintain child group: $group with reason: $errorCode")
 
-  class ChildGroupExistsException(val group: String, val errorCode: String) :
+  class ChildGroupExistsException(group: String, errorCode: String) :
     Exception("Unable to create child group: $group with reason: $errorCode")
 
-  class GroupExistsException(val group: String, val errorCode: String) :
+  class GroupExistsException(group: String, errorCode: String) :
     Exception("Unable to create group: $group with reason: $errorCode")
 }
