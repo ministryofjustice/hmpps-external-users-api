@@ -18,7 +18,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
@@ -207,6 +208,19 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
 
+  @ExceptionHandler(GroupExistsException::class)
+  fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorResponse> {
+    log.debug("Group exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = "Group already exists: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }

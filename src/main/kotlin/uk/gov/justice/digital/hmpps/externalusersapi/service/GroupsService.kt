@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 
@@ -43,7 +44,11 @@ class GroupsService(
 
     telemetryClient.trackEvent(
       "GroupUpdateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "newGroupName" to groupAmendment.groupName),
+      mapOf(
+        "username" to authenticationFacade.currentUsername,
+        "groupCode" to groupCode,
+        "newGroupName" to groupAmendment.groupName
+      ),
       null
     )
   }
@@ -59,22 +64,45 @@ class GroupsService(
 
     telemetryClient.trackEvent(
       "GroupChildUpdateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode, "newChildGroupName" to groupAmendment.groupName),
+      mapOf(
+        "username" to authenticationFacade.currentUsername,
+        "childGroupCode" to groupCode,
+        "newChildGroupName" to groupAmendment.groupName
+      ),
       null
     )
   }
-  class GroupNotFoundException(action: String, group: String, errorCode: String) :
-    Exception("Unable to $action group: $group with reason: $errorCode")
 
-  class GroupHasChildGroupException(group: String, errorCode: String) :
-    Exception("Unable to delete group: $group with reason: $errorCode")
+  @Transactional
+  @Throws(GroupExistsException::class)
+  fun createGroup(createGroup: CreateGroup) {
+    val groupCode = createGroup.groupCode.trim().uppercase()
+    val groupFromDb = groupRepository.findByGroupCode(groupCode)
+    groupFromDb?.let { throw GroupExistsException(groupCode, "group code already exists") }
 
-  class ChildGroupNotFoundException(group: String, errorCode: String) :
-    Exception("Unable to maintain child group: $group with reason: $errorCode")
+    val groupName = createGroup.groupName.trim()
+    val group = Group(groupCode = groupCode, groupName = groupName)
+    groupRepository.save(group)
 
-  class ChildGroupExistsException(group: String, errorCode: String) :
-    Exception("Unable to create child group: $group with reason: $errorCode")
-
-  class GroupExistsException(group: String, errorCode: String) :
-    Exception("Unable to create group: $group with reason: $errorCode")
+    telemetryClient.trackEvent(
+      "GroupCreateSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
+      null
+    )
+  }
 }
+
+class GroupNotFoundException(action: String, group: String, errorCode: String) :
+  Exception("Unable to $action group: $group with reason: $errorCode")
+
+class GroupHasChildGroupException(group: String, errorCode: String) :
+  Exception("Unable to delete group: $group with reason: $errorCode")
+
+class ChildGroupNotFoundException(group: String, errorCode: String) :
+  Exception("Unable to maintain child group: $group with reason: $errorCode")
+
+class ChildGroupExistsException(group: String, errorCode: String) :
+  Exception("Unable to create child group: $group with reason: $errorCode")
+
+class GroupExistsException(group: String, errorCode: String) :
+  Exception("Unable to create group: $group with reason: $errorCode")
