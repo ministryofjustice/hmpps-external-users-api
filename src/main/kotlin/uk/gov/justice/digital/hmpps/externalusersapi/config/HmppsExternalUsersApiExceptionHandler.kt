@@ -24,6 +24,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupE
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -246,6 +248,34 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = CONFLICT,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserGroupException::class)
+  fun handleAuthUserGroupException(e: UserGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("Auth user group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserGroupManagerException::class)
+  fun handleAuthUserGroupManagerException(e: UserGroupManagerException): ResponseEntity<ErrorResponse> {
+    log.debug("Auth user group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
           userMessage = e.message,
           developerMessage = e.message
         )
