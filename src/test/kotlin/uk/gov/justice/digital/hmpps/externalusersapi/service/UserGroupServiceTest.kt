@@ -13,7 +13,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService.UserGroupException
 import java.util.Optional
 
 class UserGroupServiceTest {

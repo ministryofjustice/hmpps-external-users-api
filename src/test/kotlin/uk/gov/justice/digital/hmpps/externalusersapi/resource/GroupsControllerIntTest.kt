@@ -429,7 +429,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Delete Group - no child groups and but has members`() {
+    fun `Delete Group - no child groups but has members`() {
       webTestClient.delete().uri("/groups/GC_DEL_2")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
@@ -457,7 +457,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         }
     }
     @Test
-    fun `Delete Child Group endpoint returns forbidden when dose not have admin role`() {
+    fun `Delete Child Group endpoint returns forbidden when does not have admin role`() {
       webTestClient.delete().uri("/groups/GC_DEL_1")
         .headers(setAuthorisation("bob"))
         .exchange()

@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.GroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.UserGroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.ChildGroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupHasChildGroupException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException

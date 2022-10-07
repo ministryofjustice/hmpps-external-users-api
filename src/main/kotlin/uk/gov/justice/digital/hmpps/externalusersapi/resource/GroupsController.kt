@@ -19,9 +19,10 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
@@ -249,7 +250,7 @@ class GroupsController(
       )
     ]
   )
-  @Throws(GroupNotFoundException::class, GroupsService.GroupHasChildGroupException::class)
+  @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
   fun deleteGroup(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable

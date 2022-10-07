@@ -24,7 +24,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
 
 class GroupsServiceTest {
   private val groupRepository: GroupRepository = mock()
@@ -126,7 +125,7 @@ class GroupsServiceTest {
 
       Assertions.assertThatThrownBy {
         groupsService.createGroup(createGroup)
-      }.isInstanceOf(GroupsService.GroupExistsException::class.java)
+      }.isInstanceOf(GroupExistsException::class.java)
         .hasMessage("Unable to create group: CG with reason: group code already exists")
     }
   }

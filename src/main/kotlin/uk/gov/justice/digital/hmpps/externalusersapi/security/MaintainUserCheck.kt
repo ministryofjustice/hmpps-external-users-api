@@ -11,7 +11,7 @@ class MaintainUserCheck(
 ) {
 
   companion object {
-    fun canMaintainAuthUsers(authorities: Collection<GrantedAuthority>): Boolean =
+    fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
       authorities.map { it.authority }
         .any { it == "ROLE_MAINTAIN_OAUTH_USERS" }
   }

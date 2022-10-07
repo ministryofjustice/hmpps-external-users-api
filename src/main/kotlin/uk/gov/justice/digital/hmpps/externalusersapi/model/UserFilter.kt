@@ -47,8 +47,6 @@ class UserFilter(
       andBuilder.add(cb.equal(root.get<Any>("enabled"), status == Status.ACTIVE))
     }
     query.distinct(true)
-//    val personJoin = root.join<Any, Any>("person", JoinType.INNER)
-    // query.orderBy(cb.asc(personJoin.get<Any>("firstName")), cb.asc(personJoin.get<Any>("lastName")))
     return cb.and(*andBuilder.build().toTypedArray())
   }
 

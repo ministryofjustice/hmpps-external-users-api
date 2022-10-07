@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupReposit
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainAuthUsers
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 
 @Service
 @Transactional(readOnly = true)
@@ -38,7 +38,7 @@ class UserGroupService(
       throw UserGroupManagerException("delete", "group", "managerNotMember")
     }
 
-    if (user.groups.count() == 1 && !canMaintainAuthUsers(authorities)) {
+    if (user.groups.count() == 1 && !canMaintainUsers(authorities)) {
       throw UserLastGroupException("group", "last")
     }
 
@@ -56,7 +56,7 @@ class UserGroupService(
     authorities: Collection<GrantedAuthority>,
     modifier: String?
   ): Boolean {
-    return if (canMaintainAuthUsers(authorities)) {
+    return if (canMaintainUsers(authorities)) {
       true
     } else {
       val modifierGroups = getAssignableGroups(modifier, authorities)
@@ -77,17 +77,15 @@ class UserGroupService(
       u.groups
     }.orElse(null)
   }
-
   fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainAuthUsers(authorities)) allGroups.toList()
+    if (canMaintainUsers(authorities)) allGroups.toList()
     else getAuthUserGroups(username)?.sortedBy { it.groupName } ?: listOf()
-
-  open class UserGroupException(val field: String, val errorCode: String) :
-    Exception("Add group failed for field $field with reason: $errorCode")
-
-  open class UserGroupManagerException(val action: String = "add", val field: String, val errorCode: String) :
-    Exception("$action group failed for field $field with reason: $errorCode")
-
-  open class UserLastGroupException(val field: String, val errorCode: String) :
-    Exception("remove group failed for field $field with reason: $errorCode")
 }
+class UserGroupException(val field: String, val errorCode: String) :
+  Exception("Add group failed for field $field with reason: $errorCode")
+
+class UserGroupManagerException(val action: String = "add", val field: String, val errorCode: String) :
+  Exception("$action group failed for field $field with reason: $errorCode")
+
+class UserLastGroupException(val field: String, val errorCode: String) :
+  Exception("remove group failed for field $field with reason: $errorCode")

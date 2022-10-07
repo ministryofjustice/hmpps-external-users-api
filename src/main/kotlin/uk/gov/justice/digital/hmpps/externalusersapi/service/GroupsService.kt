@@ -127,19 +127,19 @@ class GroupsService(
     val usersWithGroup = userRepository.findAll(UserFilter(groupCodes = listOf(groupCode)))
     usersWithGroup.forEach { userGroupService.removeGroup(it.getUserName(), groupCode, username, authorities) }
   }
-
-  class GroupNotFoundException(action: String, group: String, errorCode: String) :
-    Exception("Unable to $action group: $group with reason: $errorCode")
-
-  class GroupHasChildGroupException(group: String, errorCode: String) :
-    Exception("Unable to delete group: $group with reason: $errorCode")
-
-  class ChildGroupNotFoundException(group: String, errorCode: String) :
-    Exception("Unable to maintain child group: $group with reason: $errorCode")
-
-  class ChildGroupExistsException(group: String, errorCode: String) :
-    Exception("Unable to create child group: $group with reason: $errorCode")
-
-  class GroupExistsException(group: String, errorCode: String) :
-    Exception("Unable to create group: $group with reason: $errorCode")
 }
+
+class GroupNotFoundException(action: String, group: String, errorCode: String) :
+  Exception("Unable to $action group: $group with reason: $errorCode")
+
+class GroupHasChildGroupException(group: String, errorCode: String) :
+  Exception("Unable to delete group: $group with reason: $errorCode")
+
+class ChildGroupNotFoundException(group: String, errorCode: String) :
+  Exception("Unable to maintain child group: $group with reason: $errorCode")
+
+class ChildGroupExistsException(group: String, errorCode: String) :
+  Exception("Unable to create child group: $group with reason: $errorCode")
+
+class GroupExistsException(group: String, errorCode: String) :
+  Exception("Unable to create group: $group with reason: $errorCode")

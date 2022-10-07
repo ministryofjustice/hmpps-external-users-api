@@ -17,9 +17,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
