@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -18,9 +19,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
@@ -213,6 +214,49 @@ class GroupsController(
   ) {
     groupsService.createGroup(createGroup)
   }
+
+  @DeleteMapping("/groups/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete group.",
+    description = "Delete a Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @Throws(GroupNotFoundException::class, GroupsService.GroupHasChildGroupException::class)
+  fun deleteGroup(
+    @Parameter(description = "The group code of the group.", required = true)
+    @PathVariable
+    group: String
+  ) {
+    groupsService.deleteGroup(group)
+  }
 }
 @Schema(description = "Group Name")
 data class GroupAmendment(
@@ -222,7 +266,7 @@ data class GroupAmendment(
 )
 
 @Schema(description = "User Role")
-data class AuthUserAssignableRole(
+data class UserAssignableRole(
   @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 
@@ -258,7 +302,7 @@ data class GroupDetails(
   val groupName: String,
 
   @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<AuthUserAssignableRole>,
+  val assignableRoles: List<UserAssignableRole>,
 
   @Schema(required = true, description = "Child Groups")
   val children: List<AuthUserGroup>
@@ -266,7 +310,7 @@ data class GroupDetails(
   constructor(g: Group) : this(
     g.groupCode,
     g.groupName,
-    g.assignableRoles.map { AuthUserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
+    g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
     g.children.map { AuthUserGroup(it) }.sortedBy { it.groupName }
   )
 }

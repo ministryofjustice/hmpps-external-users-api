@@ -14,12 +14,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthGroupRelationshipException
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.GroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.ChildGroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupHasChildGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import javax.validation.ValidationException
@@ -152,8 +154,8 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-  @ExceptionHandler(AuthUserGroupRelationshipException::class)
-  fun handleAuthUserGroupRelationshipException(e: AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(UserGroupRelationshipException::class)
+  fun handleAuthUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth user group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
@@ -166,8 +168,8 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
 
-  @ExceptionHandler(AuthGroupRelationshipException::class)
-  fun handleAuthGroupRelationshipException(e: AuthGroupRelationshipException): ResponseEntity<ErrorResponse> {
+  @ExceptionHandler(GroupRelationshipException::class)
+  fun handleAuthGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth maintain group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
@@ -217,6 +219,34 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Group already exists: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(GroupHasChildGroupException::class)
+  fun handleGroupHasChildGroupException(e: GroupHasChildGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("Group has children exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(ChildGroupExistsException::class)
+  fun handleChildGroupExistsException(e: ChildGroupExistsException): ResponseEntity<ErrorResponse> {
+    log.debug("Child group exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = e.message,
           developerMessage = e.message
         )
       )

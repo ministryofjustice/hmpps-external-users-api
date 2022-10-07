@@ -66,8 +66,7 @@ class User(
     password = null
   }
 
-  val isMaster: Boolean
-    get() = source === AuthSource.auth
+  fun getUserName() = username
 
   override fun toString(): String =
     "User(username='$username',  source=$source, id=$id)"
