@@ -117,7 +117,7 @@ class GroupsController(
     @Parameter(
       description = "Details of the group to be updated.",
       required = true
-    ) @RequestBody
+    ) @Valid @RequestBody
     groupAmendment: GroupAmendment
 
   ) {
@@ -165,7 +165,7 @@ class GroupsController(
     @Parameter(
       description = "Details of the child group to be updated.",
       required = true
-    ) @RequestBody
+    ) @Valid @RequestBody
     groupAmendment: GroupAmendment
 
   ) {
@@ -262,6 +262,7 @@ class GroupsController(
 data class GroupAmendment(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
+  @field:Size(min = 4, max = 100)
   val groupName: String
 )
 

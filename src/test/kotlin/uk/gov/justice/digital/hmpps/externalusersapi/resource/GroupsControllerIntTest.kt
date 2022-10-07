@@ -148,6 +148,23 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Invalid group name`() {
+      webTestClient
+        .put().uri("/groups/SITE_9_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName]")
+          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
+          assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+        }
+    }
+
+    @Test
     fun `Change group name endpoint returns forbidden when dose not have admin role `() {
       webTestClient
         .put().uri("/groups/SITE_9_GROUP_1")
@@ -198,6 +215,23 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Invalid group name`() {
+      webTestClient
+        .put().uri("/groups/child/SITE_9_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupName]")
+          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
+          assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+        }
     }
 
     @Test
