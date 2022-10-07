@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -171,6 +172,48 @@ class GroupsController(
     groupsService.updateChildGroup(group, groupAmendment)
   }
 
+  @DeleteMapping("/api/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete child group.",
+    description = "Delete a Child Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun deleteChildGroup(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+  ) {
+    groupsService.deleteChildGroup(group)
+  }
+
   @PostMapping("/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -214,6 +257,7 @@ class GroupsController(
     groupsService.createGroup(createGroup)
   }
 }
+
 @Schema(description = "Group Name")
 data class GroupAmendment(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")

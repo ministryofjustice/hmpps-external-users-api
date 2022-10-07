@@ -42,60 +42,41 @@ class GroupsServiceTest {
     whenever(authenticationFacade.currentUsername).thenReturn("username")
     SecurityContextHolder.getContext().authentication = authentication
   }
-  @Test
-  fun `get group details`() {
-    val dbGroup = Group("bob", "disc")
-    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
 
-    val group = groupsService.getGroupDetail("bob")
+  @Nested
+  inner class ChildGroup {
+    @Test
+    fun `update child group details`() {
+      val dbGroup = ChildGroup("bob", "disc")
+      val groupAmendment = GroupAmendment("Joe")
+      whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
 
-    assertThat(group).isEqualTo(dbGroup)
-    verify(groupRepository).findByGroupCode("bob")
-    verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
-  }
+      groupsService.updateChildGroup("bob", groupAmendment)
 
-  @Test
-  fun `update child group details`() {
-    val dbGroup = ChildGroup("bob", "disc")
-    val groupAmendment = GroupAmendment("Joe")
-    whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+      verify(childGroupRepository).findByGroupCode("bob")
+      verify(childGroupRepository).save(dbGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupChildUpdateSuccess",
+        mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
+        null
+      )
+    }
 
-    groupsService.updateChildGroup("bob", groupAmendment)
-
-    verify(childGroupRepository).findByGroupCode("bob")
-    verify(childGroupRepository).save(dbGroup)
-    verify(telemetryClient).trackEvent(
-      "GroupChildUpdateSuccess",
-      mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
-      null
-    )
-  }
-
-  @Test
-  fun `update group details`() {
-    val dbGroup = Group("bob", "disc")
-    val groupAmendment = GroupAmendment("Joe")
-    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
-
-    groupsService.updateGroup("bob", groupAmendment)
-
-    verify(groupRepository).findByGroupCode("bob")
-    verify(groupRepository).save(dbGroup)
-    verify(telemetryClient).trackEvent(
-      "GroupUpdateSuccess",
-      mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
-      null
-    )
+    @Test
+    fun `Delete child group`() {
+      groupsService.deleteChildGroup("CG")
+      verify(childGroupRepository).deleteByGroupCode("CG")
+      verify(telemetryClient).trackEvent(
+        "GroupChildDeleteSuccess",
+        mapOf("username" to "username", "childGroupCode" to "CG"),
+        null
+      )
+    }
   }
 
   @Nested
-  inner class createGroup {
-    @BeforeEach
-    fun initSecurityContext() {
+  inner class ParentGroup {
 
-      whenever(authenticationFacade.currentUsername).thenReturn("username")
-      SecurityContextHolder.getContext().authentication = authentication
-    }
     @Test
     fun `Create group`() {
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
@@ -121,6 +102,35 @@ class GroupsServiceTest {
         groupsService.createGroup(createGroup)
       }.isInstanceOf(GroupExistsException::class.java)
         .hasMessage("Unable to create group: CG with reason: group code already exists")
+    }
+
+    @Test
+    fun `update group details`() {
+      val dbGroup = Group("bob", "disc")
+      val groupAmendment = GroupAmendment("Joe")
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+      groupsService.updateGroup("bob", groupAmendment)
+
+      verify(groupRepository).findByGroupCode("bob")
+      verify(groupRepository).save(dbGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupUpdateSuccess",
+        mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
+        null
+      )
+    }
+
+    @Test
+    fun `get group details`() {
+      val dbGroup = Group("bob", "disc")
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+      val group = groupsService.getGroupDetail("bob")
+
+      assertThat(group).isEqualTo(dbGroup)
+      verify(groupRepository).findByGroupCode("bob")
+      verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
     }
   }
 }

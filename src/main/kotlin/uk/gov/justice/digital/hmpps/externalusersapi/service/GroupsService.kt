@@ -74,6 +74,18 @@ class GroupsService(
   }
 
   @Transactional
+  @Throws(ChildGroupNotFoundException::class)
+  fun deleteChildGroup(groupCode: String) {
+    childGroupRepository.deleteByGroupCode(groupCode)
+
+    telemetryClient.trackEvent(
+      "GroupChildDeleteSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode),
+      null
+    )
+  }
+
+  @Transactional
   @Throws(GroupExistsException::class)
   fun createGroup(createGroup: CreateGroup) {
     val groupCode = createGroup.groupCode.trim().uppercase()
