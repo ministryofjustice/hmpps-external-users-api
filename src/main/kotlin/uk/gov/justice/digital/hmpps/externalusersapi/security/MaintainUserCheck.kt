@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.security
 
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
@@ -8,7 +9,13 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserReposito
 class MaintainUserCheck(
   private val userRepository: UserRepository,
 ) {
-  @Throws(AuthGroupRelationshipException::class)
+
+  companion object {
+    fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
+      authorities.map { it.authority }
+        .any { it == "ROLE_MAINTAIN_OAUTH_USERS" }
+  }
+  @Throws(GroupRelationshipException::class)
   fun ensureMaintainerGroupRelationship(
     userName: String?,
     groupCode: String,
@@ -22,13 +29,13 @@ class MaintainUserCheck(
     // otherwise group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
       // no group in common, so disallow
-      throw AuthGroupRelationshipException(groupCode, "Group not with your groups")
+      throw GroupRelationshipException(groupCode, "Group not with your groups")
     }
   }
 
-  class AuthUserGroupRelationshipException(val username: String, val errorCode: String) :
+  class UserGroupRelationshipException(val username: String, val errorCode: String) :
     Exception("Unable to maintain user: $username with reason: $errorCode")
 
-  class AuthGroupRelationshipException(val group: String, val errorCode: String) :
+  class GroupRelationshipException(val group: String, val errorCode: String) :
     Exception("Unable to maintain group: $group with reason: $errorCode")
 }

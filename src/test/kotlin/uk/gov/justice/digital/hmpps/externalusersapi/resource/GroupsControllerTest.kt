@@ -44,7 +44,7 @@ class GroupsControllerTest {
         groupCode = "FRED",
         groupName = "desc",
         assignableRoles = listOf(
-          AuthUserAssignableRole(
+          UserAssignableRole(
             roleCode = "RO1",
             roleName = "Role1",
             automatic = true
@@ -102,6 +102,15 @@ class GroupsControllerTest {
       assertThatThrownBy { groupsController.createGroup(Group) }
         .isInstanceOf(GroupExistsException::class.java)
         .withFailMessage("Unable to maintain group: code with reason: group code already exists")
+    }
+  }
+
+  @Nested
+  inner class `delete group` {
+    @Test
+    fun `delete group`() {
+      groupsController.deleteGroup("GroupCode")
+      verify(groupsService).deleteGroup("GroupCode")
     }
   }
 }
