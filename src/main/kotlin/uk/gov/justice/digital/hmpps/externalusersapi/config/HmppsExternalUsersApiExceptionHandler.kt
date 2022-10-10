@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.AuthUserGroupRelationshipException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
@@ -152,6 +153,21 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
+
+  @ExceptionHandler(ChildGroupNotFoundException::class)
+  fun handleChildGroupNotFoundException(e: ChildGroupNotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Username not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Child Group Not found: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
   @ExceptionHandler(AuthUserGroupRelationshipException::class)
   fun handleAuthUserGroupRelationshipException(e: AuthUserGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Auth user group relationship exception caught: {}", e.message)
@@ -212,7 +228,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorResponse> {
     log.debug("Group exists exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.CONFLICT)
+      .status(CONFLICT)
       .body(
         ErrorResponse(
           status = CONFLICT,

@@ -262,8 +262,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"] as String).startsWith("Group Not found: Unable to maintain group: Not_A_Group with reason: notfound")
-          assertThat(it["developerMessage"] as String).startsWith("Unable to maintain group: Not_A_Group with reason: notfound")
+          assertThat(it["userMessage"] as String).startsWith("Child Group Not found: Unable to maintain child group: Not_A_Group with reason: notfound")
+          assertThat(it["developerMessage"] as String).startsWith("Unable to maintain child group: Not_A_Group with reason: notfound")
         }
     }
 
@@ -274,8 +274,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
+
   @Nested
-  inner class createGroup {
+  inner class CreateGroup {
     @Test
     fun `Create group`() {
       webTestClient
@@ -450,6 +451,61 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient.post().uri("/groups")
         .exchange()
         .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class DeleteChildGroup {
+
+    @Test
+    fun `access forbidden without admin role`() {
+      webTestClient.delete().uri("/groups/child/GC_DEL_1")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient.delete().uri("/groups/child/GC_DEL_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden with incorrect role`() {
+      webTestClient.delete().uri("/groups/child/GC_DEL_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `group not found`() {
+      webTestClient.delete().uri("/groups/child/UNKNOWN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "errorCode" to null,
+              "moreInfo" to null,
+              "userMessage" to "Child Group Not found: Unable to maintain child group: UNKNOWN with reason: notfound",
+              "developerMessage" to "Unable to maintain child group: UNKNOWN with reason: notfound"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `delete success`() {
+      webTestClient.delete().uri("/groups/child/DEL_CHILD_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
     }
   }
 }

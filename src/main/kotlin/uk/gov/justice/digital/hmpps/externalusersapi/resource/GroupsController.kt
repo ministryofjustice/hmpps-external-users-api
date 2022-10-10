@@ -172,7 +172,7 @@ class GroupsController(
     groupsService.updateChildGroup(group, groupAmendment)
   }
 
-  @DeleteMapping("/api/groups/child/{group}")
+  @DeleteMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",

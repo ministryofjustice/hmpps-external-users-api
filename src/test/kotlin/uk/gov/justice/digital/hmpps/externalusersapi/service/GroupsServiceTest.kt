@@ -10,8 +10,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
@@ -27,7 +25,6 @@ class GroupsServiceTest {
   private val childGroupRepository: ChildGroupRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
-  private val authentication: Authentication = mock()
   private val groupsService = GroupsService(
     groupRepository,
     maintainUserCheck,
@@ -38,39 +35,51 @@ class GroupsServiceTest {
 
   @BeforeEach
   fun initSecurityContext() {
-
     whenever(authenticationFacade.currentUsername).thenReturn("username")
-    SecurityContextHolder.getContext().authentication = authentication
+  }
+
+  @Test
+  fun `update child group details`() {
+    val dbGroup = ChildGroup("bob", "disc")
+    val groupAmendment = GroupAmendment("Joe")
+    whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+    groupsService.updateChildGroup("bob", groupAmendment)
+
+    verify(childGroupRepository).findByGroupCode("bob")
+    verify(childGroupRepository).save(dbGroup)
+    verify(telemetryClient).trackEvent(
+      "GroupChildUpdateSuccess",
+      mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
+      null
+    )
   }
 
   @Nested
-  inner class ChildGroup {
-    @Test
-    fun `update child group details`() {
-      val dbGroup = ChildGroup("bob", "disc")
-      val groupAmendment = GroupAmendment("Joe")
-      whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
-
-      groupsService.updateChildGroup("bob", groupAmendment)
-
-      verify(childGroupRepository).findByGroupCode("bob")
-      verify(childGroupRepository).save(dbGroup)
-      verify(telemetryClient).trackEvent(
-        "GroupChildUpdateSuccess",
-        mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
-        null
-      )
-    }
+  inner class DeleteChildGroup {
 
     @Test
     fun `Delete child group`() {
+      val childGroup = ChildGroup("CG", "disc")
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
+
       groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).deleteByGroupCode("CG")
+      verify(childGroupRepository).delete(childGroup)
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
         null
       )
+    }
+
+    @Test
+    fun `Child Group not found`() {
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        groupsService.deleteChildGroup("CG")
+      }.isInstanceOf(ChildGroupNotFoundException::class.java)
+        .hasMessage("Unable to maintain child group: CG with reason: notfound")
     }
   }
 
