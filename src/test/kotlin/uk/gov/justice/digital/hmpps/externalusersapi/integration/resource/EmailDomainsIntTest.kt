@@ -125,7 +125,7 @@ class EmailDomainsIntTest : IntegrationTestBase() {
         )
       )
       .exchange()
-      .expectStatus().is4xxClientError
+      .expectStatus().isBadRequest
   }
 
   @Test
