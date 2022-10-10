@@ -157,28 +157,28 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
   @ExceptionHandler(UserGroupRelationshipException::class)
-  fun handleAuthUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth user group relationship exception caught: {}", e.message)
+  fun handleUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("User group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "Auth user group relationship exception: ${e.message}",
+          userMessage = "User group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
   }
 
   @ExceptionHandler(GroupRelationshipException::class)
-  fun handleAuthGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth maintain group relationship exception caught: {}", e.message)
+  fun handleGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("Maintain group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "Auth maintain group relationship exception: ${e.message}",
+          userMessage = "Maintain group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
@@ -255,8 +255,8 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(UserGroupException::class)
-  fun handleAuthUserGroupException(e: UserGroupException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth user group exception caught: {}", e.message)
+  fun handleUserGroupException(e: UserGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("User group exception caught: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
@@ -269,8 +269,8 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(UserGroupManagerException::class)
-  fun handleAuthUserGroupManagerException(e: UserGroupManagerException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth user group exception caught: {}", e.message)
+  fun handleUserGroupManagerException(e: UserGroupManagerException): ResponseEntity<ErrorResponse> {
+    log.debug("User group exception caught: {}", e.message)
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(
