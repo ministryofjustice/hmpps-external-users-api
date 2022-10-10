@@ -502,12 +502,13 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `delete success`() {
-      webTestClient.delete().uri("/groups/child/DEL_CHILD_1")
+      webTestClient.delete().uri("/groups/child/CHILD_9")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
     }
   }
+
   @Nested
   inner class DeleteGroupCode {
     @Test
@@ -546,6 +547,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           )
         }
     }
+
     @Test
     fun `Delete Child Group endpoint returns forbidden when does not have admin role`() {
       webTestClient.delete().uri("/groups/GC_DEL_1")
