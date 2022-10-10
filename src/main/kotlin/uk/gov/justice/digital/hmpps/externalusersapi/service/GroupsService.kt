@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserReposito
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
@@ -144,6 +145,36 @@ class GroupsService(
   private fun removeUsersFromGroup(groupCode: String, username: String?, authorities: Collection<GrantedAuthority>) {
     val usersWithGroup = userRepository.findAll(UserFilter(groupCodes = listOf(groupCode)))
     usersWithGroup.forEach { userGroupService.removeGroup(it.getUserName(), groupCode, username, authorities) }
+  }
+
+  @Transactional
+  @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
+  fun createChildGroup(createChildGroup: CreateChildGroup) {
+    val groupCode = createChildGroup.groupCode.trim().uppercase()
+    val childGroupFromDB = childGroupRepository.findByGroupCode(groupCode)
+    if (childGroupFromDB != null) {
+      throw ChildGroupExistsException(groupCode, "group code already exists")
+    }
+    val parentGroupCode = createChildGroup.parentGroupCode.trim().uppercase()
+    val parentGroupDetails = groupRepository.findByGroupCode(parentGroupCode) ?: throw
+    GroupNotFoundException("create", parentGroupCode, "ParentGroupNotFound")
+
+    val groupName = createChildGroup.groupName.trim()
+    val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName)
+    child.group = parentGroupDetails
+
+    childGroupRepository.save(child)
+
+    telemetryClient.trackEvent(
+      "GroupChildCreateSuccess",
+      mapOf(
+        "username" to authenticationFacade.currentUsername,
+        "groupCode" to parentGroupDetails.groupCode,
+        "childGroupCode" to groupCode,
+        "childGroupName" to groupName
+      ),
+      null
+    )
   }
 }
 
