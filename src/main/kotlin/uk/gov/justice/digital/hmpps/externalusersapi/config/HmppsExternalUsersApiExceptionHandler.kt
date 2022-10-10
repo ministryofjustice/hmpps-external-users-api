@@ -24,6 +24,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupE
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -155,28 +157,28 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
   @ExceptionHandler(UserGroupRelationshipException::class)
-  fun handleAuthUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth user group relationship exception caught: {}", e.message)
+  fun handleUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("User group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "Auth user group relationship exception: ${e.message}",
+          userMessage = "User group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
   }
 
   @ExceptionHandler(GroupRelationshipException::class)
-  fun handleAuthGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth maintain group relationship exception caught: {}", e.message)
+  fun handleGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
+    log.debug("Maintain group relationship exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "Auth maintain group relationship exception: ${e.message}",
+          userMessage = "Maintain group relationship exception: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
@@ -246,6 +248,34 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = CONFLICT,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserGroupException::class)
+  fun handleUserGroupException(e: UserGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("User group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = e.message,
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserGroupManagerException::class)
+  fun handleUserGroupManagerException(e: UserGroupManagerException): ResponseEntity<ErrorResponse> {
+    log.debug("User group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
           userMessage = e.message,
           developerMessage = e.message
         )

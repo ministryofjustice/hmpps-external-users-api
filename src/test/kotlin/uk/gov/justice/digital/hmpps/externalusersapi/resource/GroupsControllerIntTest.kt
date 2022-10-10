@@ -54,7 +54,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to FORBIDDEN.value(),
               "developerMessage" to "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
-              "userMessage" to "Auth maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+              "userMessage" to "Maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
               "errorCode" to null,
               "moreInfo" to null
             )
@@ -506,6 +506,178 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Delete Child Group details endpoint not accessible without valid token`() {
       webTestClient.delete().uri("/groups/GC_DEL_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class CreateChildGroup {
+    @Test
+    fun `Create child group`() {
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "SITE_9_GROUP_1",
+              "groupCode" to "CG",
+              "groupName" to "Child groupie"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Create child group error`() {
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "",
+              "groupCode" to "",
+              "groupName" to ""
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `Create child group endpoint returns forbidden when does not have admin role`() {
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("bob"))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "SITE_9_GROUP_1",
+              "groupCode" to "CG3",
+              "groupName" to "Child groupie 3"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+     {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Create Child group length too short`() {
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "",
+              "groupCode" to "",
+              "groupName" to ""
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
+          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
+          assertThat(it["userMessage"] as String).contains("default message [parentGroupCode],30,2]")
+        }
+    }
+
+    @Test
+    fun `Create child group - group already exists`() {
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "SITE_9_GROUP_1",
+              "groupCode" to "CG1",
+              "groupName" to "Child groupie 1"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "SITE_9_GROUP_1",
+              "groupCode" to "CG1",
+              "groupName" to "Child groupie 1"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "developerMessage" to "Unable to create child group: CG1 with reason: group code already exists",
+              "userMessage" to "Unable to create child group: CG1 with reason: group code already exists",
+              "errorCode" to null,
+              "moreInfo" to null,
+              "status" to HttpStatus.CONFLICT.value()
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Create child group - parent group doesnt exist`() {
+
+      webTestClient
+        .post().uri("/groups/child")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(
+          BodyInserters.fromValue(
+            mapOf(
+              "parentGroupCode" to "pg",
+              "groupCode" to "CG1",
+              "groupName" to "Child groupie 1"
+            )
+          )
+        )
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "developerMessage" to "Unable to create group: PG with reason: ParentGroupNotFound",
+              "userMessage" to "Group Not found: Unable to create group: PG with reason: ParentGroupNotFound",
+              "errorCode" to null,
+              "moreInfo" to null,
+              "status" to NOT_FOUND.value()
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Create Child Group endpoint not accessible without valid token`() {
+      webTestClient.post().uri("/groups/child")
         .exchange()
         .expectStatus().isUnauthorized
     }

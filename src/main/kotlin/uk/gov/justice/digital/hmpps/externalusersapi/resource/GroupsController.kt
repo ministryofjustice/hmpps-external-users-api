@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
@@ -258,6 +259,49 @@ class GroupsController(
   ) {
     groupsService.deleteGroup(group)
   }
+
+  @PostMapping("/groups/child")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Create child group.",
+    description = "Create a Child Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "Child Group already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
+  fun createChildGroup(
+    @Schema(description = "Details of the child group to be created.", required = true)
+    @Valid @RequestBody
+    createChildGroup: CreateChildGroup
+  ) {
+    groupsService.createChildGroup(createChildGroup)
+  }
 }
 @Schema(description = "Group Name")
 data class GroupAmendment(
@@ -316,3 +360,23 @@ data class GroupDetails(
     g.children.map { AuthUserGroup(it) }.sortedBy { it.groupName }
   )
 }
+
+data class CreateChildGroup(
+  @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
+  @field:NotBlank(message = "parent group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val parentGroupCode: String,
+
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  @field:NotBlank(message = "group code must be supplied")
+  @field:Size(min = 2, max = 30)
+  @field:Pattern(regexp = "^[0-9A-Za-z_]*")
+  val groupCode: String,
+
+  @Schema(required = true, description = "groupName", example = "HDC NPS North East")
+  @field:NotBlank(message = "group name must be supplied")
+  @field:Size(min = 4, max = 100)
+  @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
+  val groupName: String
+)

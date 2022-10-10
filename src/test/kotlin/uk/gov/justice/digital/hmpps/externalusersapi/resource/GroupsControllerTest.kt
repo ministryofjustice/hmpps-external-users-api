@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
@@ -111,6 +112,42 @@ class GroupsControllerTest {
     fun `delete group`() {
       groupsController.deleteGroup("GroupCode")
       verify(groupsService).deleteGroup("GroupCode")
+    }
+  }
+  @Nested
+  inner class `create child group` {
+    @Test
+    fun create() {
+      val childGroup = CreateChildGroup("PG", "CG", "Group")
+      groupsController.createChildGroup(childGroup)
+      verify(groupsService).createChildGroup(childGroup)
+    }
+
+    @Test
+    fun `create - group already exist exception`() {
+      doThrow(ChildGroupExistsException("child_code", "group code already exists")).whenever(groupsService)
+        .createChildGroup(
+          any()
+        )
+
+      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
+      assertThatThrownBy { groupsController.createChildGroup(childGroup) }
+        .isInstanceOf(ChildGroupExistsException::class.java)
+        .withFailMessage("Unable to maintain group: code with reason: group code already exists")
+    }
+
+    @Test
+    fun `create - parent group not found exception`() {
+      doThrow(GroupNotFoundException("create", "NotGroup", "ParentGroupNotFound")).whenever(groupsService)
+        .createChildGroup(
+          any()
+        )
+
+      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
+
+      assertThatThrownBy { groupsController.createChildGroup(childGroup) }
+        .isInstanceOf(GroupNotFoundException::class.java)
+        .withFailMessage("Unable to maintain group: NotGroup with reason: not found")
     }
   }
 }
