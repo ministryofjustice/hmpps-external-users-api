@@ -7,12 +7,18 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.Authentication
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
@@ -25,12 +31,17 @@ class GroupsServiceTest {
   private val childGroupRepository: ChildGroupRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
+  private val userRepository: UserRepository = mock()
+  private val userGroupService: UserGroupService = mock()
+  private val authentication: Authentication = mock()
   private val groupsService = GroupsService(
     groupRepository,
     maintainUserCheck,
     childGroupRepository,
     telemetryClient,
-    authenticationFacade
+    authenticationFacade,
+    userRepository,
+    userGroupService
   )
 
   @BeforeEach
@@ -140,6 +151,43 @@ class GroupsServiceTest {
       assertThat(group).isEqualTo(dbGroup)
       verify(groupRepository).findByGroupCode("bob")
       verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
+    }
+  }
+
+  @Nested
+  inner class DeleteGroup {
+
+    @BeforeEach
+    fun initSecurityContext() {
+      whenever(authenticationFacade.currentUsername).thenReturn("username")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authenticationFacade.authentication.authorities).thenReturn(setOf(Authority("ROLE_COMMUNITY", "Role Community")))
+    }
+    @Test
+    fun `delete group, no members`() {
+      val dbGroup = Group("groupCode", "disc")
+      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
+      whenever(userRepository.findAll(any())).thenReturn(listOf())
+
+      groupsService.deleteGroup("groupCode",)
+      verify(groupRepository).findByGroupCode("groupCode")
+      verify(userRepository).findAll(any())
+      verify(groupRepository).delete(dbGroup)
+    }
+
+    @Test
+    fun `delete group, with members`() {
+      val user1 = UserHelper.createSampleUser(username = "user1")
+      val user2 = UserHelper.createSampleUser(username = "user2")
+      val dbGroup = Group("groupCode", "disc")
+      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
+      whenever(userRepository.findAll(any())).thenReturn(listOf(user1, user2))
+
+      groupsService.deleteGroup("groupCode")
+      verify(groupRepository).findByGroupCode("groupCode")
+      verify(userRepository).findAll(any())
+      verify(userGroupService, times(2)).removeGroup(anyString(), anyString(), anyString(), any())
+      verify(groupRepository).delete(dbGroup)
     }
   }
 }

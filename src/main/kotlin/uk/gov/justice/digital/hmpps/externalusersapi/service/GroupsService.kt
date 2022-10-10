@@ -2,13 +2,16 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
@@ -21,6 +24,8 @@ class GroupsService(
   private val childGroupRepository: ChildGroupRepository,
   private val telemetryClient: TelemetryClient,
   private val authenticationFacade: AuthenticationFacade,
+  private val userRepository: UserRepository,
+  private val userGroupService: UserGroupService,
 ) {
 
   @Throws(GroupNotFoundException::class)
@@ -37,8 +42,8 @@ class GroupsService(
   @Transactional
   @Throws(GroupNotFoundException::class)
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) {
-    val groupToUpdate = groupRepository.findByGroupCode(groupCode) ?: throw
-    GroupNotFoundException("maintain", groupCode, "notfound")
+    val groupToUpdate =
+      groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("maintain", groupCode, "notfound")
 
     groupToUpdate.groupName = groupAmendment.groupName
     groupRepository.save(groupToUpdate)
@@ -105,8 +110,40 @@ class GroupsService(
     )
   }
 
+  @Transactional
+  @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
+  fun deleteGroup(groupCode: String) {
+    val group =
+      groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("delete", groupCode, "notfound")
+
+    when {
+      group.children.isEmpty() -> {
+        removeUsersFromGroup(
+          groupCode,
+          authenticationFacade.currentUsername,
+          authenticationFacade.authentication.authorities
+        )
+        groupRepository.delete(group)
+
+        telemetryClient.trackEvent(
+          "GroupDeleteSuccess",
+          mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode),
+          null
+        )
+      }
+      else -> {
+        throw GroupHasChildGroupException(groupCode, "child group exist")
+      }
+    }
+  }
+
   private fun retrieveChildGroup(groupCode: String): ChildGroup {
     return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
+  }
+
+  private fun removeUsersFromGroup(groupCode: String, username: String?, authorities: Collection<GrantedAuthority>) {
+    val usersWithGroup = userRepository.findAll(UserFilter(groupCodes = listOf(groupCode)))
+    usersWithGroup.forEach { userGroupService.removeGroup(it.getUserName(), groupCode, username, authorities) }
   }
 }
 

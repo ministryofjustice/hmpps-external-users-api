@@ -82,7 +82,7 @@ class GroupsControllerTest {
           groupCode = "FRED",
           groupName = "desc",
           assignableRoles = listOf(
-            AuthUserAssignableRole(
+            UserAssignableRole(
               roleCode = "RO1",
               roleName = "Role1",
               automatic = true
@@ -111,6 +111,15 @@ class GroupsControllerTest {
       val groupAmendment = GroupAmendment("groupie")
       groupsController.amendGroupName("group1", groupAmendment)
       verify(groupsService).updateGroup("group1", groupAmendment)
+    }
+  }
+
+  @Nested
+  inner class `delete group` {
+    @Test
+    fun `delete group`() {
+      groupsController.deleteGroup("GroupCode")
+      verify(groupsService).deleteGroup("GroupCode")
     }
   }
 }
