@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.model
 import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "User Group")
-data class AuthUserGroup(
+data class UserGroup(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -11,6 +11,5 @@ data class AuthUserGroup(
   val groupName: String,
 ) {
 
-  constructor(g: Group) : this(g.groupCode, g.groupName)
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }

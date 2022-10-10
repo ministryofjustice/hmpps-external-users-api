@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
@@ -394,13 +394,13 @@ data class GroupDetails(
   val assignableRoles: List<UserAssignableRole>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<AuthUserGroup>
+  val children: List<UserGroup>
 ) {
   constructor(g: Group) : this(
     g.groupCode,
     g.groupName,
     g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
-    g.children.map { AuthUserGroup(it) }.sortedBy { it.groupName }
+    g.children.map { UserGroup(it) }.sortedBy { it.groupName }
   )
 }
 
