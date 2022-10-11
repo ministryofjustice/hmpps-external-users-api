@@ -28,6 +28,19 @@ class GroupsControllerTest {
   private val groupsController = GroupsController(groupsService)
 
   @Nested
+  inner class Groups {
+    @Test
+    fun allGroups() {
+      val group1 = Group("GROUP_1", "first group")
+      val group2 = Group("GLOBAL_SEARCH", "global search")
+      whenever(groupsService.allGroups).thenReturn(listOf(group2, group1))
+      val response = groupsController.allGroups()
+      verify(groupsService).allGroups
+      assertThat(response).containsOnly(UserGroup(group1), UserGroup(group2))
+    }
+  }
+
+  @Nested
   inner class `child group` {
     @Test
     fun `child group details`() {

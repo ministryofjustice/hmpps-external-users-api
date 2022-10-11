@@ -36,6 +36,32 @@ class GroupsController(
   private val groupsService: GroupsService
 ) {
 
+  @GetMapping("/groups")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Get all possible groups.",
+    description = "Get all groups."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun allGroups(): List<UserGroup> = groupsService.allGroups.map { UserGroup(it) }
+
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
@@ -74,10 +100,7 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetails {
-    val returnedGroup: Group = groupsService.getGroupDetail(group)
-    return GroupDetails(returnedGroup)
-  }
+  ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -167,9 +190,7 @@ class GroupsController(
     ) @Valid @RequestBody
     groupAmendment: GroupAmendment
 
-  ) {
-    groupsService.updateGroup(group, groupAmendment)
-  }
+  ) = groupsService.updateGroup(group, groupAmendment)
 
   @PutMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -215,9 +236,7 @@ class GroupsController(
     ) @Valid @RequestBody
     groupAmendment: GroupAmendment
 
-  ) {
-    groupsService.updateChildGroup(group, groupAmendment)
-  }
+  ) = groupsService.updateChildGroup(group, groupAmendment)
 
   @DeleteMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -300,9 +319,7 @@ class GroupsController(
     @Parameter(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
     createGroup: CreateGroup
-  ) {
-    groupsService.createGroup(createGroup)
-  }
+  ) = groupsService.createGroup(createGroup)
 
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -343,9 +360,7 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ) {
-    groupsService.deleteGroup(group)
-  }
+  ) = groupsService.deleteGroup(group)
 
   @PostMapping("/groups/child")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -410,7 +425,6 @@ data class UserAssignableRole(
   @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
 ) {
-
   constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
 }
 data class CreateGroup(

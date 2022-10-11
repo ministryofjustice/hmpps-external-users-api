@@ -51,6 +51,49 @@ class GroupsServiceTest {
   }
 
   @Nested
+  inner class Groups {
+    @Test
+    fun `get all groups`() {
+      val dbGroup1 = Group("GROUP_1", "first group")
+      val dbGroup2 = Group("GROUP_2", "second group")
+      val allGroups = listOf(dbGroup1, dbGroup2)
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
+
+      val actualGroups = groupsService.allGroups
+      assertThat(actualGroups).isEqualTo(allGroups)
+      verify(groupRepository).findAllByOrderByGroupName()
+    }
+  }
+
+  @Nested
+  inner class DeleteChildGroup {
+
+    @Test
+    fun `Delete child group`() {
+      val childGroup = ChildGroup("CG", "disc")
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
+
+      groupsService.deleteChildGroup("CG")
+      verify(childGroupRepository).delete(childGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupChildDeleteSuccess",
+        mapOf("username" to "username", "childGroupCode" to "CG"),
+        null
+      )
+    }
+
+    @Test
+    fun `Child Group not found`() {
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        groupsService.deleteChildGroup("CG")
+      }.isInstanceOf(ChildGroupNotFoundException::class.java)
+        .hasMessage("Unable to get child group: CG with reason: notfound")
+    }
+  }
+
+  @Nested
   inner class ParentGroup {
 
     @Test
@@ -115,7 +158,6 @@ class GroupsServiceTest {
 
     @BeforeEach
     fun initSecurityContext() {
-      whenever(authenticationFacade.currentUsername).thenReturn("username")
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authenticationFacade.authentication.authorities).thenReturn(setOf(Authority("ROLE_COMMUNITY", "Role Community")))
     }

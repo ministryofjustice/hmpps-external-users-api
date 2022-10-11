@@ -30,7 +30,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.35.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.36.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
 }
 
