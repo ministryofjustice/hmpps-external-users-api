@@ -10,6 +10,6 @@ data class UserGroup(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
 ) {
-
+  constructor(g: Group) : this(g.groupCode, g.groupName)
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }

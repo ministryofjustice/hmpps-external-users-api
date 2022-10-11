@@ -29,6 +29,9 @@ class GroupsService(
   private val userGroupService: UserGroupService,
 ) {
 
+  val allGroups: List<Group>
+    get() = groupRepository.findAllByOrderByGroupName()
+
   @Throws(GroupNotFoundException::class)
   fun getGroupDetail(groupCode: String): Group {
     val requestedGroup =
