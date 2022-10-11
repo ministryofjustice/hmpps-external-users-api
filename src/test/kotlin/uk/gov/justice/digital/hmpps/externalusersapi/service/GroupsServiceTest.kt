@@ -170,7 +170,7 @@ class GroupsServiceTest {
       Assertions.assertThatThrownBy {
         groupsService.deleteChildGroup("CG")
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
-        .hasMessage("Unable to maintain child group: CG with reason: notfound")
+        .hasMessage("Unable to get child group: CG with reason: notfound")
     }
 
     @Test
@@ -207,7 +207,7 @@ class GroupsServiceTest {
       Assertions.assertThatThrownBy {
         groupsService.getChildGroupDetail("CG")
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
-        .hasMessage("Unable to maintain child group: CG with reason: notfound")
+        .hasMessage("Unable to get child group: CG with reason: notfound")
     }
   }
 }
