@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
@@ -76,6 +77,50 @@ class GroupsController(
   ): GroupDetails {
     val returnedGroup: Group = groupsService.getGroupDetail(group)
     return GroupDetails(returnedGroup)
+  }
+
+  @GetMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Child Group detail.",
+    description = "get Child Group Details"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun getChildGroupDetail(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+  ): ChildGroupDetails {
+    val returnedGroup: ChildGroup =
+      groupsService.getChildGroupDetail(group)
+    return ChildGroupDetails(returnedGroup)
   }
 
   @PutMapping("/groups/{group}")
@@ -402,6 +447,17 @@ data class GroupDetails(
     g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
     g.children.map { UserGroup(it) }.sortedBy { it.groupName }
   )
+}
+
+@Schema(description = "Group Details")
+data class ChildGroupDetails(
+  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
+  val groupCode: String,
+
+  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
+  val groupName: String
+) {
+  constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }
 
 data class CreateChildGroup(

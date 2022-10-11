@@ -40,6 +40,13 @@ class GroupsService(
     return requestedGroup
   }
 
+  @Throws(ChildGroupNotFoundException::class)
+  fun getChildGroupDetail(
+    groupCode: String,
+  ): ChildGroup {
+    return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
+  }
+
   @Transactional
   @Throws(GroupNotFoundException::class)
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) {

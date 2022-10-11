@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,51 +48,6 @@ class GroupsServiceTest {
   @BeforeEach
   fun initSecurityContext() {
     whenever(authenticationFacade.currentUsername).thenReturn("username")
-  }
-
-  @Test
-  fun `update child group details`() {
-    val dbGroup = ChildGroup("bob", "disc")
-    val groupAmendment = GroupAmendment("Joe")
-    whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
-
-    groupsService.updateChildGroup("bob", groupAmendment)
-
-    verify(childGroupRepository).findByGroupCode("bob")
-    verify(childGroupRepository).save(dbGroup)
-    verify(telemetryClient).trackEvent(
-      "GroupChildUpdateSuccess",
-      mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
-      null
-    )
-  }
-
-  @Nested
-  inner class DeleteChildGroup {
-
-    @Test
-    fun `Delete child group`() {
-      val childGroup = ChildGroup("CG", "disc")
-      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
-
-      groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).delete(childGroup)
-      verify(telemetryClient).trackEvent(
-        "GroupChildDeleteSuccess",
-        mapOf("username" to "username", "childGroupCode" to "CG"),
-        null
-      )
-    }
-
-    @Test
-    fun `Child Group not found`() {
-      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
-
-      Assertions.assertThatThrownBy {
-        groupsService.deleteChildGroup("CG")
-      }.isInstanceOf(ChildGroupNotFoundException::class.java)
-        .hasMessage("Unable to maintain child group: CG with reason: notfound")
-    }
   }
 
   @Nested
@@ -188,6 +144,70 @@ class GroupsServiceTest {
       verify(userRepository).findAll(any())
       verify(userGroupService, times(2)).removeGroup(anyString(), anyString(), anyString(), any())
       verify(groupRepository).delete(dbGroup)
+    }
+  }
+
+  @Nested
+  inner class ChildGroup {
+    @Test
+    fun `Delete child group`() {
+      val childGroup = ChildGroup("CG", "disc")
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
+
+      groupsService.deleteChildGroup("CG")
+      verify(childGroupRepository).delete(childGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupChildDeleteSuccess",
+        mapOf("username" to "username", "childGroupCode" to "CG"),
+        null
+      )
+    }
+
+    @Test
+    fun `Delete child Group not found`() {
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        groupsService.deleteChildGroup("CG")
+      }.isInstanceOf(ChildGroupNotFoundException::class.java)
+        .hasMessage("Unable to maintain child group: CG with reason: notfound")
+    }
+
+    @Test
+    fun `Update child group details`() {
+      val dbGroup = ChildGroup("bob", "disc")
+      val groupAmendment = GroupAmendment("Joe")
+      whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+      groupsService.updateChildGroup("bob", groupAmendment)
+
+      verify(childGroupRepository).findByGroupCode("bob")
+      verify(childGroupRepository).save(dbGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupChildUpdateSuccess",
+        mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
+        null
+      )
+    }
+
+    @Test
+    fun `Retrieve child group details`() {
+      val childGroup = ChildGroup("CHILD_1", "test")
+      whenever(childGroupRepository.findByGroupCode(childGroup.groupCode)).thenReturn(childGroup)
+
+      val actualChildGroupDetail = groupsService.getChildGroupDetail(childGroup.groupCode)
+
+      assertEquals(childGroup, actualChildGroupDetail)
+    }
+
+    @Test
+    fun `Retrieve child group details not found`() {
+      whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        groupsService.getChildGroupDetail("CG")
+      }.isInstanceOf(ChildGroupNotFoundException::class.java)
+        .hasMessage("Unable to maintain child group: CG with reason: notfound")
     }
   }
 }
