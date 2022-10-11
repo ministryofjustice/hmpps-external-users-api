@@ -740,4 +740,64 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
+
+  @Nested
+  inner class ChildGroupDetails {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `child group not found`() {
+      webTestClient
+        .get().uri("/groups/child/bob")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "developerMessage" to "Unable to get child group: bob with reason: notfound",
+              "userMessage" to "Child group not found: Unable to get child group: bob with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Retrieve child group details`() {
+      webTestClient
+        .get().uri("/groups/child/CHILD_2")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "groupCode" to "CHILD_2",
+              "groupName" to "Child - Site 2 - Group 1"
+            )
+          )
+        }
+    }
+  }
 }

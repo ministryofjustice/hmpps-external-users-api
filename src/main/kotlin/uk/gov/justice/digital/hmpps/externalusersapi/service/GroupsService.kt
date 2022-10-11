@@ -192,7 +192,7 @@ class GroupHasChildGroupException(group: String, errorCode: String) :
   Exception("Unable to delete group: $group with reason: $errorCode")
 
 class ChildGroupNotFoundException(group: String, errorCode: String) :
-  Exception("Unable to maintain child group: $group with reason: $errorCode")
+  Exception("Unable to get child group: $group with reason: $errorCode")
 
 class ChildGroupExistsException(group: String, errorCode: String) :
   Exception("Unable to create child group: $group with reason: $errorCode")
