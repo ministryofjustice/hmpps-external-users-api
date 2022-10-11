@@ -21,12 +21,14 @@ class ValidationControllerIntTest : IntegrationTestBase() {
         .expectBody<Boolean>()
         .returnResult().responseBody
 
-      assertThat(isValid).isEqualTo(false)
+      if (isValid != null) {
+        assertThat(isValid).isFalse
+      }
     }
   }
 
   @Test
-  fun `Validate email domain`() {
+  fun `Validate email matching domain`() {
     val isValid = webTestClient
       .get().uri("/validate/email-domain?emailDomain=careuk.com")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
@@ -35,19 +37,23 @@ class ValidationControllerIntTest : IntegrationTestBase() {
       .expectBody<Boolean>()
       .returnResult().responseBody
 
-    assertThat(isValid).isEqualTo(true)
+    if (isValid != null) {
+      assertThat(isValid).isTrue
+    }
   }
 
   @Test
-  fun `Validate email domain matching existing domains`() {
+  fun `Validate email domain matching subdomain`() {
     val isValid = webTestClient
-      .get().uri("/validate/email-domain?emailDomain=1careuk.com")
+      .get().uri("/validate/email-domain?emailDomain=subdomain.careuk.com")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CREATE_EMAIL_TOKEN")))
       .exchange()
       .expectStatus().isOk
       .expectBody<Boolean>()
       .returnResult().responseBody
 
-    assertThat(isValid).isEqualTo(true)
+    if (isValid != null) {
+      assertThat(isValid).isTrue
+    }
   }
 }
