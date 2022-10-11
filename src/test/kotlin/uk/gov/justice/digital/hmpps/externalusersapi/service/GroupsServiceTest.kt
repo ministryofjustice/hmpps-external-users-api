@@ -46,19 +46,7 @@ class GroupsServiceTest {
 
   @BeforeEach
   fun initSecurityContext() {
-
     whenever(authenticationFacade.currentUsername).thenReturn("username")
-  }
-  @Test
-  fun `get group details`() {
-    val dbGroup = Group("bob", "disc")
-    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
-
-    val group = groupsService.getGroupDetail("bob")
-
-    assertThat(group).isEqualTo(dbGroup)
-    verify(groupRepository).findByGroupCode("bob")
-    verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
   }
 
   @Test
@@ -78,30 +66,37 @@ class GroupsServiceTest {
     )
   }
 
-  @Test
-  fun `update group details`() {
-    val dbGroup = Group("bob", "disc")
-    val groupAmendment = GroupAmendment("Joe")
-    whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+  @Nested
+  inner class DeleteChildGroup {
 
-    groupsService.updateGroup("bob", groupAmendment)
+    @Test
+    fun `Delete child group`() {
+      val childGroup = ChildGroup("CG", "disc")
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
 
-    verify(groupRepository).findByGroupCode("bob")
-    verify(groupRepository).save(dbGroup)
-    verify(telemetryClient).trackEvent(
-      "GroupUpdateSuccess",
-      mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
-      null
-    )
+      groupsService.deleteChildGroup("CG")
+      verify(childGroupRepository).delete(childGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupChildDeleteSuccess",
+        mapOf("username" to "username", "childGroupCode" to "CG"),
+        null
+      )
+    }
+
+    @Test
+    fun `Child Group not found`() {
+      whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        groupsService.deleteChildGroup("CG")
+      }.isInstanceOf(ChildGroupNotFoundException::class.java)
+        .hasMessage("Unable to maintain child group: CG with reason: notfound")
+    }
   }
 
   @Nested
-  inner class createGroup {
-    @BeforeEach
-    fun initSecurityContext() {
+  inner class ParentGroup {
 
-      whenever(authenticationFacade.currentUsername).thenReturn("username")
-    }
     @Test
     fun `Create group`() {
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
@@ -127,6 +122,35 @@ class GroupsServiceTest {
         groupsService.createGroup(createGroup)
       }.isInstanceOf(GroupExistsException::class.java)
         .hasMessage("Unable to create group: CG with reason: group code already exists")
+    }
+
+    @Test
+    fun `update group details`() {
+      val dbGroup = Group("bob", "disc")
+      val groupAmendment = GroupAmendment("Joe")
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+      groupsService.updateGroup("bob", groupAmendment)
+
+      verify(groupRepository).findByGroupCode("bob")
+      verify(groupRepository).save(dbGroup)
+      verify(telemetryClient).trackEvent(
+        "GroupUpdateSuccess",
+        mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
+        null
+      )
+    }
+
+    @Test
+    fun `get group details`() {
+      val dbGroup = Group("bob", "disc")
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+
+      val group = groupsService.getGroupDetail("bob")
+
+      assertThat(group).isEqualTo(dbGroup)
+      verify(groupRepository).findByGroupCode("bob")
+      verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
     }
   }
 

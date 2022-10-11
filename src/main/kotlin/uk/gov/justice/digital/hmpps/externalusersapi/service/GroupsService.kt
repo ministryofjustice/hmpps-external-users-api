@@ -63,8 +63,8 @@ class GroupsService(
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
   fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) {
-    val groupToUpdate =
-      childGroupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("maintain", groupCode, "notfound")
+    val groupToUpdate = childGroupRepository.findByGroupCode(groupCode) ?: throw
+    ChildGroupNotFoundException(groupCode, "notfound")
 
     groupToUpdate.groupName = groupAmendment.groupName
     childGroupRepository.save(groupToUpdate)
@@ -76,6 +76,19 @@ class GroupsService(
         "childGroupCode" to groupCode,
         "newChildGroupName" to groupAmendment.groupName
       ),
+      null
+    )
+  }
+
+  @Transactional
+  @Throws(ChildGroupNotFoundException::class)
+  fun deleteChildGroup(groupCode: String) {
+    val childGroup = retrieveChildGroup(groupCode)
+    childGroupRepository.delete(childGroup)
+
+    telemetryClient.trackEvent(
+      "GroupChildDeleteSuccess",
+      mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode),
       null
     )
   }
@@ -123,6 +136,10 @@ class GroupsService(
         throw GroupHasChildGroupException(groupCode, "child group exist")
       }
     }
+  }
+
+  private fun retrieveChildGroup(groupCode: String): ChildGroup {
+    return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
   }
 
   private fun removeUsersFromGroup(groupCode: String, username: String?, authorities: Collection<GrantedAuthority>) {

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AuthUserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
@@ -174,6 +174,48 @@ class GroupsController(
     groupsService.updateChildGroup(group, groupAmendment)
   }
 
+  @DeleteMapping("/groups/child/{group}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Delete child group.",
+    description = "Delete a Child Group"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Child Group not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  fun deleteChildGroup(
+    @Parameter(description = "The group code of the child group.", required = true)
+    @PathVariable
+    group: String,
+  ) {
+    groupsService.deleteChildGroup(group)
+  }
+
   @PostMapping("/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -303,6 +345,7 @@ class GroupsController(
     groupsService.createChildGroup(createChildGroup)
   }
 }
+
 @Schema(description = "Group Name")
 data class GroupAmendment(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
@@ -351,13 +394,13 @@ data class GroupDetails(
   val assignableRoles: List<UserAssignableRole>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<AuthUserGroup>
+  val children: List<UserGroup>
 ) {
   constructor(g: Group) : this(
     g.groupCode,
     g.groupName,
     g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
-    g.children.map { AuthUserGroup(it) }.sortedBy { it.groupName }
+    g.children.map { UserGroup(it) }.sortedBy { it.groupName }
   )
 }
 

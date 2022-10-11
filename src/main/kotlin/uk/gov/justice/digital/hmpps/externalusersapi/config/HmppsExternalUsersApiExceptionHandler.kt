@@ -17,6 +17,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.GroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
@@ -156,6 +157,21 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
+
+  @ExceptionHandler(ChildGroupNotFoundException::class)
+  fun handleChildGroupNotFoundException(e: ChildGroupNotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Username not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "Child Group Not found: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
   @ExceptionHandler(UserGroupRelationshipException::class)
   fun handleUserGroupRelationshipException(e: UserGroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("User group relationship exception caught: {}", e.message)
@@ -216,7 +232,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorResponse> {
     log.debug("Group exists exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.CONFLICT)
+      .status(CONFLICT)
       .body(
         ErrorResponse(
           status = CONFLICT,
@@ -230,7 +246,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleGroupHasChildGroupException(e: GroupHasChildGroupException): ResponseEntity<ErrorResponse> {
     log.debug("Group has children exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.CONFLICT)
+      .status(CONFLICT)
       .body(
         ErrorResponse(
           status = CONFLICT,
@@ -244,7 +260,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleChildGroupExistsException(e: ChildGroupExistsException): ResponseEntity<ErrorResponse> {
     log.debug("Child group exists exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.CONFLICT)
+      .status(CONFLICT)
       .body(
         ErrorResponse(
           status = CONFLICT,
