@@ -262,8 +262,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"] as String).startsWith("Child Group Not found: Unable to maintain child group: Not_A_Group with reason: notfound")
-          assertThat(it["developerMessage"] as String).startsWith("Unable to maintain child group: Not_A_Group with reason: notfound")
+          assertThat(it["userMessage"] as String).startsWith("Child group not found: Unable to get child group: Not_A_Group with reason: notfound")
+          assertThat(it["developerMessage"] as String).startsWith("Unable to get child group: Not_A_Group with reason: notfound")
         }
     }
 
@@ -493,8 +493,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "errorCode" to null,
               "moreInfo" to null,
-              "userMessage" to "Child Group Not found: Unable to maintain child group: UNKNOWN with reason: notfound",
-              "developerMessage" to "Unable to maintain child group: UNKNOWN with reason: notfound"
+              "userMessage" to "Child group not found: Unable to get child group: UNKNOWN with reason: notfound",
+              "developerMessage" to "Unable to get child group: UNKNOWN with reason: notfound"
             )
           )
         }
