@@ -49,6 +49,21 @@ class GroupsServiceTest {
     whenever(authenticationFacade.currentUsername).thenReturn("username")
   }
 
+  @Nested
+  inner class Groups {
+    @Test
+    fun `get all groups`() {
+      val dbGroup1 = Group("GROUP_1", "first group")
+      val dbGroup2 = Group("GROUP_2", "second group")
+      val allGroups = listOf(dbGroup1, dbGroup2)
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
+
+      val actualGroups = groupsService.allGroups
+      assertThat(actualGroups).isEqualTo(allGroups)
+      verify(groupRepository).findAllByOrderByGroupName()
+    }
+  }
+
   @Test
   fun `update child group details`() {
     val dbGroup = ChildGroup("bob", "disc")
@@ -159,7 +174,6 @@ class GroupsServiceTest {
 
     @BeforeEach
     fun initSecurityContext() {
-      whenever(authenticationFacade.currentUsername).thenReturn("username")
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authenticationFacade.authentication.authorities).thenReturn(setOf(Authority("ROLE_COMMUNITY", "Role Community")))
     }

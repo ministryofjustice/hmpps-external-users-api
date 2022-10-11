@@ -8,12 +8,57 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
 class GroupsControllerIntTest : IntegrationTestBase() {
 
+  @Nested
+  inner class Groups {
+    @Test
+    fun `All Groups endpoint not accessible without valid token`() {
+      webTestClient.get().uri("/groups")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `All Groups endpoint returns forbidden when does not have  role `() {
+      webTestClient
+        .get().uri("/groups")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to FORBIDDEN.value(),
+              "developerMessage" to "Access is denied",
+              "userMessage" to "Access is denied"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `All Groups endpoint returns all possible groups`() {
+      webTestClient
+        .get().uri("/groups")
+        .headers(setAuthorisation(roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
+        .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_1", "groupName" to "Site 1 - Group 1"))
+        .jsonPath("[*].groupCode").value<List<String>> {
+          assertThat(it).hasSizeGreaterThan(2)
+        }
+    }
+  }
   @Nested
   inner class GroupDetails {
     @Test
