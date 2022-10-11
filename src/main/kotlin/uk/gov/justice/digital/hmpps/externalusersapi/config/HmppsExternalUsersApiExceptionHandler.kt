@@ -160,13 +160,13 @@ class HmppsExternalUsersApiExceptionHandler {
 
   @ExceptionHandler(ChildGroupNotFoundException::class)
   fun handleChildGroupNotFoundException(e: ChildGroupNotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("Username not found exception caught: {}", e.message)
+    log.debug("Child group not found exception caught: {}", e.message)
     return ResponseEntity
       .status(NOT_FOUND)
       .body(
         ErrorResponse(
           status = NOT_FOUND,
-          userMessage = "Child Group Not found: ${e.message}",
+          userMessage = "Child group not found: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
@@ -274,7 +274,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleUserGroupException(e: UserGroupException): ResponseEntity<ErrorResponse> {
     log.debug("User group exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse(
           status = BAD_REQUEST,
@@ -288,7 +288,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleUserGroupManagerException(e: UserGroupManagerException): ResponseEntity<ErrorResponse> {
     log.debug("User group exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
+      .status(BAD_REQUEST)
       .body(
         ErrorResponse(
           status = BAD_REQUEST,

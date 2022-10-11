@@ -43,6 +43,13 @@ class GroupsService(
     return requestedGroup
   }
 
+  @Throws(ChildGroupNotFoundException::class)
+  fun getChildGroupDetail(
+    groupCode: String,
+  ): ChildGroup {
+    return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
+  }
+
   @Transactional
   @Throws(GroupNotFoundException::class)
   fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) {
@@ -188,7 +195,7 @@ class GroupHasChildGroupException(group: String, errorCode: String) :
   Exception("Unable to delete group: $group with reason: $errorCode")
 
 class ChildGroupNotFoundException(group: String, errorCode: String) :
-  Exception("Unable to maintain child group: $group with reason: $errorCode")
+  Exception("Unable to get child group: $group with reason: $errorCode")
 
 class ChildGroupExistsException(group: String, errorCode: String) :
   Exception("Unable to create child group: $group with reason: $errorCode")

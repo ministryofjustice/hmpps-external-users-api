@@ -306,8 +306,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(NOT_FOUND.value())
-          assertThat(it["userMessage"] as String).startsWith("Child Group Not found: Unable to maintain child group: Not_A_Group with reason: notfound")
-          assertThat(it["developerMessage"] as String).startsWith("Unable to maintain child group: Not_A_Group with reason: notfound")
+          assertThat(it["userMessage"] as String).startsWith("Child group not found: Unable to get child group: Not_A_Group with reason: notfound")
+          assertThat(it["developerMessage"] as String).startsWith("Unable to get child group: Not_A_Group with reason: notfound")
         }
     }
 
@@ -537,8 +537,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "errorCode" to null,
               "moreInfo" to null,
-              "userMessage" to "Child Group Not found: Unable to maintain child group: UNKNOWN with reason: notfound",
-              "developerMessage" to "Unable to maintain child group: UNKNOWN with reason: notfound"
+              "userMessage" to "Child group not found: Unable to get child group: UNKNOWN with reason: notfound",
+              "developerMessage" to "Unable to get child group: UNKNOWN with reason: notfound"
             )
           )
         }
@@ -782,6 +782,66 @@ class GroupsControllerIntTest : IntegrationTestBase() {
       webTestClient.post().uri("/groups/child")
         .exchange()
         .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class ChildGroupDetails {
+
+    @Test
+    fun `access forbidden when no authority`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden when no role`() {
+      webTestClient.get().uri("/groups/child/CHILD_1")
+        .headers(setAuthorisation(roles = listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `child group not found`() {
+      webTestClient
+        .get().uri("/groups/child/bob")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to NOT_FOUND.value(),
+              "developerMessage" to "Unable to get child group: bob with reason: notfound",
+              "userMessage" to "Child group not found: Unable to get child group: bob with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Retrieve child group details`() {
+      webTestClient
+        .get().uri("/groups/child/CHILD_2")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "groupCode" to "CHILD_2",
+              "groupName" to "Child - Site 2 - Group 1"
+            )
+          )
+        }
     }
   }
 }

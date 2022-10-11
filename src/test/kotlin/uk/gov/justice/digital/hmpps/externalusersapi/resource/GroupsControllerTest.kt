@@ -4,6 +4,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -41,6 +42,19 @@ class GroupsControllerTest {
 
   @Nested
   inner class `child group` {
+    @Test
+    fun `child group details`() {
+      val childGroupCode = "CHILD_1"
+      val childGroupName = "Child - Site 1 - Group 2"
+
+      whenever(groupsService.getChildGroupDetail(childGroupCode)).thenReturn(ChildGroup(childGroupCode, childGroupName))
+      val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupCode)
+
+      assertEquals(childGroupCode, actualChildGroupDetail.groupCode)
+      assertEquals(childGroupName, actualChildGroupDetail.groupName)
+      verify(groupsService).getChildGroupDetail(childGroupCode)
+    }
+
     @Test
     fun `amend child group name`() {
       val groupAmendment = GroupAmendment("groupie")
