@@ -104,6 +104,9 @@ class UserGroupServiceTest {
 
     @Test
     fun userAssignableGroups_superUser() {
+      val user =
+        createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
         listOf(
           Group("JOE", "desc"),
