@@ -9,6 +9,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
@@ -19,7 +20,8 @@ class UserGroupServiceTest {
   private val userRepository: UserRepository = mock()
   private val groupRepository: GroupRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val service = UserGroupService(userRepository, groupRepository, telemetryClient)
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val service = UserGroupService(userRepository, groupRepository, telemetryClient, authenticationFacade)
 
   @Test
   fun removeGroup_groupNotOnUser() {
