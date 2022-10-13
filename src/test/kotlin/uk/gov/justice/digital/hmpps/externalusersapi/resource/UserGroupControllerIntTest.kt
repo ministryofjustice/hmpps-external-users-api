@@ -44,5 +44,28 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
+
+    @Test
+    fun `access forbidden without admin role`() {
+      webTestClient.delete().uri("/user/id/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient.delete().uri("/user/id/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden with incorrect role`() {
+      webTestClient.delete().uri("/user/id/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
   }
 }
