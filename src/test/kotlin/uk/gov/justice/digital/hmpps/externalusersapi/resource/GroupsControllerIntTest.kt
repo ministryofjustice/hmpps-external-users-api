@@ -585,8 +585,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to HttpStatus.CONFLICT.value(),
               "errorCode" to null,
               "moreInfo" to null,
-              "userMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exist",
-              "developerMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exist"
+              "userMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exists",
+              "developerMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exists"
             )
           )
         }
@@ -735,8 +735,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "developerMessage" to "Unable to create child group: CG1 with reason: group code already exists",
-              "userMessage" to "Unable to create child group: CG1 with reason: group code already exists",
+              "developerMessage" to "Unable to create child group: CG1 with reason: Child group code already exists",
+              "userMessage" to "Unable to create child group: CG1 with reason: Child group code already exists",
               "errorCode" to null,
               "moreInfo" to null,
               "status" to HttpStatus.CONFLICT.value()
@@ -767,8 +767,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
-              "developerMessage" to "Unable to create group: PG with reason: ParentGroupNotFound",
-              "userMessage" to "Group Not found: Unable to create group: PG with reason: ParentGroupNotFound",
+              "developerMessage" to "Unable to create group: CG1 with reason: ParentGroupNotFound",
+              "userMessage" to "Group Not found: Unable to create group: CG1 with reason: ParentGroupNotFound",
               "errorCode" to null,
               "moreInfo" to null,
               "status" to NOT_FOUND.value()

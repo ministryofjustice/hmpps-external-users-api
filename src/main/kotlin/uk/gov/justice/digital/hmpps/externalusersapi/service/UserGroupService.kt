@@ -69,7 +69,7 @@ class UserGroupService(
   val allGroups: List<Group>
     get() = groupRepository.findAllByOrderByGroupName()
 
-  fun getAuthUserGroups(username: String?): Set<Group>? {
+  fun getUserGroups(username: String?): Set<Group>? {
     val user = userRepository.findByUsername(username?.trim()?.uppercase())
     return user.map { u: User ->
       Hibernate.initialize(u.groups)
@@ -79,7 +79,7 @@ class UserGroupService(
   }
   fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
     if (canMaintainUsers(authorities)) allGroups.toList()
-    else getAuthUserGroups(username)?.sortedBy { it.groupName } ?: listOf()
+    else getUserGroups(username)?.sortedBy { it.groupName } ?: listOf()
 }
 class UserGroupException(val field: String, val errorCode: String) :
   Exception("Add group failed for field $field with reason: $errorCode")
