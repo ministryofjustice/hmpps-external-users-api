@@ -51,7 +51,7 @@ class UserGroupService(
       log.info("Removing group {} from userId {}", groupFormatted, userId)
       user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
       telemetryClient.trackEvent(
-        "AuthUserGroupRemoveSuccess",
+        "UserGroupRemoveSuccess",
         mapOf("userId" to userId, "group" to groupCode, "admin" to authenticationFacade.currentUsername),
         null
       )
