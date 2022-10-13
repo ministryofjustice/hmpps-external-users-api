@@ -18,7 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 
 @RestController
-@Tag(name = "/authuser/id/{userId}/groups", description = "User Groups Controller")
+@Tag(name = "/user/id/{userId}/groups", description = "User Groups Controller")
 class UserGroupController(
   private val userGroupService: UserGroupService
 ) {
@@ -27,7 +27,7 @@ class UserGroupController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @DeleteMapping("/authuser/id/{userId}/groups/{group}")
+  @DeleteMapping("/user/id/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
