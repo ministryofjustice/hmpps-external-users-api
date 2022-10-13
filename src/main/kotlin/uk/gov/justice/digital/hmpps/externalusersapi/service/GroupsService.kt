@@ -143,7 +143,7 @@ class GroupsService(
         )
       }
       else -> {
-        throw GroupHasChildGroupException(groupCode, "child group exist")
+        throw GroupHasChildGroupException(groupCode, "child group exists")
       }
     }
   }
@@ -163,11 +163,11 @@ class GroupsService(
     val groupCode = createChildGroup.groupCode.trim().uppercase()
     val childGroupFromDB = childGroupRepository.findByGroupCode(groupCode)
     if (childGroupFromDB != null) {
-      throw ChildGroupExistsException(groupCode, "group code already exists")
+      throw ChildGroupExistsException(groupCode, "Child group code already exists")
     }
     val parentGroupCode = createChildGroup.parentGroupCode.trim().uppercase()
     val parentGroupDetails = groupRepository.findByGroupCode(parentGroupCode) ?: throw
-    GroupNotFoundException("create", parentGroupCode, "ParentGroupNotFound")
+    GroupNotFoundException("create", groupCode, "ParentGroupNotFound")
 
     val groupName = createChildGroup.groupName.trim()
     val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName)
