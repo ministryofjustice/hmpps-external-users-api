@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -10,19 +11,32 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupReposit
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
 class UserGroupService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
+  private val maintainUserCheck: MaintainUserCheck,
   private val telemetryClient: TelemetryClient
 ) {
-
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
+
+  val allGroups: List<Group>
+    get() = groupRepository.findAllByOrderByGroupName()
+
+  fun getGroups(userId: String): Set<Group>? =
+    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { u: User ->
+      maintainUserCheck.ensureUserLoggedInUserRelationship(u)
+      Hibernate.initialize(u.groups)
+      u.groups.forEach { Hibernate.initialize(it.children) }
+      u.groups
+    }
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
@@ -38,15 +52,15 @@ class UserGroupService(
       throw UserGroupManagerException("delete", "group", "managerNotMember")
     }
 
-    if (user.groups.count() == 1 && !canMaintainUsers(authorities)) {
+    if (user.groups.count() == 1 && !canMaintainUsers()) {
       throw UserLastGroupException("group", "last")
     }
 
     log.info("Removing group {} from user {}", groupFormatted, username)
     user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
     telemetryClient.trackEvent(
-      "AuthUserGroupRemoveSuccess",
-      mapOf("username" to username, "group" to groupCode, "admin" to modifier),
+      "ExternalUserGroupRemoveSuccess",
+      mapOf("username" to username, "group" to groupCode.trim(), "admin" to modifier),
       null
     )
   }
@@ -56,7 +70,7 @@ class UserGroupService(
     authorities: Collection<GrantedAuthority>,
     modifier: String?
   ): Boolean {
-    return if (canMaintainUsers(authorities)) {
+    return if (canMaintainUsers()) {
       true
     } else {
       val modifierGroups = getAssignableGroups(modifier, authorities)
@@ -66,10 +80,7 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  val allGroups: List<Group>
-    get() = groupRepository.findAllByOrderByGroupName()
-
-  fun getUserGroups(username: String?): Set<Group>? {
+  fun getGroupsByUserName(username: String?): Set<Group>? {
     val user = userRepository.findByUsername(username?.trim()?.uppercase())
     return user.map { u: User ->
       Hibernate.initialize(u.groups)
@@ -77,10 +88,12 @@ class UserGroupService(
       u.groups
     }.orElse(null)
   }
+
   fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers(authorities)) allGroups.toList()
-    else getUserGroups(username)?.sortedBy { it.groupName } ?: listOf()
+    if (canMaintainUsers()) allGroups.toList()
+    else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }
+
 class UserGroupException(val field: String, val errorCode: String) :
   Exception("Add group failed for field $field with reason: $errorCode")
 

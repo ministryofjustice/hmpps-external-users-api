@@ -10,6 +10,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
@@ -17,7 +18,8 @@ import java.util.Optional.of
 
 class MaintainUserCheckTest {
   private val userRepository: UserRepository = mock()
-  private val maintainUserCheck = MaintainUserCheck(userRepository)
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val maintainUserCheck = MaintainUserCheck(userRepository, authenticationFacade)
 
   @Test
   fun `Group manager able to maintain group`() {
