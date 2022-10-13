@@ -3,25 +3,59 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import org.hibernate.Hibernate
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
 class UserGroupService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
-  private val telemetryClient: TelemetryClient
+  private val telemetryClient: TelemetryClient,
+  private val authenticationFacade: AuthenticationFacade
 ) {
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+  }
+
+  @Transactional
+  @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
+  fun removeGroupByUserId(
+    userId: String,
+    groupCode: String
+  ) {
+    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
+      val groupFormatted = formatGroup(groupCode)
+      if (user.groups.map { it.groupCode }.none { it == groupFormatted }
+      ) {
+        throw UserGroupException("group", "missing")
+      }
+      if (!checkGroupModifier(groupFormatted, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+        throw UserGroupManagerException("delete", "group", "managerNotMember")
+      }
+
+      if (user.groups.count() == 1 && !canMaintainUsers(authenticationFacade.authentication.authorities)) {
+        throw UserLastGroupException("group", "last")
+      }
+
+      log.info("Removing group {} from userId {}", groupFormatted, userId)
+      user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
+      telemetryClient.trackEvent(
+        "AuthUserGroupRemoveSuccess",
+        mapOf("userId" to userId, "group" to groupCode, "admin" to authenticationFacade.currentUsername),
+        null
+      )
+    }
   }
 
   @Transactional
@@ -81,11 +115,11 @@ class UserGroupService(
     if (canMaintainUsers(authorities)) allGroups.toList()
     else getAuthUserGroups(username)?.sortedBy { it.groupName } ?: listOf()
 }
-class UserGroupException(val field: String, val errorCode: String) :
+class UserGroupException(field: String, errorCode: String) :
   Exception("Add group failed for field $field with reason: $errorCode")
 
-class UserGroupManagerException(val action: String = "add", val field: String, val errorCode: String) :
+class UserGroupManagerException(action: String = "add", field: String, errorCode: String) :
   Exception("$action group failed for field $field with reason: $errorCode")
 
-class UserLastGroupException(val field: String, val errorCode: String) :
+class UserLastGroupException(field: String, errorCode: String) :
   Exception("remove group failed for field $field with reason: $errorCode")
