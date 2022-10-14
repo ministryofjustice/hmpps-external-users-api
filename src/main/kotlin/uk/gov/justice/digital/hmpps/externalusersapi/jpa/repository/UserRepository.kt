@@ -11,6 +11,5 @@ import java.util.UUID
 interface UserRepository : CrudRepository<User, UUID>, JpaSpecificationExecutor<User> {
   @Query("select distinct u from User u left join fetch u.authorities where u.username = :username and u.source = :source")
   fun findByUsernameAndSource(username: String?, source: AuthSource): Optional<User>
-  fun findByUsername(username: String?): Optional<User> =
-    findByUsernameAndSource(username, AuthSource.auth)
+  fun findByUsername(username: String?): Optional<User> = findByUsernameAndSource(username, AuthSource.auth)
 }
