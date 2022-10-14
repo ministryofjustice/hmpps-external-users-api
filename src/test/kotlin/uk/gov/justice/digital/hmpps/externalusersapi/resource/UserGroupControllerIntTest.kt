@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
@@ -11,6 +12,27 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class Groups {
+
+    @Test
+    fun `User Groups by userId endpoint returns not found if no user`() {
+      webTestClient
+        .get().uri("/users/id/12345678-1234-1234-1234-123456789101/groups?children=false")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "User 12345678-1234-1234-1234-123456789101 not found",
+              "userMessage" to "User not found: User 12345678-1234-1234-1234-123456789101 not found"
+            )
+          )
+        }
+    }
+
     @Test
     fun `User Groups by userId endpoint returns user groups no children - admin user`() {
       webTestClient

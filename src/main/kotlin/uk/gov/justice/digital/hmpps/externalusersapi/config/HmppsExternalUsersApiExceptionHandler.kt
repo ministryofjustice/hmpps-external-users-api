@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -181,6 +182,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = "User group relationship exception: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
+  @ExceptionHandler(UsernameNotFoundException::class)
+  fun handleUsernameNotFoundException(e: UsernameNotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("Username not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "User not found: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
