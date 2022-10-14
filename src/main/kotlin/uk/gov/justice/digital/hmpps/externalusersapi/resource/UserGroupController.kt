@@ -16,9 +16,10 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
+import java.util.UUID
 
 @RestController
-@Tag(name = "/user/id/{userId}/groups", description = "User Groups Controller")
+@Tag(name = "/users/id/{userId}/groups", description = "User Groups Controller")
 class UserGroupController(
   private val userGroupService: UserGroupService
 ) {
@@ -27,7 +28,7 @@ class UserGroupController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @DeleteMapping("/user/id/{userId}/groups/{group}")
+  @DeleteMapping("/users/id/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
@@ -84,7 +85,7 @@ class UserGroupController(
   )
   fun removeGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: String,
+    userId: UUID,
     @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable
     group: String
   ) {

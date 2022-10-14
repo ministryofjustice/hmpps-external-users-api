@@ -31,10 +31,10 @@ class UserGroupService(
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
   fun removeGroupByUserId(
-    userId: String,
+    userId: UUID,
     groupCode: String
   ) {
-    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { user ->
+    userRepository.findByIdOrNull(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
       if (user.groups.map { it.groupCode }.none { it == groupFormatted }
       ) {
@@ -52,7 +52,7 @@ class UserGroupService(
       user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
       telemetryClient.trackEvent(
         "UserGroupRemoveSuccess",
-        mapOf("userId" to userId, "group" to groupCode, "admin" to authenticationFacade.currentUsername),
+        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.currentUsername),
         null
       )
     }

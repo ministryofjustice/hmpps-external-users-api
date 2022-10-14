@@ -134,7 +134,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       assertThatThrownBy {
-        service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "BOB")
+        service.removeGroupByUserId(UUID.randomUUID(), "BOB")
       }.isInstanceOf(UserGroupException::class.java)
         .hasMessage("Add group failed for field group with reason: missing")
     }
@@ -148,7 +148,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       user.groups.addAll(setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
       whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
-      service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  licence_vary   ")
+      service.removeGroupByUserId(UUID.randomUUID(), "  licence_vary   ")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
     }
 
@@ -158,15 +158,16 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
+      val userId = UUID.randomUUID()
       val user = createSampleUser(username = "user")
       user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
-      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
       val manager = createSampleUser(
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
       )
       whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
-      service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  group_licence_vary   ")
+      service.removeGroupByUserId(userId, "  group_licence_vary   ")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
     }
 
@@ -176,15 +177,16 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
+      val userId = UUID.randomUUID()
       val user = createSampleUser(username = "user")
       user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
-      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
       val manager = createSampleUser(
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
       )
       whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
-      service.removeGroupByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a", "  group_licence_vary   ")
+      service.removeGroupByUserId(userId, "  group_licence_vary   ")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
     }
   }

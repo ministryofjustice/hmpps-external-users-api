@@ -202,8 +202,8 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(UserLastGroupException::class)
-  fun handleAuthUserLastGroupException(e: UserLastGroupException): ResponseEntity<ErrorResponse> {
-    log.debug("Auth user group exception caught: {}", e.message)
+  fun handleUserLastGroupException(e: UserLastGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("External user last group exception caught: {}", e.message)
     return ResponseEntity
       .status(FORBIDDEN)
       .body(
