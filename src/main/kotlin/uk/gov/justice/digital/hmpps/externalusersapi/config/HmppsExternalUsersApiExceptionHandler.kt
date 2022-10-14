@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExi
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -210,6 +211,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = "Maintain group relationship exception: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
+  @ExceptionHandler(UserLastGroupException::class)
+  fun handleUserLastGroupException(e: UserLastGroupException): ResponseEntity<ErrorResponse> {
+    log.debug("External user last group exception caught: {}", e.message)
+    return ResponseEntity
+      .status(FORBIDDEN)
+      .body(
+        ErrorResponse(
+          status = FORBIDDEN,
+          userMessage = e.message,
           developerMessage = e.message ?: "Error message not set"
         )
       )

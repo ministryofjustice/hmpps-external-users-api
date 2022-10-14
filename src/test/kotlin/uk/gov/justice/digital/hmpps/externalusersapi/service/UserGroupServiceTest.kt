@@ -5,12 +5,15 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
@@ -24,8 +27,9 @@ class UserGroupServiceTest {
   private val groupRepository: GroupRepository = mock()
   private val maintainUserCheck: MaintainUserCheck = mock()
   private val telemetryClient: TelemetryClient = mock()
-
-  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient)
+  private val authenticationFacade: AuthenticationFacade = mock()
+  private val authentication: Authentication = mock()
+  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient, authenticationFacade)
 
   @Nested
   inner class RemoveGroup {
@@ -148,6 +152,75 @@ class UserGroupServiceTest {
         val groups = service.getGroupsByUserName(" BOB ")
         assertThat(groups).isNull()
       }
+    }
+  }
+
+  @Nested
+  inner class RemoveGroupByUserId {
+
+    @Test
+    fun groupNotOnUser() {
+      whenever(authenticationFacade.currentUsername).thenReturn("admin")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+
+      val user = createSampleUser(username = "user")
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+      assertThatThrownBy {
+        service.removeGroupByUserId(UUID.randomUUID(), "BOB")
+      }.isInstanceOf(UserGroupException::class.java)
+        .hasMessage("Add group failed for field group with reason: missing")
+    }
+
+    @Test
+    fun success() {
+      whenever(authenticationFacade.currentUsername).thenReturn("admin")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
+
+      val user = createSampleUser(username = "user")
+      user.groups.addAll(setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
+      service.removeGroupByUserId(UUID.randomUUID(), "  licence_vary   ")
+      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+    }
+
+    @Test
+    fun successAsGroupManager() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val userId = UUID.randomUUID()
+      val user = createSampleUser(username = "user")
+      user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
+      whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
+      val manager = createSampleUser(
+        username = "user",
+        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+      )
+      whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
+      service.removeGroupByUserId(userId, "  group_licence_vary   ")
+      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+    }
+
+    @Test
+    fun failureAsGroupManager() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val userId = UUID.randomUUID()
+      val user = createSampleUser(username = "user")
+      user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
+      whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
+      val manager = createSampleUser(
+        username = "user",
+        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+      )
+      whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
+      service.removeGroupByUserId(userId, "  group_licence_vary   ")
+      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
     }
   }
 

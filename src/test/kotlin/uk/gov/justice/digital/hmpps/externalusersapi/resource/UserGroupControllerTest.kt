@@ -1,13 +1,13 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -37,8 +37,8 @@ class UserGroupControllerTest {
 
     @Test
     fun `groups userNotFound`() {
-      whenever(userGroupService.getGroups(any(), anyString(), any())).thenReturn(null)
-      assertThatThrownBy {
+      whenever(userGroupService.getGroups(any(), ArgumentMatchers.anyString(), any())).thenReturn(null)
+      Assertions.assertThatThrownBy {
         userGroupController.groupsByUserId(UUID.randomUUID())
       }
         .isInstanceOf(UsernameNotFoundException::class.java)
@@ -48,7 +48,7 @@ class UserGroupControllerTest {
     fun `groups no children`() {
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
-      whenever(userGroupService.getGroups(any(), anyString(), any())).thenReturn(
+      whenever(userGroupService.getGroups(any(), ArgumentMatchers.anyString(), any())).thenReturn(
         setOf(
           group1,
           group2
@@ -56,7 +56,7 @@ class UserGroupControllerTest {
       )
       val responseEntity =
         userGroupController.groupsByUserId(UUID.randomUUID(), false)
-      assertThat(responseEntity).containsOnly(UserGroup(group1), UserGroup(group2))
+      Assertions.assertThat(responseEntity).containsOnly(UserGroup(group1), UserGroup(group2))
     }
 
     @Test
@@ -65,14 +65,14 @@ class UserGroupControllerTest {
       val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1")
       group2.children.add(childGroup)
-      whenever(userGroupService.getGroups(any(), anyString(), any())).thenReturn(
+      whenever(userGroupService.getGroups(any(), ArgumentMatchers.anyString(), any())).thenReturn(
         setOf(
           group1,
           group2
         )
       )
       val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
+      Assertions.assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
     }
 
     @Test
@@ -81,14 +81,22 @@ class UserGroupControllerTest {
       val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1")
       group2.children.add(childGroup)
-      whenever(userGroupService.getGroups(any(), anyString(), any())).thenReturn(
+      whenever(userGroupService.getGroups(any(), ArgumentMatchers.anyString(), any())).thenReturn(
         setOf(
           group1,
           group2
         )
       )
       val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
+      Assertions.assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
     }
+  }
+
+  @Test
+  fun `should remove group by user id`() {
+    val id = UUID.randomUUID()
+    userGroupController.removeGroupByUserId(id, "test group")
+
+    verify(userGroupService).removeGroupByUserId(id, "test group")
   }
 }
