@@ -11,6 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
@@ -22,10 +23,11 @@ import java.util.UUID
 class UserGroupServiceTest {
   private val userRepository: UserRepository = mock()
   private val groupRepository: GroupRepository = mock()
+  private val authenticationFacade: AuthenticationFacade = mock()
   private val maintainUserCheck: MaintainUserCheck = mock()
   private val telemetryClient: TelemetryClient = mock()
 
-  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient)
+  private val service = UserGroupService(userRepository, groupRepository, authenticationFacade, maintainUserCheck, telemetryClient)
 
   @Nested
   inner class RemoveGroup {
@@ -95,8 +97,7 @@ class UserGroupServiceTest {
 
     @Test
     fun userAssignableGroups_normalUser() {
-      val user =
-        createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+      val user = createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
       whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       val groups = service.getAssignableGroups(" BOB ", setOf())
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
@@ -104,9 +105,6 @@ class UserGroupServiceTest {
 
     @Test
     fun userAssignableGroups_superUser() {
-      val user =
-        createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-      whenever(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user))
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
         listOf(
           Group("JOE", "desc"),
@@ -125,7 +123,7 @@ class UserGroupServiceTest {
         val user =
           createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
         whenever(userRepository.findById(id)).thenReturn(Optional.of(user))
-        val groups = service.getGroups(id.toString())
+        val groups = service.getGroups(id.toString(), "username", listOf())
         assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
       }
 
@@ -133,7 +131,7 @@ class UserGroupServiceTest {
       fun groups_user_notfound() {
         val id = UUID.randomUUID()
         whenever(userRepository.findById(id)).thenReturn(Optional.empty())
-        val groups = service.getGroups(id.toString())
+        val groups = service.getGroups(id.toString(), "username", listOf())
         assertThat(groups).isNull()
       }
 

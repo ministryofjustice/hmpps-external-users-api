@@ -7,6 +7,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
@@ -20,6 +21,7 @@ import java.util.UUID
 class UserGroupService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
+  private val authenticationFacade: AuthenticationFacade,
   private val maintainUserCheck: MaintainUserCheck,
   private val telemetryClient: TelemetryClient
 ) {
@@ -30,9 +32,13 @@ class UserGroupService(
   val allGroups: List<Group>
     get() = groupRepository.findAllByOrderByGroupName()
 
-  fun getGroups(userId: String): Set<Group>? =
+  fun getGroups(
+    userId: String,
+    admin: String = authenticationFacade.currentUsername!!,
+    authorities: Collection<GrantedAuthority> = authenticationFacade.authentication.authorities
+  ): Set<Group>? =
     userRepository.findByIdOrNull(UUID.fromString(userId))?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(u)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, u)
       Hibernate.initialize(u.groups)
       u.groups.forEach { Hibernate.initialize(it.children) }
       u.groups
@@ -52,7 +58,7 @@ class UserGroupService(
       throw UserGroupManagerException("delete", "group", "managerNotMember")
     }
 
-    if (user.groups.count() == 1 && !canMaintainUsers()) {
+    if (user.groups.count() == 1 && !canMaintainUsers(authorities)) {
       throw UserLastGroupException("group", "last")
     }
 
@@ -70,7 +76,7 @@ class UserGroupService(
     authorities: Collection<GrantedAuthority>,
     modifier: String?
   ): Boolean {
-    return if (canMaintainUsers()) {
+    return if (canMaintainUsers(authorities)) {
       true
     } else {
       val modifierGroups = getAssignableGroups(modifier, authorities)
@@ -90,7 +96,7 @@ class UserGroupService(
   }
 
   fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers()) allGroups.toList()
+    if (canMaintainUsers(authorities)) allGroups.toList()
     else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }
 
