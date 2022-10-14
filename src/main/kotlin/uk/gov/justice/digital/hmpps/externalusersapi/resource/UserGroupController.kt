@@ -13,14 +13,17 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
+import java.util.UUID
 
 @Validated
 @RestController
 class UserGroupController(
-  private val userGroupService: UserGroupService
+  private val userGroupService: UserGroupService,
+  private val authenticationFacade: AuthenticationFacade
 ) {
 
   @GetMapping("/users/id/{userId}/groups")
@@ -60,12 +63,12 @@ class UserGroupController(
   fun groupsByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
-    userId: String,
+    userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true")
     children: Boolean = true,
   ): List<UserGroup> =
-    userGroupService.getGroups(userId)
+    userGroupService.getGroups(userId, authenticationFacade.currentUsername!!, authenticationFacade.authentication.authorities)
       ?.flatMap { g ->
         if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
         else listOf(UserGroup(g))

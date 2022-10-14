@@ -7,7 +7,6 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
@@ -21,7 +20,6 @@ import java.util.UUID
 class UserGroupService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
-  private val authenticationFacade: AuthenticationFacade,
   private val maintainUserCheck: MaintainUserCheck,
   private val telemetryClient: TelemetryClient
 ) {
@@ -32,12 +30,8 @@ class UserGroupService(
   val allGroups: List<Group>
     get() = groupRepository.findAllByOrderByGroupName()
 
-  fun getGroups(
-    userId: String,
-    admin: String = authenticationFacade.currentUsername!!,
-    authorities: Collection<GrantedAuthority> = authenticationFacade.authentication.authorities
-  ): Set<Group>? =
-    userRepository.findByIdOrNull(UUID.fromString(userId))?.let { u: User ->
+  fun getGroups(userId: UUID, admin: String, authorities: Collection<GrantedAuthority>): Set<Group>? =
+    userRepository.findByIdOrNull(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, u)
       Hibernate.initialize(u.groups)
       u.groups.forEach { Hibernate.initialize(it.children) }
