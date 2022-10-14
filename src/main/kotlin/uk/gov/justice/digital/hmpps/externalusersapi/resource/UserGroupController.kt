@@ -70,16 +70,6 @@ class UserGroupController(
             schema = Schema(implementation = ErrorResponse::class)
           )
         ]
-      ),
-      ApiResponse(
-        responseCode = "500",
-        description = "Server exception e.g. failed to insert row.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
       )
     ]
   )
