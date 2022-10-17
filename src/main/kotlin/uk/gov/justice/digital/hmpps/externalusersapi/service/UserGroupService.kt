@@ -32,9 +32,9 @@ class UserGroupService(
   val allGroups: List<Group>
     get() = groupRepository.findAllByOrderByGroupName()
 
-  fun getGroups(userId: UUID, admin: String, authorities: Collection<GrantedAuthority>): Set<Group>? =
+  fun getGroups(userId: UUID): Set<Group>? =
     userRepository.findByIdOrNull(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(admin, authorities, u)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, u)
       Hibernate.initialize(u.groups)
       u.groups.forEach { Hibernate.initialize(it.children) }
       u.groups
