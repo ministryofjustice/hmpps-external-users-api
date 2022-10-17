@@ -26,7 +26,7 @@ import java.util.UUID
 
 @Validated
 @RestController
-@Tag(name = "/users/id/{userId}/groups", description = "User Groups Controller")
+@Tag(name = "/users/{userId}/groups", description = "User Groups Controller")
 class UserGroupController(
   private val userGroupService: UserGroupService,
   private val authenticationFacade: AuthenticationFacade
@@ -36,7 +36,7 @@ class UserGroupController(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  @GetMapping("/users/id/{userId}/groups")
+  @GetMapping("/users/{userId}/groups")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get groups for userId.",
@@ -85,7 +85,7 @@ class UserGroupController(
       }
       ?: throw UsernameNotFoundException("User $userId not found")
 
-  @DeleteMapping("/users/id/{userId}/groups/{group}")
+  @DeleteMapping("/users/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
