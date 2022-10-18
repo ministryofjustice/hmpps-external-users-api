@@ -8,8 +8,6 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
@@ -45,13 +43,8 @@ class MaintainUserCheckTest {
         "groupManager",
         "group3"
       )
-    }.isInstanceOf(MaintainUserCheck.GroupRelationshipException::class.java)
+    }.isInstanceOf(GroupRelationshipException::class.java)
       .hasMessage("Unable to maintain group: group3 with reason: Group not with your groups")
     verify(userRepository).findByUsername(anyOrNull())
-  }
-
-  companion object {
-    private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
-    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
   }
 }

@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.util.UUID
 
 @Service
@@ -44,7 +45,7 @@ class UserGroupService(
   @Throws(
     UserGroupException::class,
     UserGroupManagerException::class,
-    MaintainUserCheck.UserGroupRelationshipException::class
+    UserGroupRelationshipException::class
   )
   fun addGroupByUserId(userId: UUID, groupCode: String) {
     // already checked that user exists

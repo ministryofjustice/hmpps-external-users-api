@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.ArgumentMatchers.isNull
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -22,6 +24,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.util.Optional
 import java.util.UUID
 
@@ -236,7 +239,7 @@ class UserGroupServiceTest {
 
     @Test
     fun blankGroupCode() {
-      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(createSampleUser(username = "user")))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(createSampleUser(username = "user")))
       assertThatThrownBy {
         service.addGroupByUserId(
           UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
@@ -250,7 +253,7 @@ class UserGroupServiceTest {
     fun groupAlreadyOnUser() {
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val user = createSampleUser(username = "user", groups = setOf(group))
-      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(user))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
       assertThatThrownBy {
         service.addGroupByUserId(
@@ -267,8 +270,9 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER)
 
+      val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
       val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
-      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(user))
+      whenever(userRepository.findById(any())).thenReturn(Optional.of(user))
       val group = Group("GROUP_LICENCE_VARY", "desc")
 
       val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
@@ -280,9 +284,12 @@ class UserGroupServiceTest {
         )
       )
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
-      service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
+      service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
       assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      verify(telemetryClient).trackEvent(eq("AuthUserGroupAddSuccess"), eq(expectedTelemetryDetails), isNull())
     }
 
     @Test
@@ -291,8 +298,9 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.authentication).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
+      val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
       val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
-      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      whenever(userRepository.findById(userId)).thenReturn(Optional.of(user))
       val manager = createSampleUser(
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
@@ -311,6 +319,9 @@ class UserGroupServiceTest {
       service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
       assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      verify(telemetryClient).trackEvent(eq("AuthUserGroupAddSuccess"), eq(expectedTelemetryDetails), isNull())
     }
 
     @Test
@@ -359,7 +370,7 @@ class UserGroupServiceTest {
         )
       )
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
-      doThrow(MaintainUserCheck.UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
+      doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
         .ensureUserLoggedInUserRelationship(
           anyString(),
           org.mockito.kotlin.any(),
@@ -368,7 +379,7 @@ class UserGroupServiceTest {
 
       assertThatThrownBy {
         service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
-      }.isInstanceOf(MaintainUserCheck.UserGroupRelationshipException::class.java)
+      }.isInstanceOf(UserGroupRelationshipException::class.java)
         .hasMessage("Unable to maintain user: user with reason: User not with your groups")
     }
   }

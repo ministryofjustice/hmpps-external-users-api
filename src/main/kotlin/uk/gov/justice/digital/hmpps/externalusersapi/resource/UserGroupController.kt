@@ -184,7 +184,7 @@ class UserGroupController(
   fun addGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
-    @Parameter(description = "The group to be added to the user.", required = true) @PathVariable
+    @Parameter(description = "The group code of the group to be added to the user.", required = true) @PathVariable
     group: String
   ) {
     userGroupService.addGroupByUserId(userId, group)

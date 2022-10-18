@@ -81,6 +81,16 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+              {
+              "userMessage":"Add group failed for field group with reason: managerNotMember",
+              "developerMessage":"Add group failed for field group with reason: managerNotMember"
+              }
+          """
+            .trimIndent()
+        )
 
       callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
         .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
