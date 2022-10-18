@@ -11,6 +11,111 @@ import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTest
 class UserGroupControllerIntTest : IntegrationTestBase() {
 
   @Nested
+  inner class AddGroupByUserId {
+
+    @Test
+    fun `access forbidden without admin role`() {
+      webTestClient.put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient.put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden with incorrect role`() {
+      webTestClient.put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_EMAIL_DOMAINS")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `add group to a user success`() {
+      callGetGroups(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
+        .doesNotExist()
+
+      webTestClient
+        .put().uri("/users/7CA04ED7-8275-45B2-AFB4-4FF51432D1EC/groups/site_1_group_2")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      callGetGroups(userId = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EC")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
+        .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
+    }
+
+    @Test
+    fun `add group to a user as group manager`() {
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
+        .doesNotExist()
+
+      webTestClient
+        .put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA030/groups/SITE_1_GROUP_2")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_2')]")
+        .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
+    }
+
+    @Test
+    fun `does not add group if group Manager not member of group`() {
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
+        .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
+        .doesNotExist()
+
+      webTestClient
+        .put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02C/groups/PECS_DRB8")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isBadRequest
+
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
+        .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
+        .doesNotExist()
+    }
+
+    @Test
+    fun `does not add group if user not in group managers groups`() {
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
+        .doesNotExist()
+
+      webTestClient
+        .put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44A/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+              {
+              "userMessage":"User group relationship exception: Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups",
+              "developerMessage":"Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups"
+              }
+        """
+            .trimIndent()
+        )
+
+      callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
+        .jsonPath("[?(@.groupCode == 'SITE_1_GROUP_1')]")
+        .doesNotExist()
+    }
+  }
+
+  @Nested
   inner class RemoveGroupByUserId {
 
     @Test
