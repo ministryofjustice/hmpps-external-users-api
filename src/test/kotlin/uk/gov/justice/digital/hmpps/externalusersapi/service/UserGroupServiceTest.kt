@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -17,7 +18,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.model.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import java.util.Optional
 import java.util.UUID
@@ -225,6 +228,148 @@ class UserGroupServiceTest {
       whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
       service.removeGroupByUserId(userId, "  group_licence_vary   ")
       assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+    }
+  }
+
+  @Nested
+  inner class AddGroupByUserId {
+
+    @Test
+    fun blankGroupCode() {
+      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(createSampleUser(username = "user")))
+      assertThatThrownBy {
+        service.addGroupByUserId(
+          UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
+          "        "
+        )
+      }.isInstanceOf(UserGroupException::class.java)
+        .hasMessage("Add group failed for field group with reason: notfound")
+    }
+
+    @Test
+    fun groupAlreadyOnUser() {
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+      val user = createSampleUser(username = "user", groups = setOf(group))
+      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(user))
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      assertThatThrownBy {
+        service.addGroupByUserId(
+          UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
+          "LICENCE_VARY"
+        )
+      }.isInstanceOf(UserGroupException::class.java)
+        .hasMessage("Add group failed for field group with reason: exists")
+    }
+
+    @Test
+    fun success() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
+
+      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      whenever(userRepository.findById(org.mockito.kotlin.any())).thenReturn(Optional.of(user))
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+
+      val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+      val roleJoe = Authority("JOE", "Role Joe")
+      group.assignableRoles.addAll(
+        setOf(
+          GroupAssignableRole(roleLicence, group, true),
+          GroupAssignableRole(roleJoe, group, false)
+        )
+      )
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
+      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
+      assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+    }
+
+    @Test
+    fun successAsGroupManager() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      val manager = createSampleUser(
+        username = "user",
+        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+      )
+      whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+      val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+      val roleJoe = Authority("JOE", "Role Joe")
+      group.assignableRoles.addAll(
+        setOf(
+          GroupAssignableRole(roleLicence, group, true),
+          GroupAssignableRole(roleJoe, group, false)
+        )
+      )
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
+      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("GROUP_JOE", "GROUP_LICENCE_VARY")
+      assertThat(user.authorities).extracting<String> { it.roleCode }.containsOnly("LICENCE_VARY")
+    }
+
+    @Test
+    fun failureWhenGroupManagerNotMemberOfGroup() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+      val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+      val roleJoe = Authority("JOE", "Role Joe")
+      group.assignableRoles.addAll(
+        setOf(
+          GroupAssignableRole(roleLicence, group, true),
+          GroupAssignableRole(roleJoe, group, false)
+        )
+      )
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      assertThatThrownBy {
+        service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
+      }.isInstanceOf(UserGroupManagerException::class.java)
+        .hasMessage("Add group failed for field group with reason: managerNotMember")
+    }
+
+    @Test
+    fun failureWhenGroupManagerNotAllowedToMaintainUser() {
+      whenever(authenticationFacade.currentUsername).thenReturn("MANAGER")
+      whenever(authenticationFacade.authentication).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val user = createSampleUser(username = "user")
+      whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(Optional.of(user))
+      val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_LICENCE_VARY", "desc")))
+      whenever(userRepository.findByUsername("MANAGER")).thenReturn(Optional.of(manager))
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+      val roleLicence = Authority("ROLE_LICENCE_VARY", "Role Licence Vary")
+      val roleJoe = Authority("JOE", "Role Joe")
+      group.assignableRoles.addAll(
+        setOf(
+          GroupAssignableRole(roleLicence, group, true),
+          GroupAssignableRole(roleJoe, group, false)
+        )
+      )
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      doThrow(MaintainUserCheck.UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
+        .ensureUserLoggedInUserRelationship(
+          anyString(),
+          org.mockito.kotlin.any(),
+          org.mockito.kotlin.any()
+        )
+
+      assertThatThrownBy {
+        service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
+      }.isInstanceOf(MaintainUserCheck.UserGroupRelationshipException::class.java)
+        .hasMessage("Unable to maintain user: user with reason: User not with your groups")
     }
   }
 

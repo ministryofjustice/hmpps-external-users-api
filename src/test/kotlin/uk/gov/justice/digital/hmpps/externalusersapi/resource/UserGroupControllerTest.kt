@@ -85,4 +85,12 @@ class UserGroupControllerTest {
 
     verify(userGroupService).removeGroupByUserId(id, "test group")
   }
+
+  @Test
+  fun `should add group to user`() {
+    val id = UUID.randomUUID()
+    userGroupController.addGroupByUserId(id, "test group")
+
+    verify(userGroupService).addGroupByUserId(id, "test group")
+  }
 }

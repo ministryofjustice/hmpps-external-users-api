@@ -41,6 +41,40 @@ class UserGroupService(
     }
 
   @Transactional
+  @Throws(
+    UserGroupException::class,
+    UserGroupManagerException::class,
+    MaintainUserCheck.UserGroupRelationshipException::class
+  )
+  fun addGroupByUserId(userId: UUID, groupCode: String) {
+    // already checked that user exists
+    userRepository.findByIdOrNull(userId)?.let { user ->
+      val groupFormatted = formatGroup(groupCode)
+      // check that group exists
+      val group =
+        groupRepository.findByGroupCode(groupFormatted) ?: throw UserGroupException("group", "notfound")
+      if (user.groups.contains(group)) {
+        throw UserGroupException("group", "exists")
+      }
+      // check that modifier is able to add user to group
+      if (!checkGroupModifier(groupCode, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+        throw UserGroupManagerException("Add", "group", "managerNotMember")
+      }
+      // check that modifier is able to maintain the user
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, user)
+
+      log.info("Adding group {} to userId {}", groupFormatted, userId)
+      user.groups.add(group)
+      user.authorities.addAll(group.assignableRoles.filter { it.automatic }.map { it.role })
+      telemetryClient.trackEvent(
+        "AuthUserGroupAddSuccess",
+        mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.currentUsername),
+        null
+      )
+    }
+  }
+
+  @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
   fun removeGroupByUserId(
     userId: UUID,
