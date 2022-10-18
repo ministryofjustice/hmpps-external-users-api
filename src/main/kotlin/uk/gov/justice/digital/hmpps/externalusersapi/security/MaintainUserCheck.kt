@@ -36,7 +36,7 @@ class MaintainUserCheck(
   }
 
   @Throws(UserGroupRelationshipException::class)
-  fun ensureUserLoggedInUserRelationship(loggedInUser: String, authorities: Collection<GrantedAuthority>, user: User) {
+  fun ensureUserLoggedInUserRelationship(loggedInUser: String?, authorities: Collection<GrantedAuthority>, user: User) {
     // if they have maintain privileges then all good
     if (canMaintainUsers(authorities)) {
       return

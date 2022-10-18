@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
@@ -28,10 +27,8 @@ import java.util.UUID
 @RestController
 @Tag(name = "/users/{userId}/groups", description = "User Groups Controller")
 class UserGroupController(
-  private val userGroupService: UserGroupService,
-  private val authenticationFacade: AuthenticationFacade
+  private val userGroupService: UserGroupService
 ) {
-
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
@@ -72,13 +69,11 @@ class UserGroupController(
   )
   fun groupsByUserId(
     @Parameter(description = "The userId of the user.", required = true)
-    @PathVariable
-    userId: UUID,
+    @PathVariable userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
-    @RequestParam(defaultValue = "true")
-    children: Boolean = true,
+    @RequestParam(defaultValue = "true") children: Boolean = true
   ): List<UserGroup> =
-    userGroupService.getGroups(userId, authenticationFacade.currentUsername!!, authenticationFacade.authentication.authorities)
+    userGroupService.getGroups(userId)
       ?.flatMap { g ->
         if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
         else listOf(UserGroup(g))
@@ -131,10 +126,10 @@ class UserGroupController(
     ]
   )
   fun removeGroupByUserId(
-    @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: UUID,
-    @Parameter(description = "The group to be delete from the user.", required = true) @PathVariable
-    group: String
+    @Parameter(description = "The userId of the user.", required = true)
+    @PathVariable userId: UUID,
+    @Parameter(description = "The group to be delete from the user.", required = true)
+    @PathVariable group: String
   ) {
     userGroupService.removeGroupByUserId(userId, group)
     log.info("Remove group succeeded for userId {} and group {}", userId, group)

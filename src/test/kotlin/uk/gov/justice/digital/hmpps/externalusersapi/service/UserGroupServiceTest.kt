@@ -121,11 +121,15 @@ class UserGroupServiceTest {
     inner class GetGroups {
       @Test
       fun groups_success() {
+        whenever(authenticationFacade.currentUsername).thenReturn("admin")
+        whenever(authenticationFacade.authentication).thenReturn(authentication)
+        whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+
         val id = UUID.randomUUID()
         val user =
           createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
         whenever(userRepository.findById(id)).thenReturn(Optional.of(user))
-        val groups = service.getGroups(id, "username", listOf())
+        val groups = service.getGroups(id)
         assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
       }
 
@@ -133,7 +137,7 @@ class UserGroupServiceTest {
       fun groups_user_notfound() {
         val id = UUID.randomUUID()
         whenever(userRepository.findById(id)).thenReturn(Optional.empty())
-        val groups = service.getGroups(id, "username", listOf())
+        val groups = service.getGroups(id)
         assertThat(groups).isNull()
       }
 

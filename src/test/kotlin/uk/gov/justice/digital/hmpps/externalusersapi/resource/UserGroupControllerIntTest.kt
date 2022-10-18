@@ -72,7 +72,9 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
     }
   }
-  inner class Groups {
+
+  @Nested
+  inner class GetUserGroups {
 
     @Test
     fun `User Groups by userId endpoint returns not found if no user`() {
