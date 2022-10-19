@@ -56,12 +56,13 @@ class RoleService(
   }
 
   suspend fun getRoles(
+    role: Authority,
     adminTypes: List<AdminType>?,
   ): List<Authority> {
     val rolesFilter = RoleFilter(adminTypes = adminTypes)
     // TODO Fix this
     // return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
-    return listOf()
+    return roleRepository.findAll(role).toList()
   }
 
   suspend fun getRoles(
