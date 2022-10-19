@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.util.UUID
 
 @Service
@@ -39,6 +40,40 @@ class UserGroupService(
       u.groups.forEach { Hibernate.initialize(it.children) }
       u.groups
     }
+
+  @Transactional
+  @Throws(
+    UserGroupException::class,
+    UserGroupManagerException::class,
+    UserGroupRelationshipException::class
+  )
+  fun addGroupByUserId(userId: UUID, groupCode: String) {
+    // already checked that user exists
+    userRepository.findByIdOrNull(userId)?.let { user ->
+      val groupFormatted = formatGroup(groupCode)
+      // check that group exists
+      val group =
+        groupRepository.findByGroupCode(groupFormatted) ?: throw UserGroupException("group", "notfound")
+      if (user.groups.contains(group)) {
+        throw UserGroupException("group", "exists")
+      }
+      // check that modifier is able to add user to group
+      if (!checkGroupModifier(groupCode, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+        throw UserGroupManagerException("Add", "group", "managerNotMember")
+      }
+      // check that modifier is able to maintain the user
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, user)
+
+      log.info("Adding group {} to userId {}", groupFormatted, userId)
+      user.groups.add(group)
+      user.authorities.addAll(group.assignableRoles.filter { it.automatic }.map { it.role })
+      telemetryClient.trackEvent(
+        "AuthUserGroupAddSuccess",
+        mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.currentUsername),
+        null
+      )
+    }
+  }
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)

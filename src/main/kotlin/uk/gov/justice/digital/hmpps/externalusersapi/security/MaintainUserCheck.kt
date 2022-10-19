@@ -48,10 +48,10 @@ class MaintainUserCheck(
       throw UserGroupRelationshipException(user.name, "User not with your groups")
     }
   }
-
-  class UserGroupRelationshipException(val username: String, val errorCode: String) :
-    Exception("Unable to maintain user: $username with reason: $errorCode")
-
-  class GroupRelationshipException(val group: String, val errorCode: String) :
-    Exception("Unable to maintain group: $group with reason: $errorCode")
 }
+
+class UserGroupRelationshipException(username: String, errorCode: String) :
+  Exception("Unable to maintain user: $username with reason: $errorCode")
+
+class GroupRelationshipException(group: String, errorCode: String) :
+  Exception("Unable to maintain group: $group with reason: $errorCode")
