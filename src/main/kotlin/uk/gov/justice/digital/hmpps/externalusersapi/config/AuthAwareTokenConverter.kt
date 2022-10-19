@@ -1,23 +1,23 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.config
 
 import org.springframework.core.convert.converter.Converter
-import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter
+import reactor.core.publisher.Mono
 
-class AuthAwareTokenConverter : Converter<Jwt, AbstractAuthenticationToken> {
+class AuthAwareTokenConverter : Converter<Jwt, Mono<AuthAwareAuthenticationToken>> {
   private val jwtGrantedAuthoritiesConverter: Converter<Jwt, Collection<GrantedAuthority>> =
     JwtGrantedAuthoritiesConverter()
 
-  override fun convert(jwt: Jwt): AbstractAuthenticationToken {
+  override fun convert(jwt: Jwt): Mono<AuthAwareAuthenticationToken> {
     val claims = jwt.claims
     val userName = findUserName(claims)
     val clientId = findClientId(claims)
     val authorities = extractAuthorities(jwt)
-    return AuthAwareAuthenticationToken(jwt, userName, clientId, authorities)
+    return Mono.just(AuthAwareAuthenticationToken(jwt, userName, clientId, authorities))
   }
 
   private fun findUserName(claims: Map<String, Any?>): String? {

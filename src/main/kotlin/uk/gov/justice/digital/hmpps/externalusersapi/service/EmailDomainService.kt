@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
-import org.springframework.data.repository.findByIdOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.EmailDomainExclusions
@@ -21,7 +22,7 @@ class EmailDomainService(
   }
 
   @Transactional(readOnly = true)
-  fun domainList(): List<EmailDomainDto> {
+  suspend fun domainList(): List<EmailDomainDto> {
     val allEmailDomains = emailDomainRepository.findAll()
     val emailDomainDtoList = allEmailDomains.map { emailDomain ->
       EmailDomainDto(
@@ -31,16 +32,18 @@ class EmailDomainService(
       )
     }
 
-    return emailDomainDtoList.sortedWith(compareBy { it.domain })
+    // TODO NEEDS UPDATE TO SORT
+    // return emailDomainDtoList.sortedWith(compareBy { it.domain })
+    return emailDomainDtoList.toList()
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun domain(id: UUID): EmailDomainDto {
+  suspend fun domain(id: UUID): EmailDomainDto {
     return toDto(retrieveDomain(id, "retrieve"))
   }
 
   @Throws(EmailDomainAdditionBarredException::class)
-  fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
+  suspend fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
     val domainNameInternal = if (newDomain.name.startsWith(PERCENT)) newDomain.name else PERCENT + newDomain.name
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
@@ -55,7 +58,7 @@ class EmailDomainService(
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun removeDomain(id: UUID) {
+  suspend fun removeDomain(id: UUID) {
     val emailDomain = retrieveDomain(id, "delete")
     emailDomainRepository.delete(emailDomain)
   }
@@ -68,8 +71,12 @@ class EmailDomainService(
     )
   }
 
-  private fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
-    return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
+  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
+    // return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
+    // TODO Check this is correct
+    return emailDomainRepository.findById(uuid)
+      ?.let { it }
+      ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
   }
 
   private fun cleanDomainNameForDisplay(persistedDomainName: String): String {

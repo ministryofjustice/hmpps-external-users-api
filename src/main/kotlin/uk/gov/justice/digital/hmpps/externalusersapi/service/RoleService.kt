@@ -1,10 +1,13 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.toList
 import org.hibernate.Hibernate
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
@@ -26,7 +29,7 @@ class RoleService(
 ) {
   @Transactional
   @Throws(RoleExistsException::class)
-  fun createRole(createRole: CreateRole) {
+  suspend fun createRole(createRole: CreateRole) {
     val roleCode = createRole.roleCode.trim().uppercase()
     val roleFromDb = roleRepository.findByRoleCode(roleCode)
     roleFromDb?.let { throw RoleExistsException(roleCode, "role code already exists") }
@@ -52,31 +55,45 @@ class RoleService(
     )
   }
 
-  fun getRoles(
+  suspend fun getRoles(
     adminTypes: List<AdminType>?,
   ): List<Authority> {
     val rolesFilter = RoleFilter(adminTypes = adminTypes)
-    return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
+    // TODO Fix this
+    // return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
+    return roleRepository.findAll().toList()
   }
 
-  fun getRoles(
+  suspend fun getRoles(
     roleName: String?,
     roleCode: String?,
     adminTypes: List<AdminType>?,
     pageable: Pageable,
-  ): Page<Authority> {
+  ): Page<Authority> =
+    // TODO Check/Text/Fix this
+    coroutineScope {
+      val rolesFilter = RoleFilter(
+        roleName = roleName,
+        adminTypes = adminTypes,
+        roleCode = roleCode,
+      )
 
-    val rolesFilter = RoleFilter(
-      roleName = roleName,
-      adminTypes = adminTypes,
-      roleCode = roleCode,
-    )
+      val roles = async {
+        roleRepository.findAll(rolesFilter, pageable)
+      }
 
-    return roleRepository.findAll(rolesFilter, pageable)
-  }
+      val count = async {
+        roleRepository.countAllByFindAll(rolesFilter)
+      }
+
+      PageImpl(
+        roles.await().toList().map { it },
+        pageable, count.await()
+      )
+    }
 
   @Throws(RoleNotFoundException::class)
-  fun getRoleDetails(roleCode: String): Authority {
+  suspend fun getRoleDetails(roleCode: String): Authority {
     val role = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("get", roleCode, "notfound")
     Hibernate.initialize(role.adminType)
     return role
@@ -84,7 +101,7 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+  suspend fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
     roleToUpdate.roleName = roleAmendment.roleName
@@ -99,7 +116,7 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
+  suspend fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
     roleToUpdate.roleDescription = roleAmendment.roleDescription
@@ -114,7 +131,7 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
+  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
     val immutableAdminTypesInDb = roleToUpdate.adminType.filter { it != AdminType.DPS_LSA }
 

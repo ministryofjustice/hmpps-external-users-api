@@ -2,7 +2,12 @@ server:
   shutdown: immediate
   port: 8088
 
+spring:
+  devtools:
+    add-properties: true
+
 api:
   base:
     url:
       oauth: http://localhost:9090/auth
+

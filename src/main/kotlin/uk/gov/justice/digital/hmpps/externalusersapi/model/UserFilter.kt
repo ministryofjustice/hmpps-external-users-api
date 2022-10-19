@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import com.google.common.collect.ImmutableList
-import org.springframework.data.jpa.domain.Specification
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.util.EmailHelper.format
 import javax.persistence.criteria.CriteriaBuilder
@@ -10,17 +9,20 @@ import javax.persistence.criteria.JoinType
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
+// TODO fix this re: Specification
 class UserFilter(
   name: String? = null,
   val roleCodes: List<String>? = null,
   val groupCodes: List<String>? = null,
   val status: Status = Status.ALL,
   val authSources: List<AuthSource>? = null,
-) : Specification<User> {
+// ) : Specification<User> {
+) {
 
   private val name: String? = if (name.isNullOrBlank()) null else name.trim()
 
-  override fun toPredicate(
+  // override fun toPredicate(
+  fun toPredicate(
     root: Root<User>,
     query: CriteriaQuery<*>,
     cb: CriteriaBuilder

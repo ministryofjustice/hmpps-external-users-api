@@ -2,18 +2,15 @@ package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import org.apache.commons.lang3.StringUtils
 import org.hibernate.annotations.GenericGenerator
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.GrantedAuthority
 import java.util.UUID
 import javax.persistence.AttributeConverter
-import javax.persistence.Column
 import javax.persistence.Convert
 import javax.persistence.Converter
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.Table
 
-@Entity
 @Table(name = "ROLES")
 class Authority(
   roleCode: String,
@@ -22,26 +19,26 @@ class Authority(
   adminType: List<AdminType> = listOf(),
 ) : GrantedAuthority {
   @Id
-  @GeneratedValue(generator = "UUID")
+  // @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-  @Column(name = "role_id", updatable = false, nullable = false)
+  @Column(value = "role_id") // , updatable = false, nullable = false)
   val id: UUID? = null
 
-  @Column(name = "role_code", nullable = false)
+  @Column(value = "role_code") // , nullable = false)
   val roleCode: String
 
-  @Column(name = "role_name", nullable = false)
+  @Column(value = "role_name") // , nullable = false)
   var roleName: String
   override fun getAuthority(): String = "$ROLE_PREFIX$roleCode"
 
-  @Column(name = "role_description")
+  @Column(value = "role_description")
   var roleDescription: String?
 
-  @Column(name = "admin_type", nullable = false)
+  @Column(value = "admin_type") // , nullable = false)
   @Convert(converter = EnumListConverter::class)
   var adminType: List<AdminType>
 
-  @Column(name = "admin_type", nullable = false, updatable = false, insertable = false)
+  @Column(value = "admin_type") // , nullable = false, updatable = false, insertable = false)
   lateinit var adminTypesAsString: String
 
   override fun equals(other: Any?): Boolean {

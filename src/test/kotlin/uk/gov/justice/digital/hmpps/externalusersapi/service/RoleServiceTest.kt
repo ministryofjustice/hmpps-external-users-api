@@ -1,39 +1,16 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.any
-import org.mockito.kotlin.check
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
-import org.mockito.kotlin.whenever
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
-
+/*
   @Nested
   inner class CreateRoles {
     @Test
@@ -491,4 +468,6 @@ class RoleServiceTest {
       )
     }
   }
+
+ */
 }

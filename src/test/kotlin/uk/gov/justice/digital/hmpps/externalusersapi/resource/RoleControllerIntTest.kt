@@ -16,7 +16,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
 
   @Autowired
   private lateinit var roleRepository: RoleRepository
-
+/*
   @Nested
   inner class CreateRole {
 
@@ -293,7 +293,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isUnauthorized
     }
   }
-
+*/
   @Nested
   inner class GetRoles {
     @Test

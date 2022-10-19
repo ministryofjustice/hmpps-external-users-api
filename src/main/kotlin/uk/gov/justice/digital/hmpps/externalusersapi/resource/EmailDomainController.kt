@@ -26,20 +26,20 @@ class EmailDomainController(
 
   @GetMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun domainList(): List<EmailDomainDto> {
+  suspend fun domainList(): List<EmailDomainDto> {
     return emailDomainService.domainList()
   }
 
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun domain(@PathVariable id: UUID): EmailDomainDto {
+  suspend fun domain(@PathVariable id: UUID): EmailDomainDto {
     return emailDomainService.domain(id)
   }
 
   @PostMapping("/email-domains")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun addEmailDomain(@RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
+  suspend fun addEmailDomain(@RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
     val emailDomainDto = emailDomainService.addDomain(emailDomain)
     recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", "domain", emailDomain.name)
     return emailDomainDto
@@ -47,7 +47,7 @@ class EmailDomainController(
 
   @DeleteMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  fun deleteEmailDomain(@PathVariable id: UUID) {
+  suspend fun deleteEmailDomain(@PathVariable id: UUID) {
     emailDomainService.removeDomain(id)
     recordEmailDomainStateChangeEvent("EmailDomainDeleteSuccess", "id", id.toString())
   }

@@ -15,20 +15,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.GroupRelationshipException
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.UserGroupRelationshipException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -117,7 +105,7 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-
+/*
   @ExceptionHandler(EmailDomainAdditionBarredException::class)
   fun handleEmailDomainAdditionBarredException(e: EmailDomainAdditionBarredException): ResponseEntity<ErrorResponse> {
     log.error("Unable to add email domain", e)
@@ -187,7 +175,7 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-
+*/
   @ExceptionHandler(UsernameNotFoundException::class)
   fun handleUsernameNotFoundException(e: UsernameNotFoundException): ResponseEntity<ErrorResponse> {
     log.debug("Username not found exception caught: {}", e.message)
@@ -202,6 +190,7 @@ class HmppsExternalUsersApiExceptionHandler {
       )
   }
 
+  /*
   @ExceptionHandler(GroupRelationshipException::class)
   fun handleGroupRelationshipException(e: GroupRelationshipException): ResponseEntity<ErrorResponse> {
     log.debug("Maintain group relationship exception caught: {}", e.message)
@@ -229,7 +218,7 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-
+*/
   @ExceptionHandler(RoleNotFoundException::class)
   fun handleRoleNotFoundException(e: RoleNotFoundException): ResponseEntity<ErrorResponse> {
     log.debug("Role not found exception caught: {}", e.message)
@@ -257,7 +246,7 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
-
+/*
   @ExceptionHandler(GroupExistsException::class)
   fun handleGroupExistsException(e: GroupExistsException): ResponseEntity<ErrorResponse> {
     log.debug("Group exists exception caught: {}", e.message)
@@ -327,6 +316,8 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
+
+ */
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }

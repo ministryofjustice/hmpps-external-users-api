@@ -67,7 +67,7 @@ class UserGroupController(
       )
     ]
   )
-  fun groupsByUserId(
+  suspend fun groupsByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
@@ -75,8 +75,10 @@ class UserGroupController(
   ): List<UserGroup> =
     userGroupService.getGroups(userId)
       ?.flatMap { g ->
-        if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
-        else listOf(UserGroup(g))
+        // TODO FIx this
+        //  if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
+        // else listOf(UserGroup(g))
+        listOf(UserGroup(g))
       }
       ?: throw UsernameNotFoundException("User $userId not found")
 
@@ -125,7 +127,7 @@ class UserGroupController(
       )
     ]
   )
-  fun removeGroupByUserId(
+  suspend fun removeGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: UUID,
     @Parameter(description = "The group to be delete from the user.", required = true)

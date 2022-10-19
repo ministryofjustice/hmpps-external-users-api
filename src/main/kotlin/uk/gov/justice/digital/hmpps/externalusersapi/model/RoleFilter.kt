@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import com.google.common.collect.ImmutableList
-import org.springframework.data.jpa.domain.Specification
 import javax.persistence.criteria.CriteriaBuilder
 import javax.persistence.criteria.CriteriaQuery
 import javax.persistence.criteria.Path
@@ -9,17 +8,19 @@ import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 import kotlin.reflect.KProperty1
 
+// TODO fix this re: Specification
 class RoleFilter(
   roleName: String? = null,
   val roleCode: String? = null,
   val adminTypes: List<AdminType>? = null,
-) : Specification<Authority> {
-
+// ) : Specification<User> {
+) {
   private val roleName: String? = if (roleName.isNullOrBlank()) null else roleName.trim()
 
   fun <PROP> Root<*>.get(prop: KProperty1<*, PROP>): Path<PROP> = this.get(prop.name)
 
-  override fun toPredicate(
+  // override fun toPredicate(
+  fun toPredicate(
     root: Root<Authority>,
     query: CriteriaQuery<*>,
     cb: CriteriaBuilder

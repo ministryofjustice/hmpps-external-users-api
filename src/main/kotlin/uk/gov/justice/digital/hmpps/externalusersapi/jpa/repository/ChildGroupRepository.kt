@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
 
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 
-interface ChildGroupRepository : CrudRepository<ChildGroup, String> {
+interface ChildGroupRepository : CoroutineCrudRepository<ChildGroup, String> {
 
-  fun findByGroupCode(groupCode: String?): ChildGroup?
+  suspend fun findByGroupCode(groupCode: String?): ChildGroup?
 
-  fun deleteByGroupCode(groupCode: String?)
+  suspend fun deleteByGroupCode(groupCode: String?)
 }

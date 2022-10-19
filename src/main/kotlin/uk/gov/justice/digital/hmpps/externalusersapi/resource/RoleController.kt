@@ -70,7 +70,7 @@ class RoleController(
   )
   @ResponseStatus(HttpStatus.CREATED)
   @Throws(RoleService.RoleExistsException::class)
-  fun createRole(
+  suspend fun createRole(
     @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody
     createRole: CreateRole
@@ -143,7 +143,7 @@ class RoleController(
       )
     ]
   )
-  fun getRoles(
+  suspend fun getRoles(
     @Parameter(description = "Role name or partial of a role name")
     @RequestParam(required = false)
     roleName: String?,
@@ -197,7 +197,7 @@ class RoleController(
       )
     ]
   )
-  fun getRoleDetails(
+  suspend fun getRoleDetails(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
     role: String
@@ -237,7 +237,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleName(
+  suspend fun amendRoleName(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     role: String,
@@ -282,7 +282,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleDescription(
+  suspend fun amendRoleDescription(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     role: String,
@@ -327,7 +327,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleAdminType(
+  suspend fun amendRoleAdminType(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     roleCode: String,

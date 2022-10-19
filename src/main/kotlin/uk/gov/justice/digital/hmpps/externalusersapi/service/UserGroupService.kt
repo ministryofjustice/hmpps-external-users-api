@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.toList
 import org.hibernate.Hibernate
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,24 +29,25 @@ class UserGroupService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  val allGroups: List<Group>
-    get() = groupRepository.findAllByOrderByGroupName()
-
-  fun getGroups(userId: UUID): Set<Group>? =
-    userRepository.findByIdOrNull(userId)?.let { u: User ->
+  suspend fun getGroups(userId: UUID): Set<Group>? =
+    // userRepository.findByIdOrNull(userId)?.let { u: User ->
+    userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, u)
       Hibernate.initialize(u.groups)
-      u.groups.forEach { Hibernate.initialize(it.children) }
+      // TODO Fix this
+      // u.groups.forEach { Hibernate.initialize(it.children) }
       u.groups
     }
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
-  fun removeGroupByUserId(
+  suspend fun removeGroupByUserId(
     userId: UUID,
     groupCode: String
   ) {
-    userRepository.findByIdOrNull(userId)?.let { user ->
+    // TODO check this is ok
+    // userRepository.findByIdOrNull(userId)?.let { user ->
+    userRepository.findById(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
       if (user.groups.map { it.groupCode }.none { it == groupFormatted }
       ) {
@@ -72,7 +73,7 @@ class UserGroupService(
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
-  fun removeGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
+  suspend fun removeGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
     val user = userRepository.findByUsername(username).orElseThrow()
@@ -97,7 +98,7 @@ class UserGroupService(
     )
   }
 
-  private fun checkGroupModifier(
+  private suspend fun checkGroupModifier(
     groupCode: String,
     authorities: Collection<GrantedAuthority>,
     modifier: String?
@@ -112,17 +113,18 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  fun getGroupsByUserName(username: String?): Set<Group>? {
+  suspend fun getGroupsByUserName(username: String?): Set<Group>? {
     val user = userRepository.findByUsername(username?.trim()?.uppercase())
     return user.map { u: User ->
       Hibernate.initialize(u.groups)
-      u.groups.forEach { Hibernate.initialize(it.children) }
+      // TODO Fix this
+      // u.groups.forEach { Hibernate.initialize(it.children) }
       u.groups
     }.orElse(null)
   }
 
-  fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers(authorities)) allGroups.toList()
+  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
+    if (canMaintainUsers(authorities)) groupRepository.findAllByOrderByGroupName().toList()
     else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }
 

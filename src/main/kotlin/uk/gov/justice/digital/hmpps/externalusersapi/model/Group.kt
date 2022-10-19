@@ -1,34 +1,32 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import org.hibernate.annotations.GenericGenerator
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 import java.io.Serializable
 import java.util.UUID
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
 import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.persistence.Table
 
-@Entity
 @Table(name = "GROUPS")
 class Group(
-  @Column(name = "group_code", nullable = false) val groupCode: String,
-  @Column(name = "group_name", nullable = false) var groupName: String,
+  @Column(value = "group_code") val groupCode: String,
+  @Column(value = "group_name") var groupName: String,
 ) : Serializable {
+
   @Id
   @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-  @Column(name = "group_id", updatable = false, nullable = false)
-  val id: UUID? = null
+  @Column(value = "group_id")
+  var id: UUID? = null
 
+/*
   @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
   val assignableRoles: MutableSet<GroupAssignableRole> = mutableSetOf()
 
   @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
   val children: MutableSet<ChildGroup> = mutableSetOf()
-
+*/
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false

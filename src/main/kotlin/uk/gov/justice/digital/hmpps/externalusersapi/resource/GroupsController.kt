@@ -8,11 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
@@ -20,9 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
-import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
 import javax.validation.Valid
@@ -60,7 +56,8 @@ class GroupsController(
       )
     ]
   )
-  fun allGroups(): List<UserGroup> = groupsService.allGroups.map { UserGroup(it) }
+  // fun allGroups(): List<UserGroup> = groupsService.allGroups.map { UserGroup(it) }
+  suspend fun allGroups(): List<UserGroup> = groupsService.getAllGroups().map { UserGroup(it) }
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -96,12 +93,13 @@ class GroupsController(
       )
     ]
   )
-  fun getGroupDetail(
+  suspend fun getGroupDetail(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
   ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
 
+/*
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -145,7 +143,8 @@ class GroupsController(
       groupsService.getChildGroupDetail(group)
     return ChildGroupDetails(returnedGroup)
   }
-
+*/
+/*
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -180,7 +179,7 @@ class GroupsController(
       )
     ]
   )
-  fun amendGroupName(
+  suspend fun amendGroupName(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String,
@@ -279,7 +278,7 @@ class GroupsController(
   ) {
     groupsService.deleteChildGroup(group)
   }
-
+*/
   @PostMapping("/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -315,12 +314,12 @@ class GroupsController(
     ]
   )
   @Throws(GroupExistsException::class, GroupNotFoundException::class)
-  fun createGroup(
+  suspend fun createGroup(
     @Parameter(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
     createGroup: CreateGroup
   ) = groupsService.createGroup(createGroup)
-
+/*
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -404,6 +403,8 @@ class GroupsController(
   ) {
     groupsService.createChildGroup(createChildGroup)
   }
+
+ */
 }
 
 @Schema(description = "Group Name")
@@ -449,17 +450,17 @@ data class GroupDetails(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
 
-  @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<UserAssignableRole>,
+  // @Schema(required = true, description = "Assignable Roles")
+  // val assignableRoles: List<UserAssignableRole>,
 
-  @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroup>
+//  @Schema(required = true, description = "Child Groups")
+//  val children: List<UserGroup>
 ) {
   constructor(g: Group) : this(
     g.groupCode,
     g.groupName,
-    g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
-    g.children.map { UserGroup(it) }.sortedBy { it.groupName }
+    // g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
+    // g.children.map { UserGroup(it) }.sortedBy { it.groupName }
   )
 }
 

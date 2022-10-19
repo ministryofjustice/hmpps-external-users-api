@@ -1,28 +1,13 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doThrow
-import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
-import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 class RoleControllerTest {
   private val roleService: RoleService = mock()
   private val roleController = RoleController(roleService)
 
+  /*
   @Nested
   inner class CreateRole {
     @Test
@@ -218,4 +203,5 @@ class RoleControllerTest {
         .withFailMessage("Unable to find role: NoRole with reason: not found")
     }
   }
+  */
 }

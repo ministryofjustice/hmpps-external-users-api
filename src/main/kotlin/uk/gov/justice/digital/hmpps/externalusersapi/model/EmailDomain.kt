@@ -3,12 +3,10 @@ package uk.gov.justice.digital.hmpps.externalusersapi.model
 import org.hibernate.annotations.GenericGenerator
 import java.util.UUID
 import javax.persistence.Column
-import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
 
-@Entity
 @Table(name = "EMAIL_DOMAIN")
 data class EmailDomain(
   @Id
