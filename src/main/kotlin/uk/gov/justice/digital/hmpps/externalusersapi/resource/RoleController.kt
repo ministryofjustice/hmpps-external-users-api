@@ -100,7 +100,7 @@ class RoleController(
       )
     ]
   )
-  fun getRoles(
+  suspend fun getRoles(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(required = false)
     adminTypes: List<AdminType>?

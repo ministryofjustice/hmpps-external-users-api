@@ -61,7 +61,7 @@ class RoleService(
     val rolesFilter = RoleFilter(adminTypes = adminTypes)
     // TODO Fix this
     // return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
-    return roleRepository.findAll().toList()
+    return listOf()
   }
 
   suspend fun getRoles(
@@ -79,11 +79,13 @@ class RoleService(
       )
 
       val roles = async {
-        roleRepository.findAll(rolesFilter, pageable)
+        // roleRepository.findAll(rolesFilter, pageable)
+        listOf<Authority>()
       }
 
       val count = async {
-        roleRepository.countAllByFindAll(rolesFilter)
+        0L
+        // roleRepository.countAllByFindAll(rolesFilter)
       }
 
       PageImpl(
