@@ -46,7 +46,7 @@ class RoleService(
     telemetryClient.trackEvent(
       "RoleCreateSuccess",
       mapOf(
-        "username" to authenticationFacade.currentUsername,
+        "username" to authenticationFacade.getUsername(),
         "roleCode" to roleCode,
         "roleName" to roleName,
         "roleDescription" to roleDescription,
@@ -112,7 +112,7 @@ class RoleService(
 
     telemetryClient.trackEvent(
       "RoleNameUpdateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
+      mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
       null
     )
   }
@@ -127,7 +127,7 @@ class RoleService(
 
     telemetryClient.trackEvent(
       "RoleDescriptionUpdateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
+      mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
       null
     )
   }
@@ -142,7 +142,7 @@ class RoleService(
     roleRepository.save(roleToUpdate)
     telemetryClient.trackEvent(
       "RoleAdminTypeUpdateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
+      mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
       null
     )
   }

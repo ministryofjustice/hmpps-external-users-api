@@ -81,7 +81,7 @@ class GroupsService(
     telemetryClient.trackEvent(
       "GroupUpdateSuccess",
       mapOf(
-        "username" to authenticationFacade.currentUsername,
+        "username" to authenticationFacade.getUsername(),
         "groupCode" to groupCode,
         "newGroupName" to groupAmendment.groupName
       ),
@@ -101,7 +101,7 @@ class GroupsService(
     telemetryClient.trackEvent(
       "GroupChildUpdateSuccess",
       mapOf(
-        "username" to authenticationFacade.currentUsername,
+        "username" to authenticationFacade.getUsername(),
         "childGroupCode" to groupCode,
         "newChildGroupName" to groupAmendment.groupName
       ),
@@ -117,11 +117,10 @@ class GroupsService(
 
     telemetryClient.trackEvent(
       "GroupChildDeleteSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "childGroupCode" to groupCode),
+      mapOf("username" to authenticationFacade.getUsername(), "childGroupCode" to groupCode),
       null
     )
   }
-
   @Transactional
   @Throws(GroupExistsException::class)
   suspend fun createGroup(createGroup: CreateGroup) {
@@ -132,12 +131,9 @@ class GroupsService(
     val groupName = createGroup.groupName.trim()
     val group = Group(groupCode = groupCode, groupName = groupName)
     groupRepository.save(group)
-
-    // TODO authenticationFacade.currentUsername is null, needs investigation
-
     telemetryClient.trackEvent(
       "GroupCreateSuccess",
-      mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
+      mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode, "groupName" to groupName),
       null
     )
   }
@@ -204,7 +200,7 @@ class GroupsService(
     telemetryClient.trackEvent(
       "GroupChildCreateSuccess",
       mapOf(
-        "username" to authenticationFacade.currentUsername,
+        "username" to authenticationFacade.getUsername(),
         "groupCode" to parentGroupDetails.groupCode,
         "childGroupCode" to groupCode,
         "childGroupName" to groupName

@@ -32,7 +32,7 @@ class UserGroupService(
   suspend fun getGroups(userId: UUID): Set<Group>? =
     // userRepository.findByIdOrNull(userId)?.let { u: User ->
     userRepository.findById(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, u)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
       Hibernate.initialize(u.groups)
       // TODO Fix this
       // u.groups.forEach { Hibernate.initialize(it.children) }
@@ -53,11 +53,11 @@ class UserGroupService(
       ) {
         throw UserGroupException("group", "missing")
       }
-      if (!checkGroupModifier(groupFormatted, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+      if (!checkGroupModifier(groupFormatted, authenticationFacade.getAuthentication().authorities, authenticationFacade.getUsername())) {
         throw UserGroupManagerException("delete", "group", "managerNotMember")
       }
 
-      if (user.groups.count() == 1 && !canMaintainUsers(authenticationFacade.authentication.authorities)) {
+      if (user.groups.count() == 1 && !canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
         throw UserLastGroupException("group", "last")
       }
 
@@ -65,7 +65,7 @@ class UserGroupService(
       user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
       telemetryClient.trackEvent(
         "UserGroupRemoveSuccess",
-        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.currentUsername),
+        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.getUsername()),
         null
       )
     }

@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.User
 @Service
 class MaintainUserCheck(
   private val userRepository: UserRepository,
+  private val authenticationFacade: AuthenticationFacade,
 ) {
   companion object {
     fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
@@ -23,7 +24,7 @@ class MaintainUserCheck(
     groupCode: String,
   ) {
     // if they have maintain privileges then all good
-    if (AuthenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
+    if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
     val maintainer =
