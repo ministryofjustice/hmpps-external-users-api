@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
@@ -29,10 +30,10 @@ class GroupsService(
 ) {
 
   // TODO Check: can we amend this call to work
-/*
+  /*
   val allGroups: List<Group>
     get() = groupRepository.findAllByOrderByGroupName()
-*/
+  */
   suspend fun getAllGroups(): List<Group> =
     coroutineScope {
       val groups = async {
@@ -42,14 +43,16 @@ class GroupsService(
     }
 
   @Throws(GroupNotFoundException::class)
-  suspend fun getGroupDetail(groupCode: String): Group {
-
-    return groupRepository.findByGroupCode(groupCode)
-      ?.let { it }
+  suspend fun getGroupDetail(groupCode: String): GroupDetails =
+    groupRepository.findByGroupCode(groupCode)
+      ?.let {
+        val children = childGroupRepository.findAllById(it.groupId).toList()
+        GroupDetails(it, children)
+      }
       ?: throw GroupNotFoundException("get", groupCode, "notfound")
-
-    // TODO Fix this
 /*
+    // TODO Fix this
+
       val requestedGroup =
        return groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("get", groupCode, "notfound")
 
@@ -58,7 +61,6 @@ class GroupsService(
       maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.currentUsername, groupCode)
       return requestedGroup
  */
-  }
 
   @Throws(ChildGroupNotFoundException::class)
   suspend fun getChildGroupDetail(
@@ -131,13 +133,13 @@ class GroupsService(
     val group = Group(groupCode = groupCode, groupName = groupName)
     groupRepository.save(group)
 
-    //TODO authenticationFacade.currentUsername is null, needs investigation
+    // TODO authenticationFacade.currentUsername is null, needs investigation
 
-  /*    telemetryClient.trackEvent(
+    telemetryClient.trackEvent(
       "GroupCreateSuccess",
       mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
       null
-    )*/
+    )
   }
 
   @Transactional
@@ -194,7 +196,8 @@ class GroupsService(
 
     val groupName = createChildGroup.groupName.trim()
     val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName)
-    child.group = parentGroupDetails
+    // TODO
+    // child.group = parentGroupDetails
 
     childGroupRepository.save(child)
 

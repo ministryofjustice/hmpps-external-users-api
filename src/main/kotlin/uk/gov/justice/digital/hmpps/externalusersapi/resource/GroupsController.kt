@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
+import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
@@ -97,11 +97,12 @@ class GroupsController(
       )
     ]
   )
-  suspend fun getGroupDetail(
+  suspend fun getGroupDetails(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
+//  ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
+  ): GroupDetails = groupsService.getGroupDetail(group)
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -441,28 +442,6 @@ data class CreateGroup(
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val groupName: String
 )
-
-@Schema(description = "Group Details")
-data class GroupDetails(
-  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
-  val groupCode: String,
-
-  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-  val groupName: String,
-
-  // @Schema(required = true, description = "Assignable Roles")
-  // val assignableRoles: List<UserAssignableRole>,
-
-//  @Schema(required = true, description = "Child Groups")
-//  val children: List<UserGroup>
-) {
-  constructor(g: Group) : this(
-    g.groupCode,
-    g.groupName,
-    // g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
-    // g.children.map { UserGroup(it) }.sortedBy { it.groupName }
-  )
-}
 
 @Schema(description = "Group Details")
 data class ChildGroupDetails(
