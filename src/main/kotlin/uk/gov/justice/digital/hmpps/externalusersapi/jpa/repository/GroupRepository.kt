@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 
-interface GroupRepository : CoroutineCrudRepository<Group, String> {
+interface GroupRepository : CoroutineSortingRepository<Group, String> {
   // @Query("Select * from Groups g order by g.group_name")
   fun findAllByOrderByGroupName(): Flow<Group>
 
