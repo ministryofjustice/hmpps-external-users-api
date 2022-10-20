@@ -131,11 +131,12 @@ class GroupsService(
     val group = Group(groupCode = groupCode, groupName = groupName)
     groupRepository.save(group)
 
-    telemetryClient.trackEvent(
+    //TODO authenticationFacade.currentUsername is null, needs investigation
+/*    telemetryClient.trackEvent(
       "GroupCreateSuccess",
       mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
       null
-    )
+    )*/
   }
 
   @Transactional
