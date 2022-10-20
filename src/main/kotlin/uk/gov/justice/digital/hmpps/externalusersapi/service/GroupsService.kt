@@ -132,7 +132,8 @@ class GroupsService(
     groupRepository.save(group)
 
     //TODO authenticationFacade.currentUsername is null, needs investigation
-/*    telemetryClient.trackEvent(
+
+  /*    telemetryClient.trackEvent(
       "GroupCreateSuccess",
       mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode, "groupName" to groupName),
       null

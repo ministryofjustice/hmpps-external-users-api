@@ -15,6 +15,7 @@ class Group(
   @Column(value = "group_name") var groupName: String,
 ) : Serializable {
 
+
   @Column(value = "group_id")
   var id: UUID? = null
 
