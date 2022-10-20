@@ -10,6 +10,7 @@ import java.util.UUID
 import javax.persistence.AttributeConverter
 import javax.persistence.Convert
 import javax.persistence.Converter
+import javax.persistence.GeneratedValue
 
 @Table(name = "ROLES")
 class Authority(
@@ -19,13 +20,13 @@ class Authority(
   adminType: List<AdminType> = listOf(),
 ) : GrantedAuthority {
   @Id
-  // @GeneratedValue(generator = "UUID")
+  @GeneratedValue(generator = "UUID")
   @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
   @Column(value = "role_id") // , updatable = false, nullable = false)
-  val id: UUID? = null
+  var id: UUID? = null
 
   @Column(value = "role_code") // , nullable = false)
-  val roleCode: String
+  var roleCode: String
 
   @Column(value = "role_name") // , nullable = false)
   var roleName: String

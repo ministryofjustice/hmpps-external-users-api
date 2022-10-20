@@ -8,9 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
@@ -18,7 +20,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
 import javax.validation.Valid
@@ -99,7 +103,6 @@ class GroupsController(
     group: String
   ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
 
-/*
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -134,7 +137,7 @@ class GroupsController(
       )
     ]
   )
-  fun getChildGroupDetail(
+  suspend fun getChildGroupDetail(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
@@ -143,8 +146,7 @@ class GroupsController(
       groupsService.getChildGroupDetail(group)
     return ChildGroupDetails(returnedGroup)
   }
-*/
-/*
+
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -225,7 +227,7 @@ class GroupsController(
       )
     ]
   )
-  fun amendChildGroupName(
+  suspend fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
@@ -271,14 +273,14 @@ class GroupsController(
       )
     ]
   )
-  fun deleteChildGroup(
+  suspend fun deleteChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
   ) {
     groupsService.deleteChildGroup(group)
   }
-*/
+
   @PostMapping("/groups")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -319,7 +321,7 @@ class GroupsController(
     @Valid @RequestBody
     createGroup: CreateGroup
   ) = groupsService.createGroup(createGroup)
-/*
+
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
@@ -355,7 +357,7 @@ class GroupsController(
     ]
   )
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
-  fun deleteGroup(
+  suspend fun deleteGroup(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
@@ -396,15 +398,13 @@ class GroupsController(
     ]
   )
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
-  fun createChildGroup(
+  suspend fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
     @Valid @RequestBody
     createChildGroup: CreateChildGroup
   ) {
     groupsService.createChildGroup(createChildGroup)
   }
-
- */
 }
 
 @Schema(description = "Group Name")

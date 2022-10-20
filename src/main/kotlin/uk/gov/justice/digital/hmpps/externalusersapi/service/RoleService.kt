@@ -8,6 +8,7 @@ import org.hibernate.Hibernate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
@@ -59,9 +60,9 @@ class RoleService(
     adminTypes: List<AdminType>?,
   ): List<Authority> {
     val rolesFilter = RoleFilter(adminTypes = adminTypes)
-    // TODO Fix this
+    // TODO Fix this - Add Filter
     // return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
-    return listOf()
+    return roleRepository.findAll(Sort.by(Sort.Direction.ASC, "roleName")).toList()
   }
 
   suspend fun getRoles(
@@ -70,7 +71,7 @@ class RoleService(
     adminTypes: List<AdminType>?,
     pageable: Pageable,
   ): Page<Authority> =
-    // TODO Check/Text/Fix this
+    // TODO Fix this
     coroutineScope {
       val rolesFilter = RoleFilter(
         roleName = roleName,
@@ -79,13 +80,13 @@ class RoleService(
       )
 
       val roles = async {
-        // roleRepository.findAll(rolesFilter, pageable)
-        listOf<Authority>()
+        // TODO Fix this - need to filter
+        roleRepository.findAllBy(/* RoleFilter, */ pageable)
       }
 
       val count = async {
-        0L
-        // roleRepository.countAllByFindAll(rolesFilter)
+        // TODO Fix this - need to filter
+        roleRepository.countAllBy(/* RoleFilter */)
       }
 
       PageImpl(
