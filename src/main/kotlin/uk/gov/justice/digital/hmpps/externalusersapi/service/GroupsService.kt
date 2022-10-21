@@ -46,7 +46,8 @@ class GroupsService(
   suspend fun getGroupDetail(groupCode: String): GroupDetails =
     groupRepository.findByGroupCode(groupCode)
       ?.let {
-        val children = childGroupRepository.findAllById(it.groupId).toList()
+        val children = childGroupRepository.findAllByGroup(it.groupId).toList()
+
         GroupDetails(it, children)
       }
       ?: throw GroupNotFoundException("get", groupCode, "notfound")
