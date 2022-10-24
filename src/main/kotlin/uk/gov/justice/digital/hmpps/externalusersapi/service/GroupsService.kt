@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +29,9 @@ class GroupsService(
   private val authenticationFacade: AuthenticationFacade,
   private val userRepository: UserRepository,
   private val userGroupService: UserGroupService,
+  private val groupAssignableRoleRepository: GroupAssignableRoleRepository,
+  private val maintainUserCheck: MaintainUserCheck,
+
 ) {
 
   // TODO Check: can we amend this call to work
@@ -47,22 +52,11 @@ class GroupsService(
     groupRepository.findByGroupCode(groupCode)
       ?.let {
         val children = childGroupRepository.findAllByGroup(it.groupId).toList()
-
-        GroupDetails(it, children)
+        val assignableRole = groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode).toList()
+        maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
+        GroupDetails(it, children, assignableRole)
       }
       ?: throw GroupNotFoundException("get", groupCode, "notfound")
-/*
-    // TODO Fix this
-
-      val requestedGroup =
-       return groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("get", groupCode, "notfound")
-
-      Hibernate.initialize(requestedGroup.assignableRoles)
-      Hibernate.initialize(requestedGroup.children)
-      maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.currentUsername, groupCode)
-      return requestedGroup
- */
-
   @Throws(ChildGroupNotFoundException::class)
   suspend fun getChildGroupDetail(
     groupCode: String,
