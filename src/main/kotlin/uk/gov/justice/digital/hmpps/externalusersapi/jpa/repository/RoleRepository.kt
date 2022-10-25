@@ -7,7 +7,7 @@ import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.lang.NonNull
 import org.springframework.stereotype.Repository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 
 @Repository
 interface RoleRepository : CoroutineSortingRepository<Authority, String> {

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -201,7 +201,7 @@ class RoleController(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
     role: String
-  ): RoleDetails = RoleDetails(roleService.getRoleDetails(role))
+  ): RoleDetails = roleService.getRoleDetails(role)
 
   @PutMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -365,7 +365,10 @@ data class RoleDetails(
     r.roleCode,
     r.roleName,
     r.roleDescription,
-    r.adminType
+    r.adminType.split(",").map {
+      it.trim()
+      AdminType.valueOf(it)
+    }
   )
 }
 

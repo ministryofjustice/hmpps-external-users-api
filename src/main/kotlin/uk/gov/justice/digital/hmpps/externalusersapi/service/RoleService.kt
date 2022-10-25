@@ -4,7 +4,6 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
-import org.hibernate.Hibernate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -14,11 +13,12 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
 
 @Service
@@ -37,7 +37,7 @@ class RoleService(
 
     val roleName = createRole.roleName.trim()
     val roleDescription = createRole.roleDescription?.trim()
-    val adminType = createRole.adminType.addDpsAdmTypeIfRequired().toList()
+    val adminType = convertAdminTypeListToString(createRole.adminType.addDpsAdmTypeIfRequired().toList())
 
     val role =
       Authority(roleCode = roleCode, roleName = roleName, roleDescription = roleDescription, adminType = adminType)
@@ -96,11 +96,11 @@ class RoleService(
     }
 
   @Throws(RoleNotFoundException::class)
-  suspend fun getRoleDetails(roleCode: String): Authority {
-    val role = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("get", roleCode, "notfound")
-    Hibernate.initialize(role.adminType)
-    return role
-  }
+  suspend fun getRoleDetails(roleCode: String): RoleDetails =
+    roleRepository.findByRoleCode(roleCode)
+      ?.let {
+        RoleDetails(it)
+      } ?: throw RoleNotFoundException("get", roleCode, "notfound")
 
   @Transactional
   @Throws(RoleNotFoundException::class)
@@ -135,11 +135,16 @@ class RoleService(
   @Transactional
   @Throws(RoleNotFoundException::class)
   suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
-    val immutableAdminTypesInDb = roleToUpdate.adminType.filter { it != AdminType.DPS_LSA }
+    val roleToUpdate = roleRepository.findByRoleCode(roleCode)
+      ?.let { role ->
+        val immutableAdminTypesInDb = immutableTypes(role.adminType)
+        val updatedList = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
 
-    roleToUpdate.adminType = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
-    roleRepository.save(roleToUpdate)
+        role.adminType = convertAdminTypeListToString(updatedList)
+        roleRepository.save(role)
+      }
+      ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+
     telemetryClient.trackEvent(
       "RoleAdminTypeUpdateSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
@@ -148,6 +153,19 @@ class RoleService(
   }
 
   private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
+
+  private fun convertAdminTypeListToString(stringList: List<AdminType>): String =
+    stringList.joinToString(",") { it.adminTypeCode }
+
+  private fun immutableTypes(adminTypesAsString: String): List<AdminType> =
+    convertStringToAdminTypeList(adminTypesAsString).filter { it != AdminType.DPS_LSA }
+
+  private fun convertStringToAdminTypeList(string: String): List<AdminType> {
+    return string.split(",").map {
+      it.trim()
+      AdminType.valueOf(it)
+    }
+  }
 
   class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
     Exception("Unable to $action role: $role with reason: $errorCode")
