@@ -8,6 +8,6 @@ import java.util.UUID
 interface EmailDomainRepository : CrudRepository<EmailDomain, UUID> {
   fun findByName(name: String): EmailDomain?
 
-  @Query(value = "SELECT * FROM email_domain WHERE :domainName like name ", nativeQuery = true)
-  fun findByNameLike(domainName: String): EmailDomain?
+  @Query(value = "SELECT COUNT(*) FROM email_domain WHERE :domainName like name", nativeQuery = true)
+  fun countMatching(domainName: String): Int
 }
