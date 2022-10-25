@@ -51,17 +51,24 @@ class EmailDomainRepositoryTest {
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLikeWithWildcard() {
+  fun shouldCountDomainMatchesWithWildcard() {
     val count = repository.countMatching("%advancecharity.org.uk")
 
     assertTrue(count == 1)
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLikeWithSubdomain() {
+  fun shouldCountDomainMatchesForSubdomain() {
     val count = repository.countMatching("subdomain.advancecharity.org.uk")
 
     assertTrue(count == 1)
+  }
+
+  @Test
+  fun shouldCountDomainByNameLikeWithMultipleMatches() {
+    val count = repository.countMatching("digital.justice.gov.uk")
+
+    assertTrue(count == 2)
   }
 
   private fun transientEntity() = EmailDomain(id = null, name = "gov.uk", description = "some description")
