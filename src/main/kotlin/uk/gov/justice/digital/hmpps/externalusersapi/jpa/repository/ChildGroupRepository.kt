@@ -11,5 +11,5 @@ interface ChildGroupRepository : CoroutineCrudRepository<ChildGroup, String> {
 
   suspend fun deleteByGroupCode(groupCode: String)
 
-  fun findAllById(groupId: UUID?): Flow<ChildGroup>
+  fun findAllByGroup(groupId: UUID?): Flow<ChildGroup>
 }

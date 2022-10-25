@@ -33,6 +33,9 @@ class ChildGroup(
     private val group: UUID? = null
   }
 */
+  @Column(value = "group_id")
+  var group: UUID? = null
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other !is ChildGroup) return false
