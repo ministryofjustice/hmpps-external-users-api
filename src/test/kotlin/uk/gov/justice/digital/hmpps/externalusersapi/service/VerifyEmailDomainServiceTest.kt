@@ -19,6 +19,13 @@ class VerifyEmailDomainServiceTest {
   }
 
   @Test
+  fun shouldBeValidWhenMoreThanOneMatch() {
+    whenever(emailDomainRepository.countMatching("validdomain.com")).thenReturn(2)
+
+    assertEquals(true, verifyService.isValidEmailDomain("validDomain.com"))
+  }
+
+  @Test
   fun shouldNotBeValidIfDomainDoesntMatch() {
     whenever(emailDomainRepository.countMatching("invaliddomain.com")).thenReturn(0)
 
