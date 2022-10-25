@@ -27,6 +27,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
 
+  implementation("org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.4.1")
   implementation("org.hibernate.reactive:hibernate-reactive-core:1.1.9.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
@@ -47,8 +48,7 @@ dependencies {
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
-  testImplementation("org.mockito:mockito-inline:4.8.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.3")
+  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.17.5")
   testImplementation("io.projectreactor:reactor-test")
