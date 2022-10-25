@@ -51,27 +51,17 @@ class EmailDomainRepositoryTest {
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLike() {
-    val retrievedEntity = repository.findByNameLike("advancecharity.org.uk")
-
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
-  }
-
-  @Test
   fun shouldRetrieveDomainByNameLikeWithWildcard() {
-    val retrievedEntity = repository.findByNameLike("%advancecharity.org.uk")
+    val count = repository.countMatching("%advancecharity.org.uk")
 
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+    assertTrue(count == 1)
   }
 
   @Test
   fun shouldRetrieveDomainByNameLikeWithSubdomain() {
-    val retrievedEntity = repository.findByNameLike("subdomain.advancecharity.org.uk")
+    val count = repository.countMatching("subdomain.advancecharity.org.uk")
 
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+    assertTrue(count == 1)
   }
 
   private fun transientEntity() = EmailDomain(id = null, name = "gov.uk", description = "some description")
