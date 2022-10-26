@@ -1,6 +1,6 @@
 spring:
   flyway:
-    locations: classpath:db/migration/auth,db/migration/dev/data/auth_{vendor},db/migration/dev/data/auth
+    locations: classpath:db/migration/auth,db/migration/auth_{vendor},db/migration/dev/data/auth_{vendor},db/migration/dev/data/auth
     enabled: true
 
   jpa:
