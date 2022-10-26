@@ -31,10 +31,7 @@ class EmailDomainService(
         emailDomain.description.toString()
       )
     }
-
-    // TODO NEEDS UPDATE TO SORT
-    // return emailDomainDtoList.sortedWith(compareBy { it.domain })
-    return emailDomainDtoList.toList()
+    return emailDomainDtoList.toList().sortedWith(compareBy { it.domain })
   }
 
   @Throws(EmailDomainNotFoundException::class)
@@ -63,25 +60,18 @@ class EmailDomainService(
     emailDomainRepository.delete(emailDomain)
   }
 
-  private fun toDto(emailDomain: EmailDomain): EmailDomainDto {
-    return EmailDomainDto(
-      emailDomain.id.toString(),
-      cleanDomainNameForDisplay(emailDomain.name),
-      emailDomain.description.toString()
-    )
-  }
+  private fun toDto(emailDomain: EmailDomain): EmailDomainDto = EmailDomainDto(
+    emailDomain.id.toString(),
+    cleanDomainNameForDisplay(emailDomain.name),
+    emailDomain.description.toString()
+  )
 
-  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
-    // return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
-    // TODO Check this is correct
-    return emailDomainRepository.findById(uuid)
-      ?.let { it }
+  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain =
+    emailDomainRepository.findById(uuid)
       ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
-  }
 
-  private fun cleanDomainNameForDisplay(persistedDomainName: String): String {
-    return persistedDomainName.removePrefix(PERCENT).removePrefix(".")
-  }
+  private fun cleanDomainNameForDisplay(persistedDomainName: String): String =
+    persistedDomainName.removePrefix(PERCENT).removePrefix(".")
 }
 
 class EmailDomainAdditionBarredException(domain: String, errorCode: String) :
