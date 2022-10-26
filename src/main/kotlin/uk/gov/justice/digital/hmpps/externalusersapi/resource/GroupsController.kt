@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
@@ -60,7 +60,6 @@ class GroupsController(
       )
     ]
   )
-  // fun allGroups(): List<UserGroup> = groupsService.allGroups.map { UserGroup(it) }
   suspend fun allGroups(): List<UserGroup> = groupsService.getAllGroups().map { UserGroup(it) }
 
   @GetMapping("/groups/{group}")
@@ -101,7 +100,6 @@ class GroupsController(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-//  ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
   ): GroupDetails = groupsService.getGroupDetail(group)
 
   @GetMapping("/groups/child/{group}")

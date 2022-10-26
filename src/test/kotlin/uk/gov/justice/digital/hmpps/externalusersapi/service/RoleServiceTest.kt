@@ -2,14 +2,13 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import org.mockito.kotlin.mock
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
-  private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
+  // private val authenticationFacade: AuthenticationFacade = mock()
+  // private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
 /*
   @Nested
   inner class CreateRoles {

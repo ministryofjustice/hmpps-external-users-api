@@ -9,14 +9,6 @@ data class Group(
 
   val groupCode: String,
   var groupName: String,
-  /*
-    @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val assignableRoles: MutableSet<GroupAssignableRole> = mutableSetOf()
-
-  // @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
-  val children: MutableSet<ChildGroup> = mutableSetOf()
-
-   */
 ) {
   @Id
   var groupId: UUID? = null

@@ -13,8 +13,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRe
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
@@ -107,8 +107,7 @@ class GroupsService(
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
   suspend fun deleteChildGroup(groupCode: String) {
-    val childGroup = retrieveChildGroup(groupCode)
-    childGroupRepository.delete(childGroup)
+    childGroupRepository.deleteByGroupCode(groupCode)
 
     telemetryClient.trackEvent(
       "GroupChildDeleteSuccess",
@@ -186,9 +185,10 @@ class GroupsService(
     GroupNotFoundException("create", groupCode, "ParentGroupNotFound")
 
     val groupName = createChildGroup.groupName.trim()
-    val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName)
+    val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName, group = parentGroupDetails.groupId)
     // TODO
-    // child.group = parentGroupDetails
+    //  child.group = parentGroupDetails
+    groupRepository.save(parentGroupDetails)
 
     childGroupRepository.save(child)
 

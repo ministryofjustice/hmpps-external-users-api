@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 
 @Schema(description = "User Group")
 data class UserGroup(
