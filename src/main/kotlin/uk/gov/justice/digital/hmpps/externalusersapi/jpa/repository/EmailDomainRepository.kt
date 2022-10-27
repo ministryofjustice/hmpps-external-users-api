@@ -6,10 +6,10 @@ import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
 import java.util.UUID
 
-@Repository()
+@Repository
 interface EmailDomainRepository : CoroutineCrudRepository<EmailDomain, UUID> {
   suspend fun findByName(name: String): EmailDomain?
 
-  @Query(value = "SELECT * FROM email_domain WHERE :domainName like name ")
-  suspend fun findByNameLike(domainName: String): EmailDomain?
+  @Query(value = "SELECT COUNT(*) FROM email_domain WHERE :domainName like name")
+  suspend fun countMatching(domainName: String): Int
 }

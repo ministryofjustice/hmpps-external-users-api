@@ -9,5 +9,5 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainR
 class VerifyEmailDomainService(
   private val emailDomainRepository: EmailDomainRepository
 ) {
-  suspend fun isValidEmailDomain(domain: String): Boolean = emailDomainRepository.findByNameLike(domain.lowercase()) != null
+  suspend fun isValidEmailDomain(domain: String): Boolean = emailDomainRepository.countMatching(domain.lowercase()) > 0
 }

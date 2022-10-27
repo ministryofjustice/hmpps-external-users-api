@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.server.ServerWebInputException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.GroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
@@ -101,6 +102,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: $message",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(ServerWebInputException::class)
+  fun handleServerWebInputException(e: ServerWebInputException): ResponseEntity<ErrorResponse> {
+    log.error("Parameter conversion exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Parameter conversion failure: ${e.message}",
           developerMessage = e.message
         )
       )

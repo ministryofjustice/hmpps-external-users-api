@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
+import uk.gov.justice.digital.hmpps.externalusersapi.helper.TestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 
 @DataR2dbcTest
 @ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = NONE)
-class EmailDomainRepositoryTest {
+@WithMockUser
+class EmailDomainRepositoryTest : TestBase() {
   @Autowired
   private lateinit var repository: EmailDomainRepository
 
@@ -53,26 +53,23 @@ class EmailDomainRepositoryTest {
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLike(): Unit = runBlocking {
-    val retrievedEntity = repository.findByNameLike("advancecharity.org.uk")
+  fun shouldCountDomainMatchesWithWildcard(): Unit = runBlocking {
+    val count = repository.countMatching("%advancecharity.org.uk")
 
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+    assertTrue(count == 1)
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLikeWithWildcard(): Unit = runBlocking {
-    val retrievedEntity = repository.findByNameLike("%advancecharity.org.uk")
+  fun shouldCountDomainMatchesForSubdomain(): Unit = runBlocking {
+    val count = repository.countMatching("subdomain.advancecharity.org.uk")
 
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+    assertTrue(count == 1)
   }
 
   @Test
-  fun shouldRetrieveDomainByNameLikeWithSubdomain(): Unit = runBlocking {
-    val retrievedEntity = repository.findByNameLike("subdomain.advancecharity.org.uk")
+  fun shouldCountDomainByNameLikeWithMultipleMatches(): Unit = runBlocking {
+    val count = repository.countMatching("digital.justice.gov.uk")
 
-    assertTrue(retrievedEntity != null)
-    assertThat(retrievedEntity?.name).isEqualTo("%advancecharity.org.uk")
+    assertTrue(count == 2)
   }
 }
