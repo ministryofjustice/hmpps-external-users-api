@@ -8,16 +8,13 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.digital.hmpps.externalusersapi.helper.TestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 
 @DataR2dbcTest
 @ActiveProfiles("test")
-@WithMockUser
-class EmailDomainRepositoryTest : TestBase() {
+class EmailDomainRepositoryTest {
   @Autowired
   private lateinit var repository: EmailDomainRepository
 
