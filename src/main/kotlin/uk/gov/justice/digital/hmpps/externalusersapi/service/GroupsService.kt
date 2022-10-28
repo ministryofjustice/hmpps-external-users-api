@@ -107,6 +107,7 @@ class GroupsService(
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
   suspend fun deleteChildGroup(groupCode: String) {
+    retrieveChildGroup(groupCode)
     childGroupRepository.deleteByGroupCode(groupCode)
 
     telemetryClient.trackEvent(
