@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
@@ -15,7 +17,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
 
   @Autowired
   private lateinit var roleRepository: RoleRepository
-/*
+
   @Nested
   inner class CreateRole {
 
@@ -37,9 +39,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isCreated
 
-      val role = roleRepository.findByRoleCode("RC")
-      if (role != null) {
-        roleRepository.delete(role)
+      runBlocking {
+        val role = roleRepository.findByRoleCode("RC")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
       }
     }
 
@@ -61,9 +65,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isCreated
 
-      val role = roleRepository.findByRoleCode("RC")
-      if (role != null) {
-        roleRepository.delete(role)
+      runBlocking {
+        val role = roleRepository.findByRoleCode("RC")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
       }
     }
 
@@ -85,9 +91,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isCreated
 
-      val role = roleRepository.findByRoleCode("RC")
-      if (role != null) {
-        roleRepository.delete(role)
+      runBlocking {
+        val role = roleRepository.findByRoleCode("RC")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
       }
     }
 
@@ -108,9 +116,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isCreated
 
-      val role = roleRepository.findByRoleCode("RC")
-      if (role != null) {
-        roleRepository.delete(role)
+      runBlocking {
+        val role = roleRepository.findByRoleCode("RC")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
       }
     }
 
@@ -132,8 +142,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [roleCode],30,2]")
-          assertThat(it["userMessage"] as String).contains("default message [roleName],128,4]")
+          assertThat(it["userMessage"] as String).contains("roleCode: role code must be supplied")
+          assertThat(it["userMessage"] as String).contains("roleCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("roleName: role name must be supplied")
+          assertThat(it["userMessage"] as String).contains("roleName: size must be between 4 and 128")
+          assertThat(it["userMessage"] as String).contains("adminType: Admin type cannot be empty")
         }
     }
 
@@ -157,9 +170,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["userMessage"] as String).startsWith("Validation failure:")
-          assertThat(it["userMessage"] as String).contains("default message [roleCode],30,2]")
-          assertThat(it["userMessage"] as String).contains("default message [roleName],128,4]")
-          assertThat(it["userMessage"] as String).contains("default message [roleDescription],1024,0]")
+          assertThat(it["userMessage"] as String).contains("roleCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("roleName: size must be between 4 and 128")
+          assertThat(it["userMessage"] as String).contains("roleDescription: size must be between 0 and 1024")
         }
     }
 
@@ -182,7 +195,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
           assertThat(it["userMessage"] as String)
             .startsWith("Validation failure:")
           assertThat(it["userMessage"] as String)
-            .contains("default message [Admin type cannot be empty]")
+            .contains("Admin type cannot be empty")
         }
     }
 
@@ -206,11 +219,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["userMessage"] as String)
-            .contains("default message [roleCode],[Ljavax.validation.constraints.Pattern")
+            .contains("roleCode: must match \"^[0-9A-Za-z_]*")
           assertThat(it["userMessage"] as String)
-            .contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
+            .contains("roleName: must match \"^[0-9A-Za-z- ,.()'&]*\$")
           assertThat(it["userMessage"] as String)
-            .contains("default message [roleDescription],[Ljavax.validation.constraints.Pattern")
+            .contains("roleDescription: must match \"^[0-9A-Za-z- ,.()'&\r\n]*\$")
         }
     }
 
@@ -233,7 +246,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+      {"userMessage":"Denied","developerMessage":"Denied"}
           """.trimIndent()
         )
     }
@@ -279,9 +292,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
             .isEqualTo("Unable to add role: Unable to create role: ROLE3 with reason: role code already exists")
         }
 
-      val role = roleRepository.findByRoleCode("ROLE3")
-      if (role != null) {
-        roleRepository.delete(role)
+      runBlocking {
+        val role = roleRepository.findByRoleCode("ROLE3")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
       }
     }
 
@@ -314,8 +329,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied"
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied"
             )
           )
         }
@@ -335,6 +350,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         }
     }
 
+    /*
+     * TODO when add RoleFilter
     @Test
     fun `Get Roles endpoint returns roles filter requested adminType`() {
       webTestClient
@@ -351,25 +368,30 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").doesNotExist()
     }
+    */
 
+    /* TODO when add roleFitler
     @Test
     fun `Get Roles endpoint returns roles filter requested multiple adminTypes`() {
-      webTestClient
-        .get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_LSA")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
-        .exchange()
-        .expectStatus().isOk
-        .expectHeader().contentType(APPLICATION_JSON)
-        .expectBody()
-        .jsonPath("$.[*].roleName").value<List<String>> {
-          assertThat(it).hasSize(5)
-        }
-        .jsonPath("$[0].roleName").isEqualTo("Artemis user")
-        .jsonPath("$[0].roleCode").isEqualTo("ARTEMIS_USER")
-        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
-        .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
-        .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
+
+       webTestClient
+       .get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_LSA")
+       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+       .exchange()
+       .expectStatus().isOk
+       .expectHeader().contentType(APPLICATION_JSON)
+       .expectBody()
+       .jsonPath("$.[*].roleName").value<List<String>> {
+       assertThat(it).hasSize(5)
+       }
+       .jsonPath("$[0].roleName").isEqualTo("Artemis user")
+       .jsonPath("$[0].roleCode").isEqualTo("ARTEMIS_USER")
+       .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+       .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+       .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
+
     }
+     */
   }
 
   @Nested
@@ -390,7 +412,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
-
+    /*
+    TODO when add ROLES FILTER
     @Test
     fun `Get Paged Roles endpoint returns (default size=10) roles when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
@@ -414,6 +437,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json("manage_roles2.json".readFile())
     }
+
+
 
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested roleName when user has role ROLE_ROLES_ADMIN`() {
@@ -470,6 +495,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[0].adminType[2].adminTypeCode").doesNotExist()
         .jsonPath("$.totalElements").isEqualTo(1)
     }
+     */
   }
 
   @Nested
@@ -572,7 +598,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .json("role_details.json".readFile())
     }
   }
-*/
+
   @Nested
   inner class AmendRoleName {
 
@@ -710,7 +736,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
     }
   }
-/*
+
   @Nested
   inner class AmendRoleDescription {
 
@@ -735,8 +761,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied"
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied"
             )
           )
         }
@@ -880,8 +906,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied"
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied"
             )
           )
         }
@@ -937,10 +963,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
-          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
-          assertThat(it["developerMessage"] as String).contains("JSON parse error")
+          assertThat(it["userMessage"] as String).startsWith("Parameter conversion failure:")
+          assertThat(it["developerMessage"] as String).contains("Cannot deserialize value")
         }
     }
   }
- */
 }

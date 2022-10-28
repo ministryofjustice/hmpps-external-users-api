@@ -95,7 +95,10 @@ class HmppsExternalUsersApiExceptionHandler {
   @ExceptionHandler(WebExchangeBindException::class)
   fun handleWebExchangeBindException(e: WebExchangeBindException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
-    val message = if (e.hasFieldErrors()) { e.fieldError?.defaultMessage } else { e.message }
+    val message = if (e.hasFieldErrors())
+      e.fieldErrors.joinToString("; ") { fieldError -> fieldError.field + ": " + fieldError.defaultMessage }
+    else { e.message }
+
     return ResponseEntity
       .status(BAD_REQUEST)
       .body(
