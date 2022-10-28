@@ -1,30 +1,24 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data
 
-import org.hibernate.annotations.GenericGenerator
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Column
+import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.CredentialsContainer
+import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.util.UUID
-import javax.persistence.Column
-import javax.persistence.Entity
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.OneToMany
-import javax.persistence.Table
 
-@Entity
 @Table(name = "USERS")
 class User(
-  @Column(name = "username", nullable = false)
+  @Column(value = "username")
   private var username: String,
 
   /**
    * Source of last login information
    */
-  @Column(name = "source", nullable = false)
+  @Column(value = "source")
   @Enumerated(EnumType.STRING)
   var source: AuthSource,
 
@@ -34,28 +28,28 @@ class User(
 
 ) : CredentialsContainer {
   @Id
-  @GeneratedValue(generator = "UUID")
-  @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-  @Column(name = "user_id", updatable = false, nullable = false)
+  // @GeneratedValue(generator = "UUID")
+  // @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+  @org.springframework.data.relational.core.mapping.Column(value = "user_id")
   var id: UUID? = null
 
-  @OneToMany
+ /* @OneToMany
   @JoinTable(
     name = "user_role",
     joinColumns = [JoinColumn(name = "user_id")],
     inverseJoinColumns = [JoinColumn(name = "role_id")]
-  )
+  )*/
   private val authorities: MutableSet<Authority> = authorities.toMutableSet()
 
-  @Column(name = "password")
+  @Column(value = "password")
   private var password: String? = null
 
-  @OneToMany
+  /*@OneToMany
   @JoinTable(
     name = "user_group",
     joinColumns = [JoinColumn(name = "user_id")],
     inverseJoinColumns = [JoinColumn(name = "group_id")]
-  )
+  )*/
 
   val groups: MutableSet<Group> = groups.toMutableSet()
 

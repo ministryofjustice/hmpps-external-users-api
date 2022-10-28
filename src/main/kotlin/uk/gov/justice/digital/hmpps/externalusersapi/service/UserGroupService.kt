@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.User
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import java.util.UUID

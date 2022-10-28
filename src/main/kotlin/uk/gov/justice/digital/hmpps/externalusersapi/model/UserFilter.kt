@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import com.google.common.collect.ImmutableList
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.util.EmailHelper.format
 import javax.persistence.criteria.CriteriaBuilder

@@ -5,12 +5,14 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.User
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 
 @Service
 class MaintainUserCheck(
   private val userRepository: UserRepository,
   private val authenticationFacade: AuthenticationFacade,
+  private val userService: UserService,
 ) {
   companion object {
     fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
@@ -27,8 +29,7 @@ class MaintainUserCheck(
     if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
-    val maintainer =
-      userRepository.findByUsername(userName).orElseThrow()
+    val maintainer = userService.getUser(userName)
     // otherwise group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
       // no group in common, so disallow
