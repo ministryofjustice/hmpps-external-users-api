@@ -13,10 +13,13 @@ interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssigna
 
   @NonNull
   @Query(
-    "select distinct  r.role_name,r.role_code,gs.automatic\n" +
-      "from group_assignable_role gs, groups g,roles r\n" +
-      "where g.group_id = gs.group_id\n" +
-      "and r.role_id=gs.role_id and g.group_code = :groupCode"
+    "select distinct  r.role_name,r.role_code, gs.automatic \n" +
+      "  from group_assignable_role gs \n" +
+      "    inner join groups g \n" +
+      "       on  g.group_id = gs.group_id \n" +
+      "    inner join roles r \n" +
+      "       on r.role_id=gs.role_id \n" +
+      "    where g.group_code = :groupCode"
   )
   suspend fun findGroupAssignableRoleByGroupCode(@Param("groupCode") groupCode: String): Flow<UserAssignableRole>
 }

@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data
 
+import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.io.Serializable
 import java.util.UUID
-import javax.persistence.Id
 
 @Table(name = "CHILD_GROUP")
 class ChildGroup(

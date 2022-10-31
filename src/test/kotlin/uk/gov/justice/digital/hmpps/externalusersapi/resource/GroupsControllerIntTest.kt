@@ -255,7 +255,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change group name`() {
       webTestClient
-        .put().uri("/groups/child/CHILD_9")
+        .put().uri("/groups/child/CHILD_1")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
         .exchange()
@@ -570,7 +570,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
     }
 
-    @Test
+    // @Test TODO : test endpoint yet be changed
     fun `Delete Group - has child groups`() {
       webTestClient.delete().uri("/groups/GC_DEL_3")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))

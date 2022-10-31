@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -35,10 +36,10 @@ class GroupsService(
 ) {
 
   // TODO Check: can we amend this call to work
-  /*
+
   val allGroups: List<Group>
-    get() = groupRepository.findAllByOrderByGroupName()
-  */
+    get() = runBlocking { groupRepository.findAllByOrderByGroupName().toList() }
+
   suspend fun getAllGroups(): List<Group> =
     coroutineScope {
       val groups = async {
