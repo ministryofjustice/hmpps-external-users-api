@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
+import java.util.UUID
 
 class RoleControllerTest {
   private val roleService: RoleService = mock()
@@ -62,8 +63,8 @@ class RoleControllerTest {
   inner class GetRoles {
     @Test
     fun `get roles`(): Unit = runBlocking {
-      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", "DPS_ADM")
-      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", "DPS_ADM")
+      val role1 = Authority(id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", "DPS_ADM")
+      val role2 = Authority(id = UUID.randomUUID(), roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", "DPS_ADM")
       whenever(roleService.getRoles(any())).thenReturn(listOf(role1, role2))
 
       val roles = roleController.getRoles(listOf())
@@ -85,8 +86,8 @@ class RoleControllerTest {
   inner class GetPagedRoles {
     @Test
     fun `get roles`(): Unit = runBlocking {
-      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", "DPS_ADM")
-      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", "DPS_ADM")
+      val role1 = Authority(id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", "DPS_ADM")
+      val role2 = Authority(id = UUID.randomUUID(), roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", "DPS_ADM")
       val roles = listOf(role1, role2)
       whenever(roleService.getRoles(isNull(), isNull(), any(), any())).thenReturn(PageImpl(roles))
 

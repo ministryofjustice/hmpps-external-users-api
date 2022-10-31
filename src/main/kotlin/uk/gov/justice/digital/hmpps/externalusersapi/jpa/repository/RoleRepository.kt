@@ -12,8 +12,7 @@ import java.util.UUID
 
 @Repository
 interface RoleRepository : CoroutineSortingRepository<Authority, String> {
-  @NonNull
-  @Query("Select * from Roles r where r.admin_type LIKE %:adminType% order by r.role_name")
+  @Query("select * from Roles where admin_type LIKE concat('%', :adminType, '%') order by role_name")
   fun findAllByOrderByRoleNameLike(@Param("adminType") adminType: String): Flow<Authority>
 
   suspend fun findByRoleCode(roleCode: String?): Authority?

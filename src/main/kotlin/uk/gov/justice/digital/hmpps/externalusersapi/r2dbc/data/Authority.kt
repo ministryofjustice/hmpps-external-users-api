@@ -7,14 +7,15 @@ import java.util.UUID
 
 @Table(name = "ROLES")
 data class Authority(
-  var roleCode: String,
+  @Id
+  @Column(value = "role_id")
+  val id: UUID? = null,
+
+  val roleCode: String,
   var roleName: String,
   var roleDescription: String? = null,
   var adminType: String,
 ) {
-  @Id
-  @Column(value = "role_id")
-  var id: UUID? = null
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
