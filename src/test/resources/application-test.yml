@@ -19,9 +19,27 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/auth-db?sslmode=prefer
+    username: admin
+    password: admin_password
+    properties:
+      sslMode: DISABLE
+      sslRootCert:
+  flyway:
+    locations: classpath:db/migration/auth,db/migration/auth_{vendor},db/migration/dev/data/auth_{vendor},db/migration/dev/data/auth
+    enabled: true
 
+logging:
+  level:
+    io.r2dbc.postgresql.QUERY: TRACE
+    io.r2dbc.postgresql.PARAM: TRACE
 log4j:
   logger:
     org:
       hibernate:
         type: trace
+
+
+
+

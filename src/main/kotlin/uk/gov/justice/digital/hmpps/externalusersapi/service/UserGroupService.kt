@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.toList
-import org.hibernate.Hibernate
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
@@ -12,8 +12,10 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupReposit
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
+import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import java.util.Optional
 import java.util.UUID
 
 @Service
@@ -23,20 +25,17 @@ class UserGroupService(
   private val groupRepository: GroupRepository,
   private val maintainUserCheck: MaintainUserCheck,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade
+  private val authenticationFacade: AuthenticationFacade,
+  private val userService: UserService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
   suspend fun getGroups(userId: UUID): Set<Group>? =
-    // userRepository.findByIdOrNull(userId)?.let { u: User ->
+
     userRepository.findById(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
-      Hibernate.initialize(u.groups)
-      // TODO Fix this
-      // u.groups.forEach { Hibernate.initialize(it.children) }
-      u.groups
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)?.groups?.toSet()
     }
 
   @Transactional
@@ -76,7 +75,8 @@ class UserGroupService(
   suspend fun removeGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
-    val user = userRepository.findByUsername(username).orElseThrow()
+    val user = userRepository.findByUsername(username, AuthSource.auth).awaitSingleOrNull()
+    Optional.of(user!!).orElseThrow()
     if (user.groups.map { it.groupCode }.none { it == groupFormatted }
     ) {
       throw UserGroupException("group", "missing")
@@ -114,13 +114,7 @@ class UserGroupService(
   private fun formatGroup(group: String) = group.trim().uppercase()
 
   suspend fun getGroupsByUserName(username: String?): Set<Group>? {
-    val user = userRepository.findByUsername(username?.trim()?.uppercase())
-    return user.map { u: User ->
-      Hibernate.initialize(u.groups)
-      // TODO Fix this
-      // u.groups.forEach { Hibernate.initialize(it.children) }
-      u.groups
-    }.orElse(null)
+    return userService.getUser(username?.trim()?.uppercase())?.groups?.toSet()
   }
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =

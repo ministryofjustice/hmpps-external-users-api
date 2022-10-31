@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleReposito
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
+import java.util.Optional
 
 @Service
 @Transactional(readOnly = true)
@@ -18,10 +19,10 @@ class UserService(
   private val groupRepository: GroupRepository,
 ) {
   @Transactional
-  suspend fun getUser(username: String?): User {
+  suspend fun getUser(username: String?): User? {
 
-    var user = userRepository.findUserByUserNameAndSource(username, AuthSource.auth).awaitSingle()
-
+    var user = userRepository.findByUsername(username, AuthSource.auth).awaitSingleOrNull()
+    Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
       groupRepository.findGroupByUserId(it)
     }?.toList()
