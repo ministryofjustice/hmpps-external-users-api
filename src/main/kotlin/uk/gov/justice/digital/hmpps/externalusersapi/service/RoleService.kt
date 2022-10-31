@@ -50,7 +50,7 @@ class RoleService(
         "roleCode" to roleCode,
         "roleName" to roleName,
         "roleDescription" to roleDescription,
-        "adminType" to adminType.toString()
+        "adminType" to adminType
       ),
       null
     )
@@ -134,23 +134,22 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) {
-    val roleToUpdate = roleRepository.findByRoleCode(roleCode)
+  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) =
+    roleRepository.findByRoleCode(roleCode)
       ?.let { role ->
         val immutableAdminTypesInDb = immutableTypes(role.adminType)
         val updatedList = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
 
         role.adminType = convertAdminTypeListToString(updatedList)
         roleRepository.save(role)
+
+        telemetryClient.trackEvent(
+          "RoleAdminTypeUpdateSuccess",
+          mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to role.adminType),
+          null
+        )
       }
       ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
-
-    telemetryClient.trackEvent(
-      "RoleAdminTypeUpdateSuccess",
-      mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to roleToUpdate.adminType.toString()),
-      null
-    )
-  }
 
   private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
 
