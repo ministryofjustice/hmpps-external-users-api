@@ -27,7 +27,6 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
 
-  implementation("org.mybatis.dynamic-sql:mybatis-dynamic-sql:1.4.1")
   implementation("org.hibernate.reactive:hibernate-reactive-core:1.1.9.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
