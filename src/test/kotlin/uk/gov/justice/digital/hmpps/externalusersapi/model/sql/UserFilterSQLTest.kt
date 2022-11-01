@@ -16,6 +16,6 @@ class UserFilterSQLTest {
   fun generateSelectFirstNameOnlyFilter() {
     val userFilterSQL = UserFilterSQL(name = "alan")
 
-    // assertEquals("select distinct usr.user_id, usr.username, usr.email from users usr", userFilterSQL.generateSelect())
+    assertEquals("select distinct usr.user_id, usr.username, usr.email from users usr", userFilterSQL.generateSelect())
   }
 }
