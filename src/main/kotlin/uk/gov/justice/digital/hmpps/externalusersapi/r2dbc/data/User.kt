@@ -39,7 +39,7 @@ class User(
     joinColumns = [JoinColumn(name = "user_id")],
     inverseJoinColumns = [JoinColumn(name = "role_id")]
   )*/
-  private val authorities: MutableSet<Authority> = authorities.toMutableSet()
+  val authorities: MutableSet<Authority> = authorities.toMutableSet()
 
   @Column(value = "password")
   private var password: String? = null

@@ -4,11 +4,16 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
@@ -18,7 +23,12 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupAssigna
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import java.util.UUID
 
 class GroupsServiceTest {
   private val groupRepository: GroupRepository = mock()
@@ -61,16 +71,16 @@ class GroupsServiceTest {
     }
   }
 
- /* @Nested
+  @Nested
   inner class DeleteChildGroup {
 
     @Test
-    fun `Delete child group`() : Unit = runBlocking {
-      val childGroup = ChildGroup("CG", "disc")
+    fun `Delete child group`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CG", "disc", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
 
       groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).delete(childGroup)
+      verify(childGroupRepository).deleteByGroupCode("CG")
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
@@ -79,11 +89,11 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Child Group not found`() : Unit = runBlocking {
+    fun `Child Group not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        groupsService.deleteChildGroup("CG")
+        runBlocking { groupsService.deleteChildGroup("CG") }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }
@@ -93,7 +103,7 @@ class GroupsServiceTest {
   inner class ParentGroup {
 
     @Test
-    fun `Create group`() : Unit = runBlocking {
+    fun `Create group`(): Unit = runBlocking {
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(null)
 
@@ -109,18 +119,21 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Create group exists`() : Unit = runBlocking {
+    fun `Create group exists`(): Unit = runBlocking {
+
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(Group("code", "name"))
 
       Assertions.assertThatThrownBy {
-        groupsService.createGroup(createGroup)
+        runBlocking {
+          groupsService.createGroup(createGroup)
+        }
       }.isInstanceOf(GroupExistsException::class.java)
         .hasMessage("Unable to create group: CG with reason: group code already exists")
     }
 
     @Test
-    fun `update group details`() : Unit = runBlocking {
+    fun `update group details`(): Unit = runBlocking {
       val dbGroup = Group("bob", "disc")
       val groupAmendment = GroupAmendment("Joe")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
@@ -137,18 +150,26 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `get group details`() : Unit = runBlocking {
-      val dbGroup = Group("bob", "disc")
+    fun `get group details`(): Unit = runBlocking {
+      val dbGroup = Group("bob", "disc", UUID.randomUUID())
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+      val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
+      whenever(childGroupRepository.findAllByGroup(any())).thenReturn(childGroup)
+      val userAssignableRole = flowOf(UserAssignableRole("RC", "Role name", true))
+      whenever(groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(any())).thenReturn(userAssignableRole)
 
       val group = groupsService.getGroupDetail("bob")
 
-      assertThat(group).isEqualTo(dbGroup)
+      assertThat(group.groupCode).isEqualTo(dbGroup.groupCode)
+      assertThat(group.groupName).isEqualTo(dbGroup.groupName)
+      assertThat(group.assignableRoles).isNotNull
+      assertThat(group.children).isNotNull
       verify(groupRepository).findByGroupCode("bob")
       verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
     }
   }
-
+/*
+TODO: Need to comment
   @Nested
   inner class DeleteGroup {
 
@@ -184,16 +205,16 @@ class GroupsServiceTest {
       verify(groupRepository).delete(dbGroup)
     }
   }
-
+*/
   @Nested
   inner class ChildGroup {
     @Test
-    fun `Delete child group`() : Unit = runBlocking {
-      val childGroup = ChildGroup("CG", "disc")
+    fun `Delete child group`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CG", "disc", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
 
       groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).delete(childGroup)
+      verify(childGroupRepository).deleteByGroupCode("CG")
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
@@ -202,18 +223,18 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Delete child Group not found`() : Unit = runBlocking {
+    fun `Delete child Group not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        groupsService.deleteChildGroup("CG")
+        runBlocking { groupsService.deleteChildGroup("CG") }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }
 
     @Test
-    fun `Update child group details`() : Unit = runBlocking {
-      val dbGroup = ChildGroup("bob", "disc")
+    fun `Update child group details`(): Unit = runBlocking {
+      val dbGroup = ChildGroup("bob", "disc", UUID.randomUUID())
       val groupAmendment = GroupAmendment("Joe")
       whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
 
@@ -229,8 +250,8 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Retrieve child group details`() : Unit = runBlocking {
-      val childGroup = ChildGroup("CHILD_1", "test")
+    fun `Retrieve child group details`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CHILD_1", "test", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode(childGroup.groupCode)).thenReturn(childGroup)
 
       val actualChildGroupDetail = groupsService.getChildGroupDetail(childGroup.groupCode)
@@ -239,13 +260,15 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Retrieve child group details not found`() : Unit = runBlocking {
+    fun `Retrieve child group details not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(null)
 
-      Assertions.assertThatThrownBy { runBlocking {
-        groupsService.getChildGroupDetail("CG")}
+      Assertions.assertThatThrownBy {
+        runBlocking {
+          groupsService.getChildGroupDetail("CG")
+        }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }
-  }*/
+  }
 }

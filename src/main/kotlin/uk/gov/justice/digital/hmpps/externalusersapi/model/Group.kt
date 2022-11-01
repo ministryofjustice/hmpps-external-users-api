@@ -12,10 +12,10 @@ data class Group(
   val groupCode: String,
   @Column(value = "group_name")
   var groupName: String,
-) {
   @Id
   @Column(value = "group_id")
-  var groupId: UUID? = null
+  var groupId: UUID? = null,
+) {
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
