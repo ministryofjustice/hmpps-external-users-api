@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.5.7-beta"
   kotlin("plugin.spring") version "1.7.20"
   kotlin("plugin.jpa") version "1.7.20"
 }
@@ -17,10 +17,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("io.swagger:swagger-annotations:1.6.7")
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.11")
+  implementation("io.swagger:swagger-annotations:1.6.8")
+  implementation("org.springdoc:springdoc-openapi-ui:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.12")
 
   runtimeOnly("com.h2database:h2:2.1.214")
   runtimeOnly("org.flywaydb:flyway-core")
