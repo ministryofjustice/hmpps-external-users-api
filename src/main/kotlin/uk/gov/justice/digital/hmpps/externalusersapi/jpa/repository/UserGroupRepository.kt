@@ -10,6 +10,8 @@ import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.UserGroup
 import java.util.UUID
 import java.util.function.BiFunction
+import org.springframework.r2dbc.core.await
+import org.springframework.r2dbc.core.awaitSingle
 
 @Repository
 class UserGroupRepository(private val databaseClient: DatabaseClient) {
@@ -19,6 +21,12 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .sql("SELECT * FROM user_group WHERE user_id = :userId and group_id = :groupId")
       .bind("userId", userId)
       .bind("groupId", groupId)
+      .map(userGroupMappingFunction)
+      .all().asFlow()
+
+  suspend fun getAllUserGroups(): Flow<UserGroup> =
+    databaseClient
+      .sql("SELECT * FROM user_group ")
       .map(userGroupMappingFunction)
       .all().asFlow()
 
