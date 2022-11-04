@@ -21,7 +21,7 @@ class UserService(
   @Transactional
   suspend fun getUser(username: String?): User? {
 
-    var user = userRepository.findByUsername(username, AuthSource.auth).awaitSingleOrNull()
+    var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
     Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
       groupRepository.findGroupByUserId(it)
@@ -42,6 +42,28 @@ class UserService(
               )
             }
           }
+      }
+    return user
+  }
+
+  @Transactional
+  suspend fun getUserAndGroupByUserName(username: String?): User? {
+
+    var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
+    Optional.of(user!!).orElseThrow()
+    val groups = user.id?.let {
+      groupRepository.findGroupByUserId(it)
+    }?.toList()
+    groups?.toList()
+      ?.let { it ->
+
+        if (username != null) {
+          user = User(
+            username = username,
+            groups = it.toSet(),
+            source = AuthSource.auth
+          )
+        }
       }
     return user
   }

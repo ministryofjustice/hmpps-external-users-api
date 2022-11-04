@@ -12,7 +12,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupReposit
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
-import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import java.util.Optional
@@ -33,6 +32,11 @@ class UserGroupService(
   }
 
   suspend fun getGroups(userId: UUID): Set<Group>? =
+    /* TODO
+     Hibernate.initialize(u.groups)
+      u.groups.forEach { Hibernate.initialize(it.children) }
+      u.groups
+     */
 
     userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)?.groups?.toSet()
@@ -75,7 +79,7 @@ class UserGroupService(
   suspend fun removeGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
-    val user = userRepository.findByUsername(username, AuthSource.auth).awaitSingleOrNull()
+    val user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
     Optional.of(user!!).orElseThrow()
     if (user.groups.map { it.groupCode }.none { it == groupFormatted }
     ) {
@@ -114,7 +118,14 @@ class UserGroupService(
   private fun formatGroup(group: String) = group.trim().uppercase()
 
   suspend fun getGroupsByUserName(username: String?): Set<Group>? {
-    return userService.getUser(username?.trim()?.uppercase())?.groups?.toSet()
+    /* TODO
+    return user.map { u: User ->
+      Hibernate.initialize(u.groups)
+      u.groups.forEach { Hibernate.initialize(it.children) }
+      u.groups
+    }.orElse(null)
+     */
+    return userService.getUserAndGroupByUserName(username?.trim()?.uppercase())?.groups?.toSet()
   }
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =

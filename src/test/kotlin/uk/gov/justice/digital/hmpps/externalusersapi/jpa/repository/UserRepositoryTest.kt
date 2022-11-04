@@ -20,11 +20,11 @@ class UserRepositoryTest {
 
   @Test
   fun findByUsernameIsTrue(): Unit = runBlocking {
-    assertThat(repository.findByUsername("AUTH_TEST", AuthSource.auth).awaitSingle()).isNotNull
+    assertThat(repository.findByUsernameAndSource("AUTH_TEST", AuthSource.auth).awaitSingle()).isNotNull
   }
 
   @Test
   fun findByUsernameIsFalse(): Unit = runBlocking {
-    assertThat(repository.findByUsername("DOES_NOT_EXIST", AuthSource.auth).awaitSingleOrNull()).isNull()
+    assertThat(repository.findByUsernameAndSource("DOES_NOT_EXIST", AuthSource.auth).awaitSingleOrNull()).isNull()
   }
 }

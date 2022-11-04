@@ -32,7 +32,7 @@ class MaintainUserCheckTest {
   fun `Group manager able to maintain group`(): Unit = runBlocking {
     val groupManager =
       createSampleUser("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
-    whenever(userService.getUser(ArgumentMatchers.anyString()))
+    whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
     assertThatCode {
       runBlocking {
@@ -42,14 +42,14 @@ class MaintainUserCheckTest {
         )
       }
     }.doesNotThrowAnyException()
-    verify(userService).getUser(ArgumentMatchers.anyString())
+    verify(userService).getUserAndGroupByUserName(ArgumentMatchers.anyString())
   }
 
   @Test
   fun `Group manager does not have group so cannot maintain`(): Unit = runBlocking {
     val groupManager =
       createSampleUser("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
-    whenever(userService.getUser(ArgumentMatchers.anyString()))
+    whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
     assertThatThrownBy {
       runBlocking {
@@ -60,7 +60,7 @@ class MaintainUserCheckTest {
       }
     }.isInstanceOf(MaintainUserCheck.GroupRelationshipException::class.java)
       .hasMessage("Unable to maintain group: group3 with reason: Group not with your groups")
-    whenever(userService.getUser(ArgumentMatchers.anyString()))
+    whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
   }
 }

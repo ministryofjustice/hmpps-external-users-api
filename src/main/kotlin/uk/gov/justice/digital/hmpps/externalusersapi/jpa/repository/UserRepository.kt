@@ -12,10 +12,11 @@ interface UserRepository : CoroutineCrudRepository<User, UUID> {
 
   @NonNull
   @Query(
-    "select * from  USERS u " +
-      "  where  " +
-      "u.username = :username\n" +
-      "and u.source = :source"
+    """ select * from  USERS u
+            where
+              u.username = :username
+                  and
+              u.source = :source """
   )
-  suspend fun findByUsername(username: String?, source: AuthSource): Mono<User>
+  suspend fun findByUsernameAndSource(username: String?, source: AuthSource = AuthSource.auth): Mono<User>
 }
