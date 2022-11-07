@@ -45,4 +45,12 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .fetch()
       .rowsUpdated()
   }
+  suspend fun insertUserGroup(userId: UUID, groupId: UUID): Mono<Int> {
+    return databaseClient
+      .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
+      .bind("userId", userId)
+      .bind("groupId", groupId)
+      .fetch()
+      .rowsUpdated()
+  }
 }
