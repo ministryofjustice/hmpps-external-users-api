@@ -31,7 +31,7 @@ class MaintainUserCheck(
     if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
-    val maintainer = userService.getUser(userName)
+    val maintainer = userService.getUserAndGroupByUserName(userName)
     // otherwise group managers must have a group in common for maintenance
     if (maintainer != null) {
       if (maintainer.groups.none { it.groupCode == groupCode }) {
@@ -48,7 +48,7 @@ class MaintainUserCheck(
       return null
     }
     // otherwise group managers must have a group in common for maintenance
-    val loggedInUserEmail = userRepository.findByUsername(loggedInUser, AuthSource.auth).awaitSingleOrNull()
+    val loggedInUserEmail = userRepository.findByUsernameAndSource(loggedInUser).awaitSingleOrNull()
     Optional.of(loggedInUserEmail!!).orElseThrow()
 
     if (Sets.intersection(loggedInUserEmail.groups, user.groups).isEmpty()) {

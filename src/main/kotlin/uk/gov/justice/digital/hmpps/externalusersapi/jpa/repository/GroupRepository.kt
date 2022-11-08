@@ -15,10 +15,11 @@ interface GroupRepository : CoroutineSortingRepository<Group, String> {
 
   @NonNull
   @Query(
-    "select g.* from  groups g, " +
-      "user_group ug where  " +
-      "g.group_id = ug.group_id\n" +
-      "and ug.user_id = :userId"
+    """
+      select g.* from  groups g, 
+      user_group ug where  
+      g.group_id = ug.group_id
+      and ug.user_id = :userId """
   )
   suspend fun findGroupByUserId(userId: UUID): Flow<Group>
 }

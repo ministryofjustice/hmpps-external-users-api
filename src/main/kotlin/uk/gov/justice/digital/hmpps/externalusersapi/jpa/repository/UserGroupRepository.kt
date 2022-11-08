@@ -10,8 +10,6 @@ import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.UserGroup
 import java.util.UUID
 import java.util.function.BiFunction
-import org.springframework.r2dbc.core.await
-import org.springframework.r2dbc.core.awaitSingle
 
 @Repository
 class UserGroupRepository(private val databaseClient: DatabaseClient) {
@@ -42,6 +40,14 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       "and group_id = :groupId"
 
     return databaseClient.sql(sql)
+      .bind("userId", userId)
+      .bind("groupId", groupId)
+      .fetch()
+      .rowsUpdated()
+  }
+  suspend fun insertUserGroup(userId: UUID, groupId: UUID): Mono<Int> {
+    return databaseClient
+      .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
       .bind("userId", userId)
       .bind("groupId", groupId)
       .fetch()

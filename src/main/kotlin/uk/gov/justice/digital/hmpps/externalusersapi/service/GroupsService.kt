@@ -54,6 +54,11 @@ class GroupsService(
       ?.let {
         val children = childGroupRepository.findAllByGroup(it.groupId).toList()
         val assignableRole = groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode).toList()
+        /*
+        TODO
+         Hibernate.initialize(requestedGroup.assignableRoles)
+          Hibernate.initialize(requestedGroup.children)
+         */
         maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
         GroupDetails(it, children, assignableRole)
       }
