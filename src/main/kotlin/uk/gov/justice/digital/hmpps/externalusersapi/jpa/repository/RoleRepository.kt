@@ -12,7 +12,7 @@ import java.util.UUID
 
 @Repository
 interface RoleRepository : CoroutineSortingRepository<Authority, String> {
-  @Query("select * from Roles where admin_type LIKE concat('%', :adminType, '%') order by role_name")
+  @Query("select * from roles where admin_type LIKE concat('%', :adminType, '%') order by role_name")
   fun findAllByOrderByRoleNameLike(@Param("adminType") adminType: String): Flow<Authority>
 
   suspend fun findByRoleCode(roleCode: String?): Authority?
@@ -22,22 +22,27 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
 
   @NonNull
   @Query(
-    "select r.* from  roles r, user_role ur " +
-      "where  r.role_id = ur.role_id\n" +
-      " and ur.user_id = :userId"
+    """
+      select r.*
+      from roles r
+        inner join user_role ur on r.role_id = ur.role_id
+      where
+        ur.user_id = :userId
+     """
   )
   suspend fun findRoleByUserId(userId: UUID): Flow<Authority>
 
   @NonNull
   @Query(
     """
-      select distinct  r.*
+      select distinct r.*
        from group_assignable_role gs
          inner join groups g 
-            on  g.group_id = gs.group_id 
+            on g.group_id = gs.group_id 
          inner join roles r 
            on r.role_id=gs.role_id 
-          where g.group_code = :groupCode """
+          where g.group_code = :groupCode
+    """
   )
   suspend fun findRolesByGroupCode(groupCode: String): Flow<Authority>
 }
