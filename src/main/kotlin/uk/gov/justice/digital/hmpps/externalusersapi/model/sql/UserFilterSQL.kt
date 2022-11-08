@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model.sql
 
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter
+import org.springframework.data.domain.Pageable
+import java.lang.String.format
 import java.util.regex.Pattern
 
 private const val PROJECTION =
@@ -12,17 +13,13 @@ private const val PROJECTION =
   u.inactive_reason,
   u.last_logged_in,
   u.locked,
-  u.mfa_preference,
-  u.password,
-  u.password_expiry,
   u.first_name,
   u.last_name,
-  u.pre_disable_warning,
   u.source,
   u.username,
   u.verified
   FROM
-  users u 
+  users u
   """
 
 private const val ROLES_JOIN =
@@ -53,47 +50,51 @@ private const val SOURCE_FILTER =
 
 private const val ROLES_FILTER =
   """
-  AND (r.role_code in :roleCodes)
+  AND (r.role_code in %s)
   """
 
 private const val GROUPS_FILTER =
   """
-  AND (g.group_code in :groupCodes)
+  AND (g.group_code in %s)
   """
 
 private const val USER_FILTER =
   """
   AND (
-  u.email like :lowerCaseName
-  OR u.username like :upperCaseName
-  OR lower(concat_ws(' ', u.first_name, u.last_name)) like :lowerCaseName
-  OR lower(concat_ws(' ', u.last_name, u.first_name)) like :lowerCaseName
+  u.email like %s
+  OR u.username like %s
+  OR lower(concat_ws(' ', u.first_name, u.last_name)) like %s
+  OR lower(concat_ws(' ', u.last_name, u.first_name)) like %s
   )
   """
 
 private const val ENABLED_FILTER =
   """
-   AND u.enabled = :enabled
+   AND u.enabled = %b
   """
 
 private const val ORDER_BY =
   """
   ORDER BY
   u.last_name ASC,
-  u.first_name ASC 
-  LIMIT ?
+  u.first_name ASC
   """
 
-class UserFilterEmbedded(
+private const val PAGE_DETAILS =
+  """
+  LIMIT %d OFFSET %d
+  """
+
+class UserFilterSQL(
   name: String? = null,
   roleCodes: List<String>? = null,
   groupCodes: List<String>? = null,
-  status: UserFilter.Status = UserFilter.Status.ALL,
+  status: Status = Status.ALL,
+  pageable: Pageable
 ) {
   private val whiteSpace = Pattern.compile("\\s+")
 
-  private var sql: String = ""
-  private var parameters = HashMap<String, String>()
+  var sql: String = ""
 
   init {
     val sqlBuilder = StringBuilder()
@@ -110,26 +111,25 @@ class UserFilterEmbedded(
     sqlBuilder.append(SOURCE_FILTER)
 
     if (!roleCodes.isNullOrEmpty()) {
-      sqlBuilder.append(ROLES_FILTER)
-      parameters["roleCodes"] = toInString(roleCodes)
+      sqlBuilder.append(format(ROLES_FILTER, toInString(roleCodes)))
     }
 
     if (!groupCodes.isNullOrEmpty()) {
-      sqlBuilder.append(GROUPS_FILTER)
-      parameters["groupCodes"] = toInString(groupCodes)
+      sqlBuilder.append(format(GROUPS_FILTER, toInString(groupCodes)))
     }
 
     if (!name.isNullOrBlank()) {
-      sqlBuilder.append(USER_FILTER)
-      parameters["lowerCaseName"] = toLikeString(name).lowercase()
-      parameters["upperCaseName"] = toLikeString(name).uppercase()
+      val lowerCaseName = toLikeString(name).lowercase()
+      sqlBuilder.append(format(USER_FILTER, lowerCaseName, toLikeString(name).uppercase(), lowerCaseName, lowerCaseName))
     }
 
-    if (status != UserFilter.Status.ALL) {
-      sqlBuilder.append(ENABLED_FILTER)
+    if (status != Status.ALL) {
+      sqlBuilder.append(format(ENABLED_FILTER, status == Status.ACTIVE))
     }
 
     sqlBuilder.append(ORDER_BY)
+    sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset))
+
     sql = sqlBuilder.toString()
   }
 
@@ -140,5 +140,9 @@ class UserFilterEmbedded(
   private fun toLikeString(input: String): String {
     val words = whiteSpace.split(input.trim())
     return words.joinToString(prefix = "%", postfix = "%", separator = "% %")
+  }
+
+  enum class Status {
+    ACTIVE, INACTIVE, ALL
   }
 }

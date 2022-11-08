@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Validated
@@ -136,4 +137,49 @@ class UserGroupController(
     userGroupService.removeGroupByUserId(userId, group)
     log.info("Remove group succeeded for userId {} and group {}", userId, group)
   }
+
+  // TODO move this once user search end point moved from Auth
+  data class ExternalUser(
+    @Schema(
+      required = true,
+      description = "User ID",
+      example = "91229A16-B5F4-4784-942E-A484A97AC865"
+    )
+    val userId: String? = null,
+
+    @Schema(required = true, description = "Username", example = "externaluser")
+    val username: String? = null,
+
+    @Schema(
+      required = true,
+      description = "Email address",
+      example = "external.user@someagency.justice.gov.uk"
+    )
+    val email: String? = null,
+
+    @Schema(required = true, description = "First name", example = "External")
+    val firstName: String? = null,
+
+    @Schema(required = true, description = "Last name", example = "User")
+    val lastName: String? = null,
+
+    @Schema(
+      required = true,
+      description = "Account is locked due to incorrect password attempts",
+      example = "true"
+    )
+    val locked: Boolean = false,
+
+    @Schema(required = true, description = "Account is enabled", example = "false")
+    val enabled: Boolean = false,
+
+    @Schema(required = true, description = "Email address has been verified", example = "false")
+    val verified: Boolean = false,
+
+    @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
+    val lastLoggedIn: LocalDateTime? = null,
+
+    @Schema(required = true, description = "Inactive reason", example = "Left department")
+    val inactiveReason: String? = null
+  )
 }
