@@ -154,7 +154,7 @@ class UserGroupServiceTest {
         whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
         val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
         whenever(childGroupRepository.findAllByGroup(anyOrNull())).thenReturn(childGroup)
-        whenever(groupRepository.findGroupByUserId(anyOrNull())).thenReturn(
+        whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
           flowOf(
             Group("JOE", "desc"),
             Group("GROUP_LICENCE_VARY", "desc2")
@@ -217,7 +217,7 @@ class UserGroupServiceTest {
       val group = flowOf(
         Group("JOE", "desc", groupId1), Group("LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupByUserId(anyOrNull())).thenReturn(
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
         group
       )
 
@@ -240,7 +240,7 @@ class UserGroupServiceTest {
       val group = flowOf(
         Group("JOE", "desc", groupId1), Group("LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupByUserId(anyOrNull())).thenReturn(
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
         group
       )
       var userId = UUID.randomUUID()
@@ -262,7 +262,7 @@ class UserGroupServiceTest {
       val group = flowOf(
         Group("JOE", "desc", groupId1), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupByUserId(anyOrNull())).thenReturn(
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
         group
       )
 
@@ -293,7 +293,7 @@ class UserGroupServiceTest {
       val group = flowOf(
         Group("JOE", "desc", groupId1), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupByUserId(anyOrNull())).thenReturn(
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
         group
       )
 
