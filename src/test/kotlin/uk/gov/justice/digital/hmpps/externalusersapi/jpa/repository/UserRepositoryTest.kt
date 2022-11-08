@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
 
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
@@ -26,5 +27,15 @@ class UserRepositoryTest {
   @Test
   fun findByUsernameIsFalse(): Unit = runBlocking {
     assertThat(repository.findByUsernameAndSource("DOES_NOT_EXIST", AuthSource.auth).awaitSingleOrNull()).isNull()
+  }
+
+  @Test
+  fun findAllByGroupCodeNoMatch(): Unit = runBlocking {
+    assertThat(repository.findAllByGroupCode("SITE_9_GROUP_1").toList()).isEmpty()
+  }
+
+  @Test
+  fun findAllByGroupCode(): Unit = runBlocking {
+    assertThat(repository.findAllByGroupCode("SITE_1_GROUP_1").toList()).isNotEmpty
   }
 }

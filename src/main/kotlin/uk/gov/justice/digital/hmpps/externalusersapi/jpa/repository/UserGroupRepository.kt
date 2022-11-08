@@ -14,13 +14,13 @@ import java.util.function.BiFunction
 @Repository
 class UserGroupRepository(private val databaseClient: DatabaseClient) {
 
-  suspend fun getUserGroup(userId: UUID, groupId: UUID): Flow<UserGroup> =
+  suspend fun getUserGroup(userId: UUID, groupId: UUID): Mono<UserGroup>? =
     databaseClient
       .sql("SELECT * FROM user_group WHERE user_id = :userId and group_id = :groupId")
       .bind("userId", userId)
       .bind("groupId", groupId)
       .map(userGroupMappingFunction)
-      .all().asFlow()
+      .first()
 
   suspend fun getAllUserGroups(): Flow<UserGroup> =
     databaseClient
@@ -45,6 +45,7 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .fetch()
       .rowsUpdated()
   }
+
   suspend fun insertUserGroup(userId: UUID, groupId: UUID): Mono<Int> {
     return databaseClient
       .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
