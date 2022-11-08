@@ -6,15 +6,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.model.sql.UserFilterSQL
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserGroupController.ExternalUser
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.ExternalUserController.ExternalUser
 import java.time.LocalDateTime
 import java.util.UUID
 
 @Repository
 class UserSearchRepository(private val databaseClient: DatabaseClient) {
 
-  private val mapper = { row: Row, _: RowMetadata ->
+  private val externalUserMapper = { row: Row, _: RowMetadata ->
     ExternalUser(
       userId = row.get("user_id", UUID::class.java)?.toString(),
       username = row.get("username", String::class.java),
@@ -29,8 +30,16 @@ class UserSearchRepository(private val databaseClient: DatabaseClient) {
     )
   }
 
+  private val countMapper = { row: Row, _: RowMetadata -> row.get("count", Long::class.java) as Long }
+
   suspend fun searchForUsers(userFilter: UserFilterSQL): Flow<ExternalUser> {
     val query = databaseClient.sql(userFilter.sql)
-    return query.map(mapper).all().asFlow()
+    return query.map(externalUserMapper).all().asFlow()
+  }
+
+  @Suppress("ReactiveStreamsUnusedPublisher")
+  suspend fun countAllBy(userFilter: UserFilterSQL): Mono<Long> {
+    return databaseClient.sql(userFilter.countSQL)
+      .map(countMapper).one()
   }
 }

@@ -4,6 +4,11 @@ import org.springframework.data.domain.Pageable
 import java.lang.String.format
 import java.util.regex.Pattern
 
+private const val COUNT_SQL =
+  """
+    SELECT COUNT(*) FROM (%s)
+  """
+
 private const val PROJECTION =
   """
   SELECT
@@ -95,6 +100,7 @@ class UserFilterSQL(
   private val whiteSpace = Pattern.compile("\\s+")
 
   var sql: String = ""
+  var countSQL = ""
 
   init {
     val sqlBuilder = StringBuilder()
@@ -126,6 +132,8 @@ class UserFilterSQL(
     if (status != Status.ALL) {
       sqlBuilder.append(format(ENABLED_FILTER, status == Status.ACTIVE))
     }
+
+    countSQL = format(COUNT_SQL, sqlBuilder.toString())
 
     sqlBuilder.append(ORDER_BY)
     sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset))
