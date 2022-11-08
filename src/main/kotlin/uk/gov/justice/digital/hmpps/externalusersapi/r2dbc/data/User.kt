@@ -12,13 +12,11 @@ import javax.persistence.Enumerated
 
 @Table(name = "USERS")
 class User(
-  @Column(value = "username")
   private var username: String,
 
   /**
    * Source of last login information
    */
-  @Column(value = "source")
   @Enumerated(EnumType.STRING)
   var source: AuthSource,
 
@@ -30,7 +28,7 @@ class User(
   @Id
   // @GeneratedValue(generator = "UUID")
   // @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-  @org.springframework.data.relational.core.mapping.Column(value = "user_id")
+  @Column(value = "user_id")
   var id: UUID? = null
 
  /* @OneToMany
