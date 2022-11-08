@@ -32,9 +32,7 @@ class GroupsService(
   private val userGroupService: UserGroupService,
   private val groupAssignableRoleRepository: GroupAssignableRoleRepository,
   private val maintainUserCheck: MaintainUserCheck,
-
 ) {
-
   // TODO Check: can we amend this call to work
 
   val allGroups: List<Group>
@@ -63,6 +61,7 @@ class GroupsService(
         GroupDetails(it, children, assignableRole)
       }
       ?: throw GroupNotFoundException("get", groupCode, "notfound")
+
   @Throws(ChildGroupNotFoundException::class)
   suspend fun getChildGroupDetail(
     groupCode: String,
@@ -93,8 +92,8 @@ class GroupsService(
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
   suspend fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) {
-    val groupToUpdate = childGroupRepository.findByGroupCode(groupCode) ?: throw
-    ChildGroupNotFoundException(groupCode, "notfound")
+    val groupToUpdate =
+      childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
 
     groupToUpdate.groupName = groupAmendment.groupName
     childGroupRepository.save(groupToUpdate)
@@ -122,6 +121,7 @@ class GroupsService(
       null
     )
   }
+
   @Transactional
   @Throws(GroupExistsException::class)
   suspend fun createGroup(createGroup: CreateGroup) {
@@ -142,41 +142,40 @@ class GroupsService(
   @Transactional
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
   suspend fun deleteGroup(groupCode: String) {
-    val group =
-      groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("delete", groupCode, "notfound")
-    // TODO Fix this
-/*
-      when {
-        group.children.isEmpty() -> {
-          removeUsersFromGroup(
-            groupCode,
-            authenticationFacade.currentUsername,
-            authenticationFacade.authentication.authorities
-          )
-          groupRepository.delete(group)
+    return groupRepository.findByGroupCode(groupCode)
+      ?.let { group ->
+        val children = childGroupRepository.findAllByGroup(group.groupId).toList()
 
-          telemetryClient.trackEvent(
-            "GroupDeleteSuccess",
-            mapOf("username" to authenticationFacade.currentUsername, "groupCode" to groupCode),
-            null
-          )
-        }
-        else -> {
-          throw GroupHasChildGroupException(groupCode, "child group exists")
+        when {
+          children.isEmpty() -> {
+            removeUsersFromGroup(
+              groupCode,
+              authenticationFacade.getUsername(),
+              authenticationFacade.getAuthentication().authorities
+            )
+            groupRepository.delete(group)
+
+            telemetryClient.trackEvent(
+              "GroupDeleteSuccess",
+              mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode),
+              null
+            )
+          }
+          else -> {
+            throw GroupHasChildGroupException(groupCode, "child group exists")
+          }
         }
       }
+      ?: throw GroupNotFoundException("delete", groupCode, "notfound")
+  }
 
-*/
+  private suspend fun removeUsersFromGroup(groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
+    val usersWithGroup = userRepository.findAllByGroupCode(groupCode).toList()
+    usersWithGroup.forEach { userGroupService.removeUserGroup(it.getUserName(), groupCode, modifier, authorities) }
   }
 
   private suspend fun retrieveChildGroup(groupCode: String): ChildGroup {
     return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
-  }
-
-  // TODO Fix this
-  private fun removeUsersFromGroup(groupCode: String, username: String?, authorities: Collection<GrantedAuthority>) {
-    //  val usersWithGroup = userRepository.findAll(UserFilter(groupCodes = listOf(groupCode)))
-    //  usersWithGroup.forEach { userGroupService.removeGroup(it.getUserName(), groupCode, username, authorities) }
   }
 
   @Transactional
