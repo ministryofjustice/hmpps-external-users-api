@@ -1,18 +1,35 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import java.util.UUID
 
 class UserGroupServiceTest {
   private val userRepository: UserRepository = mock()
@@ -28,12 +45,11 @@ class UserGroupServiceTest {
 
   @Nested
   inner class RemoveGroup {
-    /*
     @Test
     fun removeGroup_groupNotOnUser(): Unit = runBlocking {
       val user = createSampleUser(username = "user", id = UUID.randomUUID())
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.just(user))
-      whenever(groupRepository.findGroupsByUserId(any())).thenReturn(flowOf())
+      whenever(groupRepository.findGroupsByUsername(any())).thenReturn(flowOf())
 
       assertThatThrownBy {
         runBlocking {
@@ -54,7 +70,7 @@ class UserGroupServiceTest {
       val dbGroup1 = Group("JOE", "desc")
       val dbGroup2 = Group("LICENCE_VARY", "desc2", UUID.randomUUID())
 
-      whenever(groupRepository.findGroupsByUserId(any())).thenReturn(flowOf(dbGroup1, dbGroup2))
+      whenever(groupRepository.findGroupsByUsername(any())).thenReturn(flowOf(dbGroup1, dbGroup2))
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.just(user))
       whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(Mono.just(1))
 
@@ -69,34 +85,15 @@ class UserGroupServiceTest {
     @Test
     fun removeGroup_success_groupManager(): Unit = runBlocking {
       val user = createSampleUser(username = "user", id = UUID.randomUUID())
-      // user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
-      whenever(groupRepository.findGroupsByUserId(any())).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
-        )
-      )
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
           Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
         )
       )
-
       whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(Mono.just(user))
-      val manager = createSampleUser(
-        username = "user",
-        id = UUID.randomUUID(),
-        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
-      )
-      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2")
-        )
-      )
 
-      // whenever(userService.getUser(anyString())).thenReturn(user)
+      val manager = createSampleUser(username = "managerUser")
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(Mono.just(manager))
       whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(Mono.just(1))
 
@@ -106,49 +103,33 @@ class UserGroupServiceTest {
         mapOf("username" to "user", "group" to "group_licence_vary", "admin" to "MANAGER"),
         null
       )
-      // assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
     }
 
     @Test
-    fun removeGroup_failure_groupManager(): Unit = runBlocking {
+    fun removeGroup_failure_lastgroup_groupManager(): Unit = runBlocking {
       val user = createSampleUser(username = "user", id = UUID.randomUUID())
-      // user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
-      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(Mono.just(user))
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
-        )
+        flowOf(Group("GROUP_LICENCE_VARY", "desc2"))
       )
-      whenever(groupRepository.findGroupsByUserId(any())).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
-        )
-      )
-      val manager = createSampleUser(
-        username = "user",
-        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
-      )
-      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2")
-        )
-      )
+      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(Mono.just(user))
 
-      //  whenever(userService.getUser(anyString())).thenReturn(user)
+      val manager = createSampleUser(username = "managerUser")
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(Mono.just(manager))
+      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(Mono.just(1))
 
-      service.removeUserGroup("user", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
-      assertThat(user.groups).extracting<String> { it.groupCode }.containsOnly("JOE")
+      assertThatThrownBy {
+        runBlocking {
+          service.removeUserGroup("user", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
+        }
+      }.isInstanceOf(UserLastGroupException::class.java)
+        .hasMessage("remove group failed for field group with reason: last")
+
       verifyNoInteractions(telemetryClient)
     }
 
     @Test
     fun userAssignableGroups_notAdminAndNoUser(): Unit = runBlocking {
-
-      whenever(groupRepository.findGroupsByUsername(anyString())).thenReturn(flowOf())
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.empty())
 
       val groups = service.getAssignableGroups(" BOB ", setOf())
       assertThat(groups).isEmpty()
@@ -156,13 +137,8 @@ class UserGroupServiceTest {
 
     @Test
     fun userAssignableGroups_normalUser(): Unit = runBlocking {
-      val user = createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-      // whenever(userService.getUserAndGroupByUserName(anyString())).thenReturn(user)
+      val user = createSampleUser(username = "user")
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.just(user))
-      //  val user = createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-      // whenever(userService.getUser(anyString())).thenReturn(user)
-      //  whenever(userRepository.findByUsername(anyString(), anyOrNull())).thenReturn(Mono.just(user))
-
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
@@ -185,75 +161,76 @@ class UserGroupServiceTest {
       val groups = service.getAssignableGroups(" BOB ", setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
     }
+  }
 
-    @Nested
-    inner class GetGroups {
-      @Test
-      fun groups_success(): Unit = runBlocking {
-        whenever(authenticationFacade.getUsername()).thenReturn("admin")
-        whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-        whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
-        val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
-        whenever(childGroupRepository.findAllByGroup(anyOrNull())).thenReturn(childGroup)
-        whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-          flowOf(
-            Group("JOE", "desc"),
-            Group("GROUP_LICENCE_VARY", "desc2")
+  @Nested
+  inner class GetGroups {
+    @Test
+    fun groups_success(): Unit = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+      val id = UUID.randomUUID()
+      val user =
+        createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+      whenever(
+        maintainUserCheck
+          .ensureUserLoggedInUserRelationship(
+            anyString(),
+            any(),
+            any()
           )
+      ).thenReturn(user)
+      whenever(userRepository.findById(id)).thenReturn(user)
+
+      val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
+      whenever(childGroupRepository.findAllByGroup(anyOrNull())).thenReturn(childGroup)
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
+        flowOf(
+          Group("JOE", "desc"),
+          Group("GROUP_LICENCE_VARY", "desc2")
         )
+      )
 
-        val id = UUID.randomUUID()
-        val user =
-          createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-        whenever(
-          maintainUserCheck
-            .ensureUserLoggedInUserRelationship(
-              anyString(),
-              any(),
-              any()
-            )
-        ).thenReturn(user)
-        whenever(userRepository.findById(id)).thenReturn(user)
-        val groups = service.getGroups(id)
-        assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "GROUP_LICENCE_VARY")
-      }
-
-      @Test
-      fun groups_user_notfound(): Unit = runBlocking {
-        val id = UUID.randomUUID()
-        whenever(userRepository.findById(id)).thenReturn(null)
-        val groups = service.getGroups(id)
-        assertThat(groups).isNull()
-      }
-
-      @Test
-      fun groups_by_username_success(): Unit = runBlocking {
-        val user =
-          createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-        //    whenever(userService.getUser(anyString())).thenReturn(user)
-        whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.just(user))
-        groupRepository.findGroupsByUsername(anyString()).toSet()
-
-        val groups = service.getGroupsByUserName(" BOB ")
-        assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
-      }
-
-      @Test
-      fun groups_by_username_notfound(): Unit = runBlocking {
-        // whenever(userRepository.findByUsername(" BOB ")).thenReturn(Mono.empty())
-        whenever(groupRepository.findGroupsByUsername(anyString())).thenReturn(null)
-
-        val groups = service.getGroupsByUserName(" BOB ")
-        assertThat(groups).isNull()
-      }
+      val groups = service.getGroups(id)
+      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "GROUP_LICENCE_VARY")
     }
 
-     */
+    @Test
+    fun groups_user_notfound(): Unit = runBlocking {
+      val id = UUID.randomUUID()
+      whenever(userRepository.findById(id)).thenReturn(null)
+      val groups = service.getGroups(id)
+      assertThat(groups).isNull()
+    }
+
+    @Test
+    fun groups_by_username_success(): Unit = runBlocking {
+      val user = createSampleUser(username = "user")
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.just(user))
+      whenever(groupRepository.findGroupsByUsername(anyString())).thenReturn(
+        flowOf(
+          Group("JOE", "desc"),
+          Group("LICENCE_VARY", "desc2")
+        )
+      )
+
+      val groups = service.getGroupsByUserName(" BOB ")
+      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
+    }
+
+    @Test
+    fun groups_by_username_notfound(): Unit = runBlocking {
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(Mono.empty())
+
+      val groups = service.getGroupsByUserName(" BOB ")
+      assertThat(groups).isNull()
+    }
   }
 
   @Nested
   inner class RemoveGroupByUserId {
-/*
+
     @Test
     fun groupNotOnUser(): Unit = runBlocking {
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
@@ -287,13 +264,11 @@ class UserGroupServiceTest {
       val group = flowOf(
         Group("JOE", "desc", groupId1), Group("LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-        group
-      )
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(group)
       var userId = UUID.randomUUID()
       val user = createSampleUser(username = "user")
-      user.groups.addAll(setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
       whenever(userRepository.findById(anyOrNull())).thenReturn(user)
+
       runBlocking { service.removeGroupByUserId(userId, "  licence_vary   ") }
       verify(userGroupRepository).deleteUserGroup(userId, groupId2)
     }
@@ -303,62 +278,54 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
-      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(Mono.just(0))
-      val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
-      val group = flowOf(
-        Group("JOE", "desc", groupId1), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
+      val groups = flowOf(
+        Group("JOE", "desc", UUID.randomUUID()), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
       )
-      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-        group
-      )
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(groups)
+      whenever(groupRepository.findGroupsByUsername("MANAGER")).thenReturn(groups)
 
       val userId = UUID.randomUUID()
       val user = createSampleUser(username = "user")
-      user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
       whenever(userRepository.findById(userId)).thenReturn(user)
       val manager = createSampleUser(
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
       )
-      // whenever(userService.getUserAndGroupByUserName(anyString())).thenReturn(user)
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(Mono.just(manager))
+      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(Mono.just(1))
+
       service.removeGroupByUserId(userId, "  group_licence_vary   ")
       verify(userGroupRepository).deleteUserGroup(userId, groupId2)
     }
 
     @Test
-    fun failureAsGroupManager(): Unit = runBlocking {
+    fun failureAsGroupManagerLastGroup(): Unit = runBlocking {
       whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
-      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(Mono.just(0))
-      /* val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
-       whenever(childGroupRepository.findAllByGroup(anyOrNull())).thenReturn(childGroup)*/
-      val groupId1 = UUID.randomUUID()
-      val groupId2 = UUID.randomUUID()
-      val group = flowOf(
-        Group("JOE", "desc", groupId1), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
-      )
-      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-        group
-      )
+
+      val groups = flowOf(Group("GROUP_LICENCE_VARY", "desc2"))
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(groups)
+      whenever(groupRepository.findGroupsByUsername("MANAGER")).thenReturn(groups)
 
       val userId = UUID.randomUUID()
       val user = createSampleUser(username = "user")
-      user.groups.addAll(setOf(Group("JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc2")))
       whenever(userRepository.findById(userId)).thenReturn(user)
-      val manager = createSampleUser(
-        username = "user",
-        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
-      )
-      //   whenever(userService.getUserAndGroupByUserName(anyString())).thenReturn(user)
+      val manager = createSampleUser(username = "managerUser")
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(Mono.just(manager))
-      service.removeGroupByUserId(userId, "  group_licence_vary   ")
-      verify(userGroupRepository).deleteUserGroup(userId, groupId2)
+
+      assertThatThrownBy {
+        runBlocking {
+          service.removeGroupByUserId(userId, "  group_licence_vary   ")
+        }
+      }.isInstanceOf(UserLastGroupException::class.java)
+        .hasMessage("remove group failed for field group with reason: last")
+
+      verifyNoInteractions(userGroupRepository)
     }
   }
-*/
+
   /* TODO
   @Nested
    inner class AddGroupByUserId {
@@ -510,9 +477,8 @@ class UserGroupServiceTest {
        }.isInstanceOf(MaintainUserCheck.UserGroupRelationshipException::class.java)
          .hasMessage("Unable to maintain user: user with reason: User not with your groups")
      }
-   */
-  }
-
+   }
+*/
   companion object {
     private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
