@@ -24,7 +24,7 @@ class UserService(
     var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
     Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
-      groupRepository.findGroupByUserId(it)
+      groupRepository.findGroupsByUserId(it)
     }?.toList()
 
     val roles = user.id?.let { roleRepository.findRoleByUserId(it) }?.toList()
@@ -52,7 +52,7 @@ class UserService(
     var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
     Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
-      groupRepository.findGroupByUserId(it)
+      groupRepository.findGroupsByUserId(it)
     }?.toList()
     groups?.toList()
       ?.let { it ->

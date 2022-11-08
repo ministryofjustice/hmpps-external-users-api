@@ -45,7 +45,7 @@ class UserGroupService(
     userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
 
-      val group = groupRepository.findGroupByUserId(userId).toList().toSet()
+      val group = groupRepository.findGroupsByUserId(userId).toList().toSet()
       var groupORModel: MutableList<GroupORModel> = mutableListOf()
       group?.forEach {
         group ->
@@ -68,7 +68,7 @@ class UserGroupService(
       val group =
         groupRepository.findByGroupCode(groupFormatted) ?: throw UserGroupException("group", "notfound")
 
-      val userGroup = groupRepository.findGroupByUserId(userId)
+      val userGroup = groupRepository.findGroupsByUserId(userId)
       if (userGroup.toList().contains(group)) {
         throw UserGroupException("group", "exists")
       }
@@ -103,7 +103,7 @@ class UserGroupService(
 
     userRepository.findById(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
-      val userGroup = groupRepository.findGroupByUserId(userId).toList().toMutableSet()
+      val userGroup = groupRepository.findGroupsByUserId(userId).toList().toMutableSet()
       if (userGroup.map { it.groupCode }.none { it == groupFormatted }
       ) {
         throw UserGroupException("group", "missing")

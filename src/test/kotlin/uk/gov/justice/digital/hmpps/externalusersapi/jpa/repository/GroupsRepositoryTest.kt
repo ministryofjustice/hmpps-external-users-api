@@ -56,9 +56,15 @@ class GroupsRepositoryTest {
     }
 
     @Test
-    fun findGroupByUserId(): Unit = runBlocking {
+    fun findGroupsByUserId(): Unit = runBlocking {
       var uuid = UUID.fromString("1f650f15-0993-4db7-9a32-5b930ff86035")
-      assertThat(repository.findGroupByUserId(uuid).toList()).extracting<String> { it.groupCode }
+      assertThat(repository.findGroupsByUserId(uuid).toList()).extracting<String> { it.groupCode }
+        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2")
+    }
+
+    @Test
+    fun findGroupsByUserName(): Unit = runBlocking {
+      assertThat(repository.findGroupsByUsername("AUTH_GROUP_MANAGER").toList()).extracting<String> { it.groupCode }
         .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2")
     }
   }
