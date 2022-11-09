@@ -11,7 +11,8 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserSearchRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.sql.UserFilterSQL
+import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter
+import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.ExternalUserController
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 
@@ -29,7 +30,7 @@ class UserSearchService(
     pageable: Pageable,
     searcher: String,
     authorities: Collection<GrantedAuthority>,
-    status: UserFilterSQL.Status,
+    status: Status,
     authSources: List<AuthSource> = listOf(AuthSource.auth),
   ): Page<ExternalUserController.ExternalUser> = coroutineScope {
     val groupSearchCodes = if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
@@ -40,7 +41,7 @@ class UserSearchService(
     } else {
       emptyList()
     }
-    val userFilter = UserFilterSQL(
+    val userFilter = UserFilter(
       name = name,
       roleCodes = roleCodes,
       groupCodes = groupSearchCodes,

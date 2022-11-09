@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model.sql
+package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import org.springframework.data.domain.Pageable
 import java.lang.String.format
@@ -90,7 +90,7 @@ private const val PAGE_DETAILS =
   LIMIT %d OFFSET %d
   """
 
-class UserFilterSQL(
+class UserFilter(
   name: String? = null,
   roleCodes: List<String>? = null,
   groupCodes: List<String>? = null,
