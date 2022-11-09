@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.sql.UserFilterSQL.Status
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import java.time.LocalDateTime
 
 @Validated
 @RestController
 @Tag(name = "/user", description = "External User Controller")
-class ExternalUserController(private val userService: UserService) {
+class ExternalUserController(private val userSearchService: UserSearchService) {
 
   @GetMapping("/search")
   @Operation(
@@ -70,7 +70,7 @@ class ExternalUserController(private val userService: UserService) {
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
     @Parameter(hidden = true) authentication: Authentication
   ): Page<ExternalUser> =
-    userService.findAuthUsers(
+    userSearchService.findAuthUsers(
       name,
       roles,
       groups,
