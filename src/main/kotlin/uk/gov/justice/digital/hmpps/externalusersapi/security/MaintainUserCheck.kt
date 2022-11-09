@@ -1,20 +1,20 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.security
 
 import com.google.common.collect.Sets
-import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.flow.toSet
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.util.Optional
 
 @Service
 class MaintainUserCheck(
-  private val userRepository: UserRepository,
   private val authenticationFacade: AuthenticationFacade,
   private val userService: UserService,
+  private val groupRepository: GroupRepository
 ) {
   companion object {
     fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
@@ -48,10 +48,11 @@ class MaintainUserCheck(
       return null
     }
     // otherwise group managers must have a group in common for maintenance
-    val loggedInUserEmail = userRepository.findByUsernameAndSource(loggedInUser).awaitSingleOrNull()
+    val loggedInUserEmail = userService.getUser(loggedInUser)
     Optional.of(loggedInUserEmail!!).orElseThrow()
+    val userGroups = groupRepository.findGroupsByUsername(user.getUserName()).toSet()
 
-    if (Sets.intersection(loggedInUserEmail.groups, user.groups).isEmpty()) {
+    if (Sets.intersection(loggedInUserEmail.groups, userGroups).isEmpty()) {
       // no group in common, so disallow
       throw UserGroupRelationshipException(user.name, "User not with your groups")
     }

@@ -76,10 +76,8 @@ class UserGroupController(
   ): List<UserGroup> =
     userGroupService.getGroups(userId)
       ?.flatMap { g ->
-        // TODO FIx this
         if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
         else listOf(UserGroup(g))
-        listOf(UserGroup(g))
       }
       ?: throw UsernameNotFoundException("User $userId not found")
 

@@ -1,7 +1,10 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient.BodyContentSpec
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
@@ -50,7 +53,6 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
     }
 
-    /*
     @Test
     fun `add group to a user as group manager`() {
       callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")
@@ -94,7 +96,6 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .jsonPath("[?(@.groupCode == 'PECS_DRB8')]")
         .doesNotExist()
     }
-     */
 
     @Test
     fun `does not add group if user not in group managers groups`() {
@@ -189,7 +190,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class GetUserGroups {
-/*
+
     @Test
     fun `User Groups by userId endpoint returns not found if no user`() {
       webTestClient
@@ -316,8 +317,6 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isUnauthorized
     }
-
- */
   }
 
   private fun callGetGroups(

@@ -12,6 +12,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
@@ -20,7 +21,8 @@ class MaintainUserCheckTest {
   private val userRepository: UserRepository = mock()
   private val userService: UserService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
-  private val maintainUserCheck = MaintainUserCheck(userRepository, authenticationFacade, userService)
+  private val groupRepository: GroupRepository = mock()
+  private val maintainUserCheck = MaintainUserCheck(authenticationFacade, userService, groupRepository)
 
   @BeforeEach
   fun initSecurityContext(): Unit = runBlocking {
