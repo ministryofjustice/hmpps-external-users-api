@@ -17,7 +17,9 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
@@ -168,44 +170,50 @@ class GroupsServiceTest {
       verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
     }
   }
-/*
-TODO: Need to comment
+
   @Nested
   inner class DeleteGroup {
 
     @BeforeEach
-    fun initSecurityContext() : Unit = runBlocking {
+    fun initSecurityContext(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(setOf(Authority("ROLE_COMMUNITY", "Role Community")))
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_COMMUNITY")))
     }
-    @Test
-    fun `delete group, no members`() : Unit = runBlocking {
-      val dbGroup = Group("groupCode", "disc")
-      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
-      whenever(userRepository.findAll(any())).thenReturn(listOf())
 
-      groupsService.deleteGroup("groupCode",)
+    @Test
+    fun `delete group, no members`(): Unit = runBlocking {
+      val groupUUID = UUID.randomUUID()
+      val dbGroup = Group("groupCode", "disc", groupUUID)
+      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
+      whenever(childGroupRepository.findAllByGroup(groupUUID)).thenReturn(flowOf())
+      whenever(userRepository.findAllByGroupCode("groupCode")).thenReturn(flowOf())
+
+      groupsService.deleteGroup("groupCode")
+      verify(childGroupRepository).findAllByGroup(groupUUID)
       verify(groupRepository).findByGroupCode("groupCode")
-      verify(userRepository).findAll(any())
+      verify(userRepository).findAllByGroupCode("groupCode")
       verify(groupRepository).delete(dbGroup)
     }
 
     @Test
-    fun `delete group, with members`() : Unit = runBlocking {
+    fun `delete group, with members`(): Unit = runBlocking {
+      val groupUUID = UUID.randomUUID()
       val user1 = UserHelper.createSampleUser(username = "user1")
       val user2 = UserHelper.createSampleUser(username = "user2")
-      val dbGroup = Group("groupCode", "disc")
+      val dbGroup = Group("groupCode", "disc", groupUUID)
       whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
-      whenever(userRepository.findAll(any())).thenReturn(listOf(user1, user2))
+      whenever(childGroupRepository.findAllByGroup(groupUUID)).thenReturn(flowOf())
+      whenever(userRepository.findAllByGroupCode("groupCode")).thenReturn(flowOf(user1, user2))
 
       groupsService.deleteGroup("groupCode")
+      verify(childGroupRepository).findAllByGroup(groupUUID)
       verify(groupRepository).findByGroupCode("groupCode")
-      verify(userRepository).findAll(any())
-      verify(userGroupService, times(2)).removeGroup(anyString(), anyString(), anyString(), any())
+      verify(userRepository).findAllByGroupCode("groupCode")
+      verify(userGroupService, times(2)).removeUserGroup(anyString(), anyString(), anyString(), any())
       verify(groupRepository).delete(dbGroup)
     }
   }
-*/
+
   @Nested
   inner class ChildGroup {
     @Test
