@@ -53,4 +53,16 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
       .expectBody()
       .json("user_search_group_manager.json".readFile())
   }
+
+  @Test
+  fun `User search endpoint returns correct data when filtering by groups and roles`() {
+    webTestClient
+      .get().uri("/user/search?groups=SITE_1_GROUP_1&roles=LICENCE_RO")
+      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody()
+      .json("user_search_groups_roles.json".readFile())
+  }
 }

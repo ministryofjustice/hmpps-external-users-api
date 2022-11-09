@@ -1,0 +1,79 @@
+{
+  "content": [
+    {
+      "userId": "7ca04ed7-8275-45b2-afb4-4ff51432d1ea",
+      "username": "AUTH_RO_USER",
+      "email": "auth_ro_user@digital.justice.gov.uk",
+      "firstName": "Ryan-Auth",
+      "lastName": "Orton",
+      "locked": false,
+      "enabled": true,
+      "verified": true
+    },
+    {
+      "userId": "7ca04ed7-8275-45b2-afb4-4ff51432d1ec",
+      "username": "AUTH_RO_USER2",
+      "email": "auth_ro_user2@digital.justice.gov.uk",
+      "firstName": "Ryan-Auth",
+      "lastName": "Orton",
+      "locked": false,
+      "enabled": true,
+      "verified": true
+    },
+    {
+      "userId": "90f930e1-2195-4afd-92ce-0eb5672da02a",
+      "username": "AUTH_RO_USER_TEST",
+      "email": "auth_ro_user_test@digital.justice.gov.uk",
+      "firstName": "Ryan-Auth",
+      "lastName": "Orton",
+      "locked": false,
+      "enabled": true,
+      "verified": true
+    },
+    {
+      "userId": "5e3850b9-9d6e-49d7-b8e7-42874d6ceea8",
+      "username": "AUTH_RO_VARY_USER",
+      "email": "auth_ro_user@digital.justice.gov.uk",
+      "firstName": "Ryan-Auth-Vary",
+      "lastName": "Orton",
+      "locked": false,
+      "enabled": true,
+      "verified": true
+    },
+    {
+      "userId": "90f930e1-2195-4afd-92ce-0eb5672da02f",
+      "username": "AUTH_RO_USER_TEST6",
+      "email": "auth_ro_user_test6@digital.justice.gov.uk",
+      "firstName": "Ryan-Auth",
+      "lastName": "Orton6",
+      "locked": false,
+      "enabled": true,
+      "verified": true
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalPages": 1,
+  "totalElements": 5,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "size": 10,
+  "first": true,
+  "numberOfElements": 5,
+  "empty": false
+}
