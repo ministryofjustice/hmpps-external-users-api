@@ -46,13 +46,12 @@ class UserGroupService(
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
 
       val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
-      var groupORModel: MutableList<GroupORModel> = mutableListOf()
-      groups?.forEach {
-        group ->
-        groupORModel.add(GroupORModel(group, childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()))
+      val groupORModel: MutableList<GroupORModel> = mutableListOf()
+      groups.forEach { group ->
+          groupORModel.add(GroupORModel(group, childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()))
       }
       return groupORModel
-    } // ?: throw UsernameNotFoundException("User $userId not found")
+    }
 
   @Transactional
   @Throws(
@@ -85,7 +84,7 @@ class UserGroupService(
         userGroupRepository.insertUserGroup(userId, it).awaitSingle()
       }
 
-      user.authorities.addAll(roleRepository.findRolesByGroupCode(group.groupCode).toList())
+      roleRepository.saveAll(roleRepository.findRolesByGroupCode(group.groupCode).toList())
       telemetryClient.trackEvent(
         "AuthUserGroupAddSuccess",
         mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
