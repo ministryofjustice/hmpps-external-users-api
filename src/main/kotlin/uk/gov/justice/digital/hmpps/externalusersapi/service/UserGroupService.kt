@@ -180,15 +180,10 @@ class UserGroupService(
   private fun formatGroup(group: String) = group.trim().uppercase()
 
   suspend fun getGroupsByUserName(username: String?): Set<Group>? =
-    /* TODO
-    return user.map { u: User ->
-      Hibernate.initialize(u.groups)
-      u.groups.forEach { Hibernate.initialize(it.children) }
-      u.groups
-    }.orElse(null)
-     */
     username?.let {
-      groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
+      userRepository.findByUsernameAndSource(username.trim().uppercase()).awaitSingleOrNull()?.let {
+        groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
+      }
     }
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
