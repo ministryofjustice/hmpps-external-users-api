@@ -48,7 +48,7 @@ class UserGroupService(
       val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
       val groupORModel: MutableList<GroupORModel> = mutableListOf()
       groups.forEach { group ->
-          groupORModel.add(GroupORModel(group, childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()))
+        groupORModel.add(GroupORModel(group, childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()))
       }
       return groupORModel
     }
