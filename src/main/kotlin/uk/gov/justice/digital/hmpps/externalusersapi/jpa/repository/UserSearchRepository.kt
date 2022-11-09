@@ -30,7 +30,7 @@ class UserSearchRepository(private val databaseClient: DatabaseClient) {
     )
   }
 
-  private val countMapper = { row: Row, _: RowMetadata -> row.get("count", Long::class.java) as Long }
+  private val countMapper = { row: Row, _: RowMetadata -> row.get("userCount") as Long }
 
   suspend fun searchForUsers(userFilter: UserFilterSQL): Flow<ExternalUser> {
     val query = databaseClient.sql(userFilter.sql)

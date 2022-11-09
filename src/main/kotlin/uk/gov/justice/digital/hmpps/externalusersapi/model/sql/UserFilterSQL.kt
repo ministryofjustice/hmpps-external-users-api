@@ -6,7 +6,7 @@ import java.util.regex.Pattern
 
 private const val COUNT_SQL =
   """
-    SELECT COUNT(*) FROM (%s)
+    SELECT COUNT(*) AS userCount FROM (%s) AS allUsers
   """
 
 private const val PROJECTION =
@@ -66,10 +66,10 @@ private const val GROUPS_FILTER =
 private const val USER_FILTER =
   """
   AND (
-  u.email like %s
-  OR u.username like %s
-  OR lower(concat_ws(' ', u.first_name, u.last_name)) like %s
-  OR lower(concat_ws(' ', u.last_name, u.first_name)) like %s
+  u.email like '%s'
+  OR u.username like '%s'
+  OR lower(concat_ws(' ', u.first_name, u.last_name)) like '%s'
+  OR lower(concat_ws(' ', u.last_name, u.first_name)) like '%s'
   )
   """
 
