@@ -255,9 +255,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change group name`() {
       webTestClient
-        .put().uri("/groups/child/CHILD_1")
+        .put().uri("/groups/child/CHILD_3")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new child group name")))
         .exchange()
         .expectStatus().isOk
     }
