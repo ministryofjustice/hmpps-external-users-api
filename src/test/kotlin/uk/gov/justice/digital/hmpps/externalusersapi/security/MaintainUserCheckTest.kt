@@ -13,12 +13,10 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 
 class MaintainUserCheckTest {
-  private val userRepository: UserRepository = mock()
   private val userService: UserService = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val groupRepository: GroupRepository = mock()
@@ -60,7 +58,7 @@ class MaintainUserCheckTest {
           "group3"
         )
       }
-    }.isInstanceOf(MaintainUserCheck.GroupRelationshipException::class.java)
+    }.isInstanceOf(GroupRelationshipException::class.java)
       .hasMessage("Unable to maintain group: group3 with reason: Group not with your groups")
     whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
