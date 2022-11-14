@@ -350,8 +350,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         }
     }
 
-    /*
-     * TODO when add RoleFilter
     @Test
     fun `Get Roles endpoint returns roles filter requested adminType`() {
       webTestClient
@@ -368,30 +366,25 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").doesNotExist()
     }
-    */
 
-    /* TODO when add roleFitler
     @Test
     fun `Get Roles endpoint returns roles filter requested multiple adminTypes`() {
-
-       webTestClient
-       .get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_LSA")
-       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
-       .exchange()
-       .expectStatus().isOk
-       .expectHeader().contentType(APPLICATION_JSON)
-       .expectBody()
-       .jsonPath("$.[*].roleName").value<List<String>> {
-       assertThat(it).hasSize(5)
-       }
-       .jsonPath("$[0].roleName").isEqualTo("Artemis user")
-       .jsonPath("$[0].roleCode").isEqualTo("ARTEMIS_USER")
-       .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
-       .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
-       .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
-
+      webTestClient
+        .get().uri("/roles?adminTypes=EXT_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleName").value<List<String>> {
+          assertThat(it).hasSize(5)
+        }
+        .jsonPath("$[0].roleName").isEqualTo("Artemis user")
+        .jsonPath("$[0].roleCode").isEqualTo("ARTEMIS_USER")
+        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+        .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
     }
-     */
   }
 
   @Nested
@@ -412,8 +405,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
-    /*
-    TODO when add ROLES FILTER
     @Test
     fun `Get Paged Roles endpoint returns (default size=10) roles when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
@@ -437,8 +428,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json("manage_roles2.json".readFile())
     }
-
-
 
     @Test
     fun `Get Paged Roles endpoint returns roles filter requested roleName when user has role ROLE_ROLES_ADMIN`() {
@@ -495,7 +484,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[0].adminType[2].adminTypeCode").doesNotExist()
         .jsonPath("$.totalElements").isEqualTo(1)
     }
-     */
   }
 
   @Nested

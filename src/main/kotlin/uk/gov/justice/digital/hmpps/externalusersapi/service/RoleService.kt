@@ -4,14 +4,15 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
@@ -24,6 +25,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
 @Service
 @Transactional(readOnly = true)
 class RoleService(
+  private val roleSearchRepository: RoleSearchRepository,
   private val roleRepository: RoleRepository,
   private val telemetryClient: TelemetryClient,
   private val authenticationFacade: AuthenticationFacade
@@ -60,9 +62,7 @@ class RoleService(
     adminTypes: List<AdminType>?,
   ): List<Authority> {
     val rolesFilter = RoleFilter(adminTypes = adminTypes)
-    // TODO Fix this - Add Filter
-    // return roleRepository.findAll(rolesFilter, Sort.by(Sort.Direction.ASC, "roleName"))
-    return roleRepository.findAll(Sort.by(Sort.Direction.ASC, "roleName")).toList()
+    return roleSearchRepository.searchForRoles(rolesFilter).toList()
   }
 
   suspend fun getRoles(
@@ -71,27 +71,26 @@ class RoleService(
     adminTypes: List<AdminType>?,
     pageable: Pageable,
   ): Page<Authority> =
-    // TODO Fix this
     coroutineScope {
       val rolesFilter = RoleFilter(
         roleName = roleName,
         adminTypes = adminTypes,
         roleCode = roleCode,
+        pageable = pageable
       )
 
       val roles = async {
-        // TODO Fix this - need to filter
-        roleRepository.findAllBy(/* RoleFilter, */ pageable)
+        roleSearchRepository.searchForRoles(rolesFilter)
       }
 
       val count = async {
-        // TODO Fix this - need to filter
-        roleRepository.countAllBy(/* RoleFilter */)
+        roleSearchRepository.countAllBy(rolesFilter)
       }
 
       PageImpl(
-        roles.await().toList().map { it },
-        pageable, count.await()
+        roles.await().toList(),
+        pageable,
+        count.await().awaitSingle()
       )
     }
 
@@ -166,9 +165,9 @@ class RoleService(
     }
   }
 
-  class RoleNotFoundException(val action: String, val role: String, val errorCode: String) :
+  class RoleNotFoundException(action: String, role: String, errorCode: String) :
     Exception("Unable to $action role: $role with reason: $errorCode")
 
-  class RoleExistsException(val role: String, val errorCode: String) :
+  class RoleExistsException(role: String, errorCode: String) :
     Exception("Unable to create role: $role with reason: $errorCode")
 }

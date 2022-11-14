@@ -1,65 +1,134 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
-import com.google.common.collect.ImmutableList
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Path
-import javax.persistence.criteria.Predicate
-import javax.persistence.criteria.Root
-import kotlin.reflect.KProperty1
+import org.springframework.data.domain.Pageable
+import java.lang.String.format
+import java.util.regex.Pattern
 
-// TODO fix this re: Specification
+private const val COUNT_SQL =
+  """
+    SELECT COUNT(*) AS roleCount FROM (%s) AS allRoles
+  """
+
+private const val PROJECTION =
+  """
+  SELECT
+  DISTINCT r.role_id,
+           r.admin_type,
+           r.role_code,
+           r.role_description,
+           r.role_name 
+  FROM roles r 
+  """
+
+private const val FILTER_START =
+  """
+    WHERE
+  """
+
+private const val SUBSEQUENT_FILTER =
+  """
+    AND 
+  """
+
+private const val ROLE_NAME_FILTER =
+  """
+    (LOWER(r.role_name) like '%s') 
+  """
+
+private const val ROLE_CODE_FILTER =
+  """
+    (r.role_code like '%s') 
+  """
+
+private const val ADMIN_TYPE_FILTER =
+  """
+    (r.admin_type like '%s')
+  """
+
+private const val ORDER_BY =
+  """
+  ORDER BY r.role_name ASC
+  """
+
+private const val PAGE_DETAILS =
+  """
+  LIMIT %d OFFSET %d
+  """
+
 class RoleFilter(
   roleName: String? = null,
-  val roleCode: String? = null,
-  val adminTypes: List<AdminType>? = null,
-// ) : Specification<User> {
+  roleCode: String? = null,
+  adminTypes: List<AdminType>? = null,
+  pageable: Pageable? = null
 ) {
-  private val roleName: String? = if (roleName.isNullOrBlank()) null else roleName.trim()
 
-  fun <PROP> Root<*>.get(prop: KProperty1<*, PROP>): Path<PROP> = this.get(prop.name)
+  private val whiteSpace = Pattern.compile("\\s+")
+  private var filterStarted = false
 
-  // override fun toPredicate(
-  fun toPredicate(
-    root: Root<Authority>,
-    query: CriteriaQuery<*>,
-    cb: CriteriaBuilder
-  ): Predicate? {
-    val andBuilder = ImmutableList.builder<Predicate>()
+  var sql: String = ""
+  var countSQL = ""
+
+  init {
+    val sqlBuilder = StringBuilder(PROJECTION)
 
     if (!roleName.isNullOrBlank()) {
-      andBuilder.add(buildRoleNamePredicate(root, cb))
+      sqlBuilder.append(FILTER_START)
+      sqlBuilder.append(format(ROLE_NAME_FILTER, toLikeString(roleName.trim())).lowercase())
+      filterStarted = true
     }
 
     if (!roleCode.isNullOrBlank()) {
-      val pattern = "%" + roleCode.trim().replace(',', ' ').replace(" [ ]*".toRegex(), "% %") + "%"
-      andBuilder.add(cb.like(root.get(Authority::roleCode), pattern.uppercase()))
+      appendWHERETo(sqlBuilder)
+      appendANDTo(sqlBuilder)
+      sqlBuilder.append(format(ROLE_CODE_FILTER, toLikeString(roleCode.trim())).uppercase())
+      filterStarted = true
     }
 
-    // Defaults to all when no admin types provided
-    if (!adminTypes.isNullOrEmpty()) {
-      andBuilder.add(buildAdminTypesPredicate(root, cb, adminTypes))
+    adminTypes?.let {
+      if (it.isNotEmpty()) {
+        appendWHERETo(sqlBuilder)
+        adminTypes.forEach { adminType ->
+          appendANDTo(sqlBuilder)
+          sqlBuilder.append(format(ADMIN_TYPE_FILTER, toLikeString(adminType.adminTypeCode)))
+          filterStarted = true
+        }
+      }
     }
 
-    query.distinct(true)
-    return cb.and(*andBuilder.build().toTypedArray())
+    countSQL = format(COUNT_SQL, sqlBuilder.toString())
+
+    sqlBuilder.append(ORDER_BY)
+    pageable?.let { sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset)) }
+    sql = sqlBuilder.toString()
   }
 
-  private fun buildRoleNamePredicate(root: Root<Authority>, cb: CriteriaBuilder): Predicate {
-    val orBuilder = ImmutableList.builder<Predicate>()
-    val pattern = "%" + roleName!!.replace(',', ' ').replace(" [ ]*".toRegex(), "% %") + "%"
-    orBuilder.add(cb.like(cb.lower(root.get(Authority::roleName)), pattern.lowercase()))
-    return cb.or(*orBuilder.build().toTypedArray())
+  private fun appendWHERETo(sqlBuilder: StringBuilder) {
+    if (!filterStarted) {
+      sqlBuilder.append(FILTER_START)
+    }
   }
 
-  private fun buildAdminTypesPredicate(root: Root<Authority>, cb: CriteriaBuilder, adminTypes: List<AdminType>): Predicate {
-    val andBuilder = ImmutableList.builder<Predicate>()
-
-    adminTypes.forEach {
-      val pattern = "%" + it.adminTypeCode + "%"
-      andBuilder.add(cb.like(root.get(Authority::adminTypesAsString), pattern))
+  private fun appendANDTo(sqlBuilder: StringBuilder) {
+    if (filterStarted) {
+      sqlBuilder.append(SUBSEQUENT_FILTER)
     }
+  }
 
-    return cb.and(*andBuilder.build().toTypedArray())
+  private fun toLikeString(input: String): String {
+    val words = whiteSpace.split(input.trim())
+    return words.joinToString(prefix = "%", postfix = "%", separator = "% %")
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is RoleFilter) return false
+
+    if (sql != other.sql && countSQL != other.countSQL) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    return sql.hashCode()
   }
 }

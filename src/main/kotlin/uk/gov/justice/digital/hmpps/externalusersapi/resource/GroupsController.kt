@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
@@ -424,9 +423,8 @@ data class UserAssignableRole(
 
   @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
-) {
-  constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
-}
+)
+
 data class CreateGroup(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   @field:NotBlank(message = "group code must be supplied")

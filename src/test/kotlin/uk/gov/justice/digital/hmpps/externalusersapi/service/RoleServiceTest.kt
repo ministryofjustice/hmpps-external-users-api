@@ -1,22 +1,27 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
+import org.springframework.data.domain.Pageable
+import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.EXT_ADM
+import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
@@ -29,9 +34,10 @@ import java.util.UUID
 
 class RoleServiceTest {
   private val roleRepository: RoleRepository = mock()
+  private val roleSearchRepository: RoleSearchRepository = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
-  private val roleService = RoleService(roleRepository, telemetryClient, authenticationFacade)
+  private val roleService = RoleService(roleSearchRepository, roleRepository, telemetryClient, authenticationFacade)
 
   @Nested
   inner class CreateRoles {
@@ -41,7 +47,7 @@ class RoleServiceTest {
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableSetOf(AdminType.EXT_ADM)
+        adminType = mutableSetOf(EXT_ADM)
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
       whenever(authenticationFacade.getUsername()).thenReturn("user")
@@ -120,14 +126,12 @@ class RoleServiceTest {
 
   @Nested
   inner class GetRoles {
-    /*
-     TODO Reinstate tests after Filter added
-
     @Test
     fun `get roles`(): Unit = runBlocking {
-      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
-      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
-      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = DPS_ADM.adminTypeCode)
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
+
+      runBlocking { whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2)) }
 
       val allRoles = roleService.getRoles(null)
       assertThat(allRoles.size).isEqualTo(2)
@@ -135,7 +139,7 @@ class RoleServiceTest {
 
     @Test
     fun `get roles returns no roles`(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf())
+      whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf())
 
       val allRoles = roleService.getRoles(null)
       assertThat(allRoles.size).isEqualTo(0)
@@ -143,119 +147,56 @@ class RoleServiceTest {
 
     @Test
     fun `get roles check filter`(): Unit = runBlocking {
-      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
-      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
-      whenever(roleRepository.findAll(any(), any<Sort>())).thenReturn(listOf(role1, role2))
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = DPS_ADM.adminTypeCode)
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
+      runBlocking { whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2)) }
 
-      roleService.getRoles(listOf(AdminType.DPS_ADM, DPS_LSA))
-      verify(roleRepository).findAll(
-        check {
-          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.DPS_ADM, DPS_LSA))
-        },
-        eq(Sort.by(Sort.Direction.ASC, "roleName"))
-      )
+      roleService.getRoles(listOf(DPS_ADM, DPS_LSA))
+
+      runBlocking {
+        verify(roleSearchRepository).searchForRoles(any())
+      }
     }
-     */
   }
 
   @Nested
   inner class GetPagedRoles {
-/*
-TODO fix when RoleFilter added
 
     @Test
-    fun `get all roles`() : Unit = runBlocking {
-      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role")
-      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role")
-      val roles = listOf(role1, role2)
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(flowOf(PageImpl(roles)))
+    fun `should retrieve paged roles`(): Unit = runBlocking {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = DPS_ADM.adminTypeCode)
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
+      runBlocking {
+        whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2))
+        whenever(roleSearchRepository.countAllBy(any())).thenReturn(Mono.just(25))
+      }
 
-      val allRoles = roleService.getRoles(null, null, null, Pageable.unpaged())
-      assertThat(allRoles.size).isEqualTo(2)
+      val rolesPage = roleService.getRoles(null, null, null, Pageable.ofSize(2))
+      assertThat(rolesPage.get().toList().size).isEqualTo(2)
+      assertThat(rolesPage.size).isEqualTo(2)
+      assertThat(rolesPage.totalElements).isEqualTo(25)
     }
 
     @Test
-    fun `get all roles returns no roles`(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
+    fun `should populate filter correctly`(): Unit = runBlocking {
+      val role1 = Authority(roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", adminType = DPS_ADM.adminTypeCode)
+      val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
+      runBlocking {
+        whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2))
+        whenever(roleSearchRepository.countAllBy(any())).thenReturn(Mono.just(25))
+      }
 
-      val allRoles = roleService.getRoles(null, null, null, Pageable.unpaged())
-      assertThat(allRoles.size).isEqualTo(0)
-    }
-
-    @Test
-    fun `get All Roles check filter - multiple `(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
-      val unpaged = Pageable.unpaged()
       roleService.getRoles(
         "Admin",
         "HWPV",
-        listOf(AdminType.EXT_ADM, DPS_LSA),
-        unpaged,
+        listOf(EXT_ADM, DPS_LSA),
+        Pageable.ofSize(10),
       )
-      verify(roleRepository).findAll(
-        check {
-          assertThat(it).extracting("roleName").isEqualTo("Admin")
-          assertThat(it).extracting("roleCode").isEqualTo("HWPV")
-          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.EXT_ADM, DPS_LSA))
-        },
-        eq(unpaged)
-      )
-    }
 
-    @Test
-    fun `get All Roles check filter - roleName`(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
-      val unpaged = Pageable.unpaged()
-      roleService.getRoles(
-        "Admin",
-        null,
-        null,
-        unpaged,
-      )
-      verify(roleRepository).findAll(
-        check {
-          assertThat(it).extracting("roleName").isEqualTo("Admin")
-        },
-        eq(unpaged)
-      )
+      runBlocking {
+        verify(roleSearchRepository).searchForRoles(RoleFilter(roleName = "Admin", roleCode = "HWPV", adminTypes = listOf(EXT_ADM, DPS_LSA), Pageable.ofSize(10)))
+      }
     }
-
-    @Test
-    fun `get All Roles check filter - roleCode`(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
-      val unpaged = Pageable.unpaged()
-      roleService.getRoles(
-        null,
-        "HWPV",
-        null,
-        unpaged,
-      )
-      verify(roleRepository).findAll(
-        check {
-          assertThat(it).extracting("roleCode").isEqualTo("HWPV")
-        },
-        eq(unpaged)
-      )
-    }
-
-    @Test
-    fun `get All Roles check filter - adminType`(): Unit = runBlocking {
-      whenever(roleRepository.findAll(any(), any<Pageable>())).thenReturn(Page.empty())
-      val unpaged = Pageable.unpaged()
-      roleService.getRoles(
-        null,
-        null,
-        listOf(AdminType.DPS_ADM, DPS_LSA),
-        unpaged,
-      )
-      verify(roleRepository).findAll(
-        check {
-          assertThat(it).extracting("adminTypes").isEqualTo(listOf(AdminType.DPS_ADM, DPS_LSA))
-        },
-        eq(unpaged)
-      )
-    }
- */
   }
 
   @Nested
@@ -265,7 +206,7 @@ TODO fix when RoleFilter added
     fun `get role details`(): Unit = runBlocking {
       val dbRole = Authority(UUID.randomUUID(), roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role", "DPS_ADM")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
-      val dbRoleDetails = RoleDetails("RO1", "Role Name", "A Role", listOf(AdminType.DPS_ADM))
+      val dbRoleDetails = RoleDetails("RO1", "Role Name", "A Role", listOf(DPS_ADM))
 
       val role = roleService.getRoleDetails("RO1")
       assertThat(role).isEqualTo(dbRoleDetails)
