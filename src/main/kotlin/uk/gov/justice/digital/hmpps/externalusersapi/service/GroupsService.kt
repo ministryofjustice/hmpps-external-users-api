@@ -52,11 +52,6 @@ class GroupsService(
       ?.let {
         val children = childGroupRepository.findAllByGroup(it.groupId).toList()
         val assignableRole = groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode).toList()
-        /*
-        TODO
-         Hibernate.initialize(requestedGroup.assignableRoles)
-          Hibernate.initialize(requestedGroup.children)
-         */
         maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
         GroupDetails(it, children, assignableRole)
       }
@@ -132,6 +127,7 @@ class GroupsService(
     val groupName = createGroup.groupName.trim()
     val group = Group(groupCode = groupCode, groupName = groupName)
     groupRepository.save(group)
+
     telemetryClient.trackEvent(
       "GroupCreateSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode, "groupName" to groupName),
@@ -192,10 +188,6 @@ class GroupsService(
 
     val groupName = createChildGroup.groupName.trim()
     val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName, group = parentGroupDetails.groupId)
-    // TODO
-    //  child.group = parentGroupDetails
-    groupRepository.save(parentGroupDetails)
-
     childGroupRepository.save(child)
 
     telemetryClient.trackEvent(

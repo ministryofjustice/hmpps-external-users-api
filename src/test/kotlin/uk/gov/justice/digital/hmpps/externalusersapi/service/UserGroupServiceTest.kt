@@ -34,6 +34,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.util.UUID
 
 class UserGroupServiceTest {
@@ -466,7 +467,7 @@ class UserGroupServiceTest {
       whenever(groupRepository.findGroupsByUsername(anyOrNull())).thenReturn(flowOf(group, groupJoe))
 
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
-      doThrow(MaintainUserCheck.UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
+      doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
         .ensureUserLoggedInUserRelationship(
           anyString(),
           any(),
@@ -477,10 +478,11 @@ class UserGroupServiceTest {
         runBlocking {
           service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
         }
-      }.isInstanceOf(MaintainUserCheck.UserGroupRelationshipException::class.java)
+      }.isInstanceOf(UserGroupRelationshipException::class.java)
         .hasMessage("Unable to maintain user: user with reason: User not with your groups")
     }
   }
+
   companion object {
     private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
