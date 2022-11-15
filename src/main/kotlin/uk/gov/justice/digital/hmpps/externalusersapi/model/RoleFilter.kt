@@ -110,9 +110,13 @@ class RoleFilter(
 
     pageable?.let {
       val sort = pageable.sort.get().findFirst().unwrap()
-      val sortField = resolveToSortColumn(sort!!.property)
-      val direction = if (sort.direction.isDescending) "desc" else "asc"
-      sqlBuilder.append(format(ORDER_BY, sortField, direction))
+      sort?.let {
+        val sortField = resolveToSortColumn(sort.property)
+        val direction = if (sort.direction.isDescending) "desc" else "asc"
+        sqlBuilder.append(format(ORDER_BY, sortField, direction))
+      } ?: run {
+        sqlBuilder.append(DEFAULT_ORDER_BY)
+      }
       sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset))
     } ?: run {
       sqlBuilder.append(DEFAULT_ORDER_BY)
