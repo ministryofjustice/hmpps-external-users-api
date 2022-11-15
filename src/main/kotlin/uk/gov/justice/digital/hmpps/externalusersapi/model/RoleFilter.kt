@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.model
 
 import org.springframework.data.domain.Pageable
 import java.lang.String.format
+import java.util.Optional
 import java.util.regex.Pattern
 
 private const val COUNT_SQL =
@@ -45,9 +46,14 @@ private const val ADMIN_TYPE_FILTER =
     (r.admin_type like '%s')
   """
 
-private const val ORDER_BY =
+private const val DEFAULT_ORDER_BY =
   """
   ORDER BY r.role_name ASC
+  """
+
+private const val ORDER_BY =
+  """
+  ORDER BY %s %s  
   """
 
 private const val PAGE_DETAILS =
@@ -61,6 +67,11 @@ class RoleFilter(
   adminTypes: List<AdminType>? = null,
   pageable: Pageable? = null
 ) {
+
+  private val sortFieldsMap = hashMapOf(
+    "roleName" to "r.role_name",
+    "roleCode" to "r.role_code"
+  )
 
   private val whiteSpace = Pattern.compile("\\s+")
   private var filterStarted = false
@@ -97,10 +108,28 @@ class RoleFilter(
 
     countSQL = format(COUNT_SQL, sqlBuilder.toString())
 
-    sqlBuilder.append(ORDER_BY)
-    pageable?.let { sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset)) }
+    pageable?.let {
+      val sort = pageable.sort.get().findFirst().unwrap()
+      val sortField = resolveToSortColumn(sort!!.property)
+      val direction = if (sort.direction.isDescending) "desc" else "asc"
+      sqlBuilder.append(format(ORDER_BY, sortField, direction))
+      sqlBuilder.append(format(PAGE_DETAILS, pageable.pageSize, pageable.offset))
+    } ?: run {
+      sqlBuilder.append(DEFAULT_ORDER_BY)
+    }
+
     sql = sqlBuilder.toString()
   }
+
+  private fun resolveToSortColumn(fieldName: String): String {
+    return if (sortFieldsMap.containsKey(fieldName)) {
+      sortFieldsMap[fieldName]!!
+    } else {
+      "r.role_name"
+    }
+  }
+
+  private fun <T> Optional<T>.unwrap(): T? = orElse(null)
 
   private fun appendWHERETo(sqlBuilder: StringBuilder) {
     if (!filterStarted) {

@@ -500,9 +500,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[2].roleCode").isEqualTo("APPROVE_CATEGORISATION")
     }
 
-    /*
-    TODO confirm sorting requirement and amend RoleFilter to sort based on requested sort column & direction
-
     @Test
     fun `find page of roles sorting by role code`() {
       webTestClient.get().uri("/roles/paged?page=5&size=3&sort=roleCode")
@@ -529,7 +526,6 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[1].adminType[0].adminTypeCode").isEqualTo("EXT_ADM")
         .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("External Administrator")
     }
-     */
 
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
