@@ -23,9 +23,9 @@ class RoleRepositoryTest {
   @Nested
   inner class FindAllRoles {
     @Test
-    fun `findAllByOrderByRoleNameLike EXT_ADM`(): Unit = runBlocking {
+    fun `findByAdminTypeContainingOrderByRoleName EXT_ADM`(): Unit = runBlocking {
       assertThat(
-        repository.findAllByOrderByRoleNameLike(AdminType.EXT_ADM.adminTypeCode).toList()
+        repository.findByAdminTypeContainingOrderByRoleName(AdminType.EXT_ADM.adminTypeCode).toList()
       )
         .extracting<String>
         { obj: Authority -> obj.roleCode }
@@ -33,16 +33,16 @@ class RoleRepositoryTest {
     }
 
     @Test
-    fun `findAllByOrderByRoleNameLike DPS_ADM`(): Unit = runBlocking {
-      assertThat(repository.findAllByOrderByRoleNameLike(AdminType.DPS_ADM.adminTypeCode).toList())
+    fun `findByAdminTypeLikeOrderByRoleName DPS_ADM`(): Unit = runBlocking {
+      assertThat(repository.findByAdminTypeContainingOrderByRoleName(AdminType.DPS_ADM.adminTypeCode).toList())
         .extracting<String>
         { obj: Authority -> obj.roleCode }
         .contains("GLOBAL_SEARCH", "UNIT_TEST_DPS_ROLE")
     }
 
     @Test
-    fun `findAllByOrderByRoleNameLike EXT_ADM does not contain DPS Roles`(): Unit = runBlocking {
-      assertThat(repository.findAllByOrderByRoleNameLike(AdminType.EXT_ADM.adminTypeCode).toList())
+    fun `findByAdminTypeLikeOrderByRoleName EXT_ADM does not contain DPS Roles`(): Unit = runBlocking {
+      assertThat(repository.findByAdminTypeContainingOrderByRoleName(AdminType.EXT_ADM.adminTypeCode).toList())
         .extracting<String>
         { obj: Authority -> obj.roleCode }
         .doesNotContain("TEST_DPS")
