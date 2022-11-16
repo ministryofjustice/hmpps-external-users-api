@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import io.r2dbc.spi.Row
 import io.r2dbc.spi.RowMetadata

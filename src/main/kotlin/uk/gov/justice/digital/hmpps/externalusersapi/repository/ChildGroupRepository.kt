@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

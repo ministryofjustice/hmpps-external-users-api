@@ -11,7 +11,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.function.BodyInserters.fromValue
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 
 class RoleControllerIntTest : IntegrationTestBase() {
 

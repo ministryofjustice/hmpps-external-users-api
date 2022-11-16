@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

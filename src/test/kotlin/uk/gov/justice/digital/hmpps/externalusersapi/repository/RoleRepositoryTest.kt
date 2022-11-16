@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking

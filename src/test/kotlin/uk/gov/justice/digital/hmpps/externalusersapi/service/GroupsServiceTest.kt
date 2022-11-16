@@ -20,12 +20,12 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupAssignableRoleRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableRoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole

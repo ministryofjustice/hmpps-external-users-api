@@ -16,13 +16,13 @@ import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
 import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment

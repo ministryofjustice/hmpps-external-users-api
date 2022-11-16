@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepository
 
 class VerifyEmailDomainServiceTest {
   private val emailDomainRepository: EmailDomainRepository = mock()
