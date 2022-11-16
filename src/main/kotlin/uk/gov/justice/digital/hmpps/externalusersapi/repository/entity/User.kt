@@ -1,10 +1,9 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data
+package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.CredentialsContainer
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.util.UUID
 import javax.persistence.EnumType

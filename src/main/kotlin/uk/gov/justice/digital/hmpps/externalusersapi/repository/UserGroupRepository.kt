@@ -7,7 +7,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.UserGroup
 import java.util.UUID
 import java.util.function.BiFunction
 

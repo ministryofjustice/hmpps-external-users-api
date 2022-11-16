@@ -9,9 +9,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.model.or.GroupORModel
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
 
@@ -35,8 +35,8 @@ class UserGroupControllerTest {
 
     @Test
     fun `groups no children`(): Unit = runBlocking {
-      val group1 = GroupORModel("FRED", "desc")
-      val group2 = GroupORModel("GLOBAL_SEARCH", "desc2")
+      val group1 = Group("FRED", "desc")
+      val group2 = Group("GLOBAL_SEARCH", "desc2")
       whenever(userGroupService.getGroups(any())).thenReturn(
         mutableListOf(
           group1,
@@ -50,8 +50,8 @@ class UserGroupControllerTest {
 
     @Test
     fun `groups default children`(): Unit = runBlocking {
-      val group1 = GroupORModel("FRED", "desc")
-      val group2 = GroupORModel("GLOBAL_SEARCH", "desc2")
+      val group1 = Group("FRED", "desc")
+      val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
       group2.children.add(childGroup)
       whenever(userGroupService.getGroups(any())).thenReturn(
@@ -69,8 +69,8 @@ class UserGroupControllerTest {
 
     @Test
     fun `groups with children requested`(): Unit = runBlocking {
-      val group1 = GroupORModel("FRED", "desc")
-      val group2 = GroupORModel("GLOBAL_SEARCH", "desc2")
+      val group1 = Group("FRED", "desc")
+      val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
       group2.children.add(childGroup)
       whenever(userGroupService.getGroups(any())).thenReturn(

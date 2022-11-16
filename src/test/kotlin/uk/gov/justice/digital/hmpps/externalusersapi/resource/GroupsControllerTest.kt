@@ -14,10 +14,10 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
@@ -92,7 +92,6 @@ class GroupsControllerTest {
           any()
         )
 
-      @Suppress("ClassName") val Group = CreateGroup("_code", " group")
       assertThatThrownBy { runBlocking { groupsController.createGroup(CreateGroup(groupCode = "g", groupName = "name")) } }
         .isInstanceOf(GroupExistsException::class.java)
         .withFailMessage("Unable to maintain group: code with reason: group code already exists")

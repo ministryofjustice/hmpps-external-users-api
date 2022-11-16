@@ -1,6 +1,7 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import java.lang.String.format
 import java.util.Optional
 import java.util.regex.Pattern

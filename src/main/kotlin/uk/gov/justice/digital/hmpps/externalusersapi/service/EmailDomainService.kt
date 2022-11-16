@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.EmailDomainExclusions
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 import java.util.UUID

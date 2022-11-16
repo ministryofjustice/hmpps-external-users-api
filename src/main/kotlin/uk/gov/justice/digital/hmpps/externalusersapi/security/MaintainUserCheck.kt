@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.toSet
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.util.Optional
 

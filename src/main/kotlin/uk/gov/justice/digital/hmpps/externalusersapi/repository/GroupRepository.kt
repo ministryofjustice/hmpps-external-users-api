@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.lang.NonNull
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
 
 interface GroupRepository : CoroutineSortingRepository<Group, String> {

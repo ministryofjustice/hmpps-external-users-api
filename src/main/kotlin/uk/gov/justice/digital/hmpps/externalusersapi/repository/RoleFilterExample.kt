@@ -1,8 +1,9 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import org.springframework.data.domain.Example
 import org.springframework.data.domain.ExampleMatcher
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import java.lang.String.format
 import java.util.regex.Pattern
 

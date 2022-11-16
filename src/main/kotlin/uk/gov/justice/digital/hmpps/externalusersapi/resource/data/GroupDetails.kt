@@ -1,9 +1,8 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.data
+package uk.gov.justice.digital.hmpps.externalusersapi.resource.data
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
 
 @Schema(description = "Group Details")

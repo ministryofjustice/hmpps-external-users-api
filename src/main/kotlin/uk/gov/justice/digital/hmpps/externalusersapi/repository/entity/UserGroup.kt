@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data
+package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
 import org.springframework.data.relational.core.mapping.Table
 import java.util.UUID

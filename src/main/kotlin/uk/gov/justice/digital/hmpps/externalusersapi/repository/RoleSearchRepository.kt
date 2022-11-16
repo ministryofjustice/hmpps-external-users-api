@@ -7,8 +7,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
-import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import java.util.UUID
 
 @Repository

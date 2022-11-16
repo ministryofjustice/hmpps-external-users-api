@@ -1,26 +1,27 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data
+package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.io.Serializable
 import java.util.UUID
 
-@Table(name = "CHILD_GROUP")
-class ChildGroup(
-  @Column(value = "child_group_code")
+@Table(name = "GROUPS")
+data class Group(
+
+  @Column(value = "group_code")
   val groupCode: String,
-  @Column(value = "child_group_name")
+  @Column(value = "group_name")
   var groupName: String,
-  @Column(value = "group_id")
-  var group: UUID?
-) : Serializable {
   @Id
-  @Column(value = "child_group_id")
-  var id: UUID? = null
+  @Column(value = "group_id")
+  var groupId: UUID? = null,
+) {
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
-    if (other !is ChildGroup) return false
+    if (javaClass != other?.javaClass) return false
+
+    other as Group
 
     if (groupCode != other.groupCode) return false
 

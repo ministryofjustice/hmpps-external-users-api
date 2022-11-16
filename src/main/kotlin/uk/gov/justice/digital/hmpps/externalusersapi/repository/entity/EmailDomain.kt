@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column

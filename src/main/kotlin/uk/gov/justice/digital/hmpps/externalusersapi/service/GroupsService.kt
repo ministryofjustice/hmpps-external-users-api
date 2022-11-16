@@ -9,16 +9,16 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.data.GroupDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 
 @Service

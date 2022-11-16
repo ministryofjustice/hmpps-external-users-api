@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 
 @DataR2dbcTest

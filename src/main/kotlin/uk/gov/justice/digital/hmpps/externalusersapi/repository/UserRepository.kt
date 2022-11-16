@@ -5,7 +5,7 @@ import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.lang.NonNull
 import reactor.core.publisher.Mono
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.util.UUID
 

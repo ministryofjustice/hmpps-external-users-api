@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import org.springframework.data.domain.Pageable
 import java.lang.String.format

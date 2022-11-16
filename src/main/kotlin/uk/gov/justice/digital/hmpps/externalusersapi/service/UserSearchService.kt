@@ -10,8 +10,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserFilter.Status
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.ExternalUserController
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource

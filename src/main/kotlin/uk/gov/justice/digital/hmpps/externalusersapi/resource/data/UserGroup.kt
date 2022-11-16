@@ -1,8 +1,7 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.resource.data
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.externalusersapi.model.or.GroupORModel
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 
 @Schema(description = "User Group")
 data class UserGroup(
@@ -12,7 +11,7 @@ data class UserGroup(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
 ) {
-  constructor(g: Group) : this(g.groupCode, g.groupName)
-  constructor(g: GroupORModel) : this(g.groupCode, g.groupName)
+  constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group) : this(g.groupCode, g.groupName)
+  constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.model.Group) : this(g.groupCode, g.groupName)
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }

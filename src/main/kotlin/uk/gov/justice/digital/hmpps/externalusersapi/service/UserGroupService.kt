@@ -11,14 +11,12 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.or.GroupORModel
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -41,17 +39,22 @@ class UserGroupService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  suspend fun getGroups(userId: UUID): MutableList<GroupORModel>? =
+  suspend fun getGroups(userId: UUID): MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group>? =
 
     userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
 
       val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
-      val groupORModel: MutableList<GroupORModel> = mutableListOf()
+      val groupWithChildren: MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group> = mutableListOf()
       groups.forEach { group ->
-        groupORModel.add(GroupORModel(group, childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()))
+        groupWithChildren.add(
+          uk.gov.justice.digital.hmpps.externalusersapi.model.Group(
+            group,
+            childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()
+          )
+        )
       }
-      return groupORModel
+      return groupWithChildren
     }
 
   @Transactional
@@ -179,14 +182,14 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  suspend fun getGroupsByUserName(username: String?): Set<Group>? =
+  suspend fun getGroupsByUserName(username: String?): Set<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group>? =
     username?.let {
       userRepository.findByUsernameAndSource(username.trim().uppercase()).awaitSingleOrNull()?.let {
         groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
       }
     }
 
-  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
+  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group> =
     if (canMaintainUsers(authorities)) groupRepository.findAllByOrderByGroupName().toList()
     else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }

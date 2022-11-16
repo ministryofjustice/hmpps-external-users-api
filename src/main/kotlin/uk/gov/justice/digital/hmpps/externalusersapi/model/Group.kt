@@ -1,27 +1,22 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.relational.core.mapping.Column
-import org.springframework.data.relational.core.mapping.Table
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
 
-@Table(name = "GROUPS")
-data class Group(
-
-  @Column(value = "group_code")
+class Group(
   val groupCode: String,
-  @Column(value = "group_name")
   var groupName: String,
-  @Id
-  @Column(value = "group_id")
-  var groupId: UUID? = null,
+  val id: UUID? = null,
+
 ) {
+  var children: MutableSet<ChildGroup> = mutableSetOf()
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as Group
+    other as uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 
     if (groupCode != other.groupCode) return false
 
@@ -29,4 +24,8 @@ data class Group(
   }
 
   override fun hashCode(): Int = groupCode.hashCode()
+
+  constructor(g: Group, children: MutableSet<ChildGroup>) : this(g.groupCode, g.groupName, g.groupId) {
+    this.children = children
+  }
 }

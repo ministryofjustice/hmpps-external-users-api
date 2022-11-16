@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.RoleFilter
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment

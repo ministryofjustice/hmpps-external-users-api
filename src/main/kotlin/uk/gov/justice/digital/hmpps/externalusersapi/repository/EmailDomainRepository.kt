@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.repository
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import java.util.UUID
 
 @Repository

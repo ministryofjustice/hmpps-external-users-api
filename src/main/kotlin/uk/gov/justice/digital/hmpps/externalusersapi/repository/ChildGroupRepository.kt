@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import java.util.UUID
 
 interface ChildGroupRepository : CoroutineCrudRepository<ChildGroup, String> {

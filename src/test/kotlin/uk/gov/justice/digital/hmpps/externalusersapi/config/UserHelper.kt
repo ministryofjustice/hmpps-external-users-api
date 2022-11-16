@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.config
 
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.r2dbc.data.User
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.util.UUID
 

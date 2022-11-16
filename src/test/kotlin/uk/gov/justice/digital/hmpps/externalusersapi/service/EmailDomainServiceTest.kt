@@ -13,8 +13,8 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.EmailDomainExclusions
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 import java.util.UUID
@@ -153,7 +153,4 @@ class EmailDomainServiceTest {
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to retrieve email domain id: $id with reason: notfound")
   }
-}
-
-private fun Any.thenReturn(listOf: List<EmailDomain>) {
 }
