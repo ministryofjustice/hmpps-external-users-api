@@ -26,7 +26,6 @@ class UserRepositoryTest {
   fun findByUsernameIsFalse(): Unit = runBlocking {
     assertThat(repository.findByUsernameAndSource("DOES_NOT_EXIST", AuthSource.auth)).isNull()
   }
-
   @Test
   fun findAllByGroupCodeNoMatch(): Unit = runBlocking {
     assertThat(repository.findAllByGroupCode("SITE_9_GROUP_1").toList()).isEmpty()

@@ -67,7 +67,7 @@ class GroupsServiceTest {
       val allGroups = flowOf(dbGroup1, dbGroup2)
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
 
-      val actualGroups = groupsService.allGroups
+      val actualGroups = groupsService.getAllGroups()
       assertThat(actualGroups).isEqualTo(allGroups.toList())
       verify(groupRepository).findAllByOrderByGroupName()
     }

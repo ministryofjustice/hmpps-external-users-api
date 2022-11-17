@@ -11,7 +11,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
+import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUserWithGroupAndAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
@@ -31,7 +31,7 @@ class MaintainUserCheckTest {
   @Test
   fun `Group manager able to maintain group`(): Unit = runBlocking {
     val groupManager =
-      createSampleUser("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
+      createSampleUserWithGroupAndAuthority("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
     whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
     assertThatCode {
@@ -48,7 +48,7 @@ class MaintainUserCheckTest {
   @Test
   fun `Group manager does not have group so cannot maintain`(): Unit = runBlocking {
     val groupManager =
-      createSampleUser("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
+      createSampleUserWithGroupAndAuthority("groupManager", groups = setOf(Group("group1", "desc"), Group("group2", "desc")))
     whenever(userService.getUserAndGroupByUserName(ArgumentMatchers.anyString()))
       .thenReturn(groupManager)
     assertThatThrownBy {

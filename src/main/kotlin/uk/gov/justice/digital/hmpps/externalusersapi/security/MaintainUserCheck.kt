@@ -32,12 +32,11 @@ class MaintainUserCheck(
       return
     }
     val maintainer = userService.getUserAndGroupByUserName(userName)
+    Optional.of(maintainer!!).orElseThrow()
     // otherwise group managers must have a group in common for maintenance
-    if (maintainer != null) {
-      if (maintainer.groups.none { it.groupCode == groupCode }) {
-        // no group in common, so disallow
-        throw GroupRelationshipException(groupCode, "Group not with your groups")
-      }
+    if (maintainer.groups.none { it.groupCode == groupCode }) {
+      // no group in common, so disallow
+      throw GroupRelationshipException(groupCode, "Group not with your groups")
     }
   }
 

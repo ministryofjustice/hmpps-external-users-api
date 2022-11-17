@@ -176,7 +176,7 @@ class UserGroupServiceTest {
       whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       val id = UUID.randomUUID()
       val user =
-        createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
+        createSampleUser(username = "user")
 
       whenever(userRepository.findById(id)).thenReturn(user)
 
@@ -286,8 +286,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(userId)).thenReturn(user)
       val manager = createSampleUser(
-        username = "user",
-        groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
+        username = "user"
       )
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
       whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(1)
@@ -343,7 +342,7 @@ class UserGroupServiceTest {
     @Test
     fun groupAlreadyOnUser(): Unit = runBlocking {
       val group = Group("GROUP_LICENCE_VARY", "desc")
-      val user = createSampleUser(username = "user", groups = setOf(group))
+      val user = createSampleUser(username = "user")
       whenever(userRepository.findById(anyOrNull())).thenReturn(user)
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(flowOf(group))
@@ -365,7 +364,7 @@ class UserGroupServiceTest {
       whenever(authentication.authorities).thenReturn(SUPER_USER)
 
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
-      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      val user = createSampleUser(username = "user")
       whenever(userRepository.findById(anyOrNull())).thenReturn(user)
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val group1 = Group("GROUP_LICENCE_VARY_1", "desc 2")
@@ -391,12 +390,11 @@ class UserGroupServiceTest {
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
-      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      val user = createSampleUser(username = "user")
       whenever(userRepository.findById(userId)).thenReturn(user)
 
       val manager = createSampleUser(
-        username = "user",
-        groups = setOf(Group("GROUP_JOE", "desc", groupId = UUID.randomUUID()), Group("GROUP_LICENCE_VARY", "desc"))
+        username = "user"
       )
       whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
 
@@ -423,9 +421,9 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
-      val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      val user = createSampleUser(username = "user")
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
-      val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
+      val manager = createSampleUser(username = "user")
       whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val groupJoe = Group("GROUP_JOE", "desc 2")
@@ -450,7 +448,7 @@ class UserGroupServiceTest {
 
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
-      val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_LICENCE_VARY", "desc")))
+      val manager = createSampleUser(username = "user")
       whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val groupJoe = Group("GROUP_JOE", "desc 2")
