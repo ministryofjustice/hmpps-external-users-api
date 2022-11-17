@@ -11,12 +11,14 @@ interface UserRepository : CoroutineCrudRepository<User, UUID> {
 
   suspend fun findByUsernameAndSource(username: String, source: AuthSource = AuthSource.auth): User?
   @Query(
-    "select u.* from USERS u " +
-      " inner join user_group ug on u.user_id = ug.user_id " +
-      " inner join groups g on ug.group_id = g.group_id " +
-      "where " +
-      "u.source = :source " +
-      "and g.group_code = :groupCode "
+    """
+      select u.* from USERS u 
+        inner join user_group ug on u.user_id = ug.user_id 
+        inner join groups g on ug.group_id = g.group_id 
+      where 
+          u.source = :source 
+          and 
+          g.group_code = :groupCode """
   )
   fun findAllByGroupCode(groupCode: String, source: AuthSource = AuthSource.auth): Flow<User>
 }
