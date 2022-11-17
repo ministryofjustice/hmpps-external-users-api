@@ -35,16 +35,13 @@ abstract class IntegrationTestBase {
     @BeforeAll
     @JvmStatic
     fun startMocks() {
-      //  hmppsAuthMockServer.start()
       hmppsAuthMockServer.stubGrantToken()
     }
 
     @Suppress("unused")
     @AfterAll
     @JvmStatic
-    fun stopMocks() {
-      // hmppsAuthMockServer.stop()
-    }
+    fun stopMocks() {}
   }
 
   init {
