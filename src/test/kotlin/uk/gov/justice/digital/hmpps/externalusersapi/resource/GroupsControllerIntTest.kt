@@ -570,7 +570,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
     }
 
-    // @Test TODO : test endpoint yet be changed
+    @Test
     fun `Delete Group - has child groups`() {
       webTestClient.delete().uri("/groups/GC_DEL_3")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
