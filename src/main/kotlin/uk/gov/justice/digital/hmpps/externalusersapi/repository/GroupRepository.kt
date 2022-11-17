@@ -21,7 +21,7 @@ interface GroupRepository : CoroutineSortingRepository<Group, String> {
         ug.user_id = :userId
      """
   )
-  suspend fun findGroupsByUserId(userId: UUID): Flow<Group>
+  fun findGroupsByUserId(userId: UUID): Flow<Group>
 
   @NonNull
   @Query(
@@ -33,5 +33,5 @@ interface GroupRepository : CoroutineSortingRepository<Group, String> {
         u.username = :username
      """
   )
-  suspend fun findGroupsByUsername(username: String): Flow<Group>
+  fun findGroupsByUsername(username: String): Flow<Group>
 }

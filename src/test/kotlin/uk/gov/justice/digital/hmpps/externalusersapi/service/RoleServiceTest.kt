@@ -16,7 +16,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
-import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_LSA
@@ -170,7 +169,7 @@ class RoleServiceTest {
       val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
       runBlocking {
         whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2))
-        whenever(roleSearchRepository.countAllBy(any())).thenReturn(Mono.just(25))
+        whenever(roleSearchRepository.countAllBy(any())).thenReturn(25)
       }
 
       val rolesPage = roleService.getRoles(null, null, null, Pageable.ofSize(2))
@@ -185,7 +184,7 @@ class RoleServiceTest {
       val role2 = Authority(roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", adminType = DPS_LSA.adminTypeCode)
       runBlocking {
         whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2))
-        whenever(roleSearchRepository.countAllBy(any())).thenReturn(Mono.just(25))
+        whenever(roleSearchRepository.countAllBy(any())).thenReturn(25)
       }
 
       roleService.getRoles(
