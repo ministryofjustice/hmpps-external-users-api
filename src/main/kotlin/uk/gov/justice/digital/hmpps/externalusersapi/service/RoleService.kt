@@ -4,7 +4,6 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -90,7 +89,7 @@ class RoleService(
       PageImpl(
         roles.await().toList(),
         pageable,
-        count.await().awaitSingle()
+        count.await()
       )
     }
 

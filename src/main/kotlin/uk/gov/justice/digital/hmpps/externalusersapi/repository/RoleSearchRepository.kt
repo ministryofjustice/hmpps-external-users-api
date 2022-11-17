@@ -5,8 +5,8 @@ import io.r2dbc.spi.RowMetadata
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.r2dbc.core.awaitOne
 import org.springframework.stereotype.Repository
-import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import java.util.UUID
 
@@ -25,14 +25,13 @@ class RoleSearchRepository(private val databaseClient: DatabaseClient) {
 
   private val countMapper = { row: Row, _: RowMetadata -> row.get("roleCount") as Long }
 
-  suspend fun searchForRoles(roleFilter: RoleFilter): Flow<Authority> {
+  fun searchForRoles(roleFilter: RoleFilter): Flow<Authority> {
     val query = databaseClient.sql(roleFilter.sql)
     return query.map(authorityMapper).all().asFlow()
   }
 
-  @Suppress("ReactiveStreamsUnusedPublisher")
-  suspend fun countAllBy(roleFilter: RoleFilter): Mono<Long> {
+  suspend fun countAllBy(roleFilter: RoleFilter): Long {
     return databaseClient.sql(roleFilter.countSQL)
-      .map(countMapper).one()
+      .map(countMapper).awaitOne()
   }
 }
