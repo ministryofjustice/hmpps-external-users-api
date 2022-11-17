@@ -20,8 +20,6 @@ import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import reactor.core.publisher.Mono.empty
-import reactor.core.publisher.Mono.just
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
@@ -54,7 +52,7 @@ class UserGroupServiceTest {
     @Test
     fun removeGroup_groupNotOnUser(): Unit = runBlocking {
       val user = createSampleUser(username = "user", id = UUID.randomUUID())
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(just(user))
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(flowOf())
 
       assertThatThrownBy {
@@ -77,7 +75,7 @@ class UserGroupServiceTest {
       val dbGroup2 = Group("LICENCE_VARY", "desc2", UUID.randomUUID())
 
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(flowOf(dbGroup1, dbGroup2))
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(just(user))
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
       whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       service.removeUserGroup("user", "  licence_vary   ", "admin", SUPER_USER)
@@ -97,10 +95,10 @@ class UserGroupServiceTest {
           Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
         )
       )
-      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(just(user))
 
+      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(user)
       val manager = createSampleUser(username = "managerUser")
-      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
       whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       service.removeUserGroup("user", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
@@ -117,10 +115,10 @@ class UserGroupServiceTest {
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(Group("GROUP_LICENCE_VARY", "desc2"))
       )
-      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(just(user))
+      whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(user)
 
       val manager = createSampleUser(username = "managerUser")
-      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
       whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       assertThatThrownBy {
@@ -135,7 +133,7 @@ class UserGroupServiceTest {
 
     @Test
     fun userAssignableGroups_notAdminAndNoUser(): Unit = runBlocking {
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(empty())
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
 
       val groups = service.getAssignableGroups(" BOB ", setOf())
       assertThat(groups).isEmpty()
@@ -144,7 +142,7 @@ class UserGroupServiceTest {
     @Test
     fun userAssignableGroups_normalUser(): Unit = runBlocking {
       val user = createSampleUser(username = "user")
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(just(user))
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
@@ -179,14 +177,7 @@ class UserGroupServiceTest {
       val id = UUID.randomUUID()
       val user =
         createSampleUser(username = "user", groups = setOf(Group("JOE", "desc"), Group("LICENCE_VARY", "desc2")))
-      whenever(
-        maintainUserCheck
-          .ensureUserLoggedInUserRelationship(
-            anyString(),
-            any(),
-            any()
-          )
-      ).thenReturn(user)
+
       whenever(userRepository.findById(id)).thenReturn(user)
 
       val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
@@ -213,7 +204,7 @@ class UserGroupServiceTest {
     @Test
     fun groups_by_username_success(): Unit = runBlocking {
       val user = createSampleUser(username = "user")
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(just(user))
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
       whenever(groupRepository.findGroupsByUsername(anyString())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
@@ -227,7 +218,7 @@ class UserGroupServiceTest {
 
     @Test
     fun groups_by_username_notfound(): Unit = runBlocking {
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(empty())
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
 
       val groups = service.getGroupsByUserName(" BOB ")
       assertThat(groups).isNull()
@@ -298,7 +289,7 @@ class UserGroupServiceTest {
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
       )
-      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
       whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(1)
 
       service.removeGroupByUserId(userId, "  group_licence_vary   ")
@@ -319,7 +310,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(userId)).thenReturn(user)
       val manager = createSampleUser(username = "managerUser")
-      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
 
       assertThatThrownBy {
         runBlocking {
@@ -407,7 +398,7 @@ class UserGroupServiceTest {
         username = "user",
         groups = setOf(Group("GROUP_JOE", "desc", groupId = UUID.randomUUID()), Group("GROUP_LICENCE_VARY", "desc"))
       )
-      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
 
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val groupJoe = Group("GROUP_JOE", "desc 2")
@@ -435,7 +426,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
       val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_JOE", "desc")))
-      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val groupJoe = Group("GROUP_JOE", "desc 2")
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(flowOf(groupJoe))
@@ -460,7 +451,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
       val manager = createSampleUser(username = "user", groups = setOf(Group("GROUP_LICENCE_VARY", "desc")))
-      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(just(manager))
+      whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
       val group = Group("GROUP_LICENCE_VARY", "desc")
       val groupJoe = Group("GROUP_JOE", "desc 2")
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(flowOf(groupJoe))

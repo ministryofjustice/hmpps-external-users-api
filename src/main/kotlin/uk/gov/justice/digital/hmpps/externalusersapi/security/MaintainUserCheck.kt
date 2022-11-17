@@ -24,7 +24,7 @@ class MaintainUserCheck(
 
   @Throws(GroupRelationshipException::class)
   suspend fun ensureMaintainerGroupRelationship(
-    userName: String?,
+    userName: String,
     groupCode: String,
   ) {
     // if they have maintain privileges then all good
@@ -42,10 +42,10 @@ class MaintainUserCheck(
   }
 
   @Throws(UserGroupRelationshipException::class)
-  suspend fun ensureUserLoggedInUserRelationship(loggedInUser: String?, authorities: Collection<GrantedAuthority>, user: User): User? {
+  suspend fun ensureUserLoggedInUserRelationship(loggedInUser: String, authorities: Collection<GrantedAuthority>, user: User) {
     // if they have maintain privileges then all good
     if (canMaintainUsers(authorities)) {
-      return null
+      return
     }
     // otherwise group managers must have a group in common for maintenance
     val loggedInUserEmail = userService.getUser(loggedInUser)
@@ -56,8 +56,6 @@ class MaintainUserCheck(
       // no group in common, so disallow
       throw UserGroupRelationshipException(user.name, "User not with your groups")
     }
-
-    return loggedInUserEmail
   }
 }
 

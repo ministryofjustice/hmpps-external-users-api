@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -21,12 +19,12 @@ class UserRepositoryTest {
 
   @Test
   fun findByUsernameIsTrue(): Unit = runBlocking {
-    assertThat(repository.findByUsernameAndSource("AUTH_TEST", AuthSource.auth).awaitSingle()).isNotNull
+    assertThat(repository.findByUsernameAndSource("AUTH_TEST", AuthSource.auth)).isNotNull
   }
 
   @Test
   fun findByUsernameIsFalse(): Unit = runBlocking {
-    assertThat(repository.findByUsernameAndSource("DOES_NOT_EXIST", AuthSource.auth).awaitSingleOrNull()).isNull()
+    assertThat(repository.findByUsernameAndSource("DOES_NOT_EXIST", AuthSource.auth)).isNull()
   }
 
   @Test

@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
@@ -19,9 +18,9 @@ class UserService(
   private val groupRepository: GroupRepository,
 ) {
   @Transactional
-  suspend fun getUser(username: String?): User? {
+  suspend fun getUser(username: String): User? {
 
-    var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
+    var user = userRepository.findByUsernameAndSource(username)
     Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
       groupRepository.findGroupsByUserId(it)
@@ -33,37 +32,32 @@ class UserService(
       ?.let {
         roles?.toList()
           ?.let { it1 ->
-            if (username != null) {
-              user = User(
-                username = username,
-                authorities = it1.toSet(),
-                groups = it.toSet(),
-                source = AuthSource.auth
-              )
-            }
+            user = User(
+              username = username,
+              authorities = it1.toSet(),
+              groups = it.toSet(),
+              source = AuthSource.auth
+            )
           }
       }
     return user
   }
 
   @Transactional
-  suspend fun getUserAndGroupByUserName(username: String?): User? {
+  suspend fun getUserAndGroupByUserName(username: String): User? {
 
-    var user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull()
+    var user = userRepository.findByUsernameAndSource(username)
     Optional.of(user!!).orElseThrow()
     val groups = user.id?.let {
       groupRepository.findGroupsByUserId(it)
     }?.toList()
     groups?.toList()
       ?.let { it ->
-
-        if (username != null) {
-          user = User(
-            username = username,
-            groups = it.toSet(),
-            source = AuthSource.auth
-          )
-        }
+        user = User(
+          username = username,
+          groups = it.toSet(),
+          source = AuthSource.auth
+        )
       }
     return user
   }

@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
@@ -139,7 +138,7 @@ class UserGroupService(
     log.debug("Removing user group $groupCode from user $username")
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
-    val user = userRepository.findByUsernameAndSource(username).awaitSingleOrNull() ?: throw RuntimeException()
+    val user = userRepository.findByUsernameAndSource(username) ?: throw RuntimeException()
     val userId = user.id!!
 
     // Get the user's groups
@@ -182,7 +181,7 @@ class UserGroupService(
 
   suspend fun getGroupsByUserName(username: String?): Set<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group>? =
     username?.let {
-      userRepository.findByUsernameAndSource(username.trim().uppercase()).awaitSingleOrNull()?.let {
+      userRepository.findByUsernameAndSource(username.trim().uppercase())?.let {
         groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
       }
     }
