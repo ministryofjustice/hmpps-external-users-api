@@ -5,10 +5,12 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -193,8 +195,15 @@ class RoleServiceTest {
         Pageable.ofSize(10),
       )
 
+      val roleFilterCaptor = argumentCaptor<RoleFilter>()
+      val expectedRoleFilter = RoleFilter(roleName = "Admin", roleCode = "HWPV", adminTypes = listOf(EXT_ADM, DPS_LSA), Pageable.ofSize(10))
+
       runBlocking {
-        verify(roleSearchRepository).searchForRoles(RoleFilter(roleName = "Admin", roleCode = "HWPV", adminTypes = listOf(EXT_ADM, DPS_LSA), Pageable.ofSize(10)))
+        verify(roleSearchRepository).searchForRoles(roleFilterCaptor.capture())
+        val actualRoleFilter = roleFilterCaptor.firstValue
+        assertTrue(actualRoleFilter.sql == expectedRoleFilter.sql)
+        assertTrue(actualRoleFilter.countSQL == expectedRoleFilter.countSQL)
+        assertTrue(actualRoleFilter.countSQL == expectedRoleFilter.countSQL)
       }
     }
   }

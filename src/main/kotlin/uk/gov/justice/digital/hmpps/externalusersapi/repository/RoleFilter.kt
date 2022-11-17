@@ -152,17 +152,4 @@ class RoleFilter(
     val words = whiteSpace.split(input.trim())
     return words.joinToString(prefix = "%", postfix = "%", separator = "% %")
   }
-
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is RoleFilter) return false
-
-    if (sql != other.sql && countSQL != other.countSQL) return false
-
-    return true
-  }
-
-  override fun hashCode(): Int {
-    return sql.hashCode()
-  }
 }
