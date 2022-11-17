@@ -78,7 +78,7 @@ class UserGroupServiceTest {
 
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(flowOf(dbGroup1, dbGroup2))
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(just(user))
-      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(just(1))
+      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       service.removeUserGroup("user", "  licence_vary   ", "admin", SUPER_USER)
       verify(telemetryClient).trackEvent(
@@ -101,7 +101,7 @@ class UserGroupServiceTest {
 
       val manager = createSampleUser(username = "managerUser")
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
-      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(just(1))
+      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       service.removeUserGroup("user", "  group_licence_vary   ", "MANAGER", GROUP_MANAGER_ROLE)
       verify(telemetryClient).trackEvent(
@@ -121,7 +121,7 @@ class UserGroupServiceTest {
 
       val manager = createSampleUser(username = "managerUser")
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
-      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(just(1))
+      whenever(userGroupRepository.deleteUserGroup(any(), any())).thenReturn(1)
 
       assertThatThrownBy {
         runBlocking {
@@ -264,7 +264,7 @@ class UserGroupServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER)
-      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(just(0))
+      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(0)
       val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
@@ -299,7 +299,7 @@ class UserGroupServiceTest {
         groups = setOf(Group("GROUP_JOE", "desc"), Group("GROUP_LICENCE_VARY", "desc"))
       )
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(just(manager))
-      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(just(1))
+      whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(1)
 
       service.removeGroupByUserId(userId, "  group_licence_vary   ")
       verify(userGroupRepository).deleteUserGroup(userId, groupId2)

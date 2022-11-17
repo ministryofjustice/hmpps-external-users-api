@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.reactive.awaitFirst
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
@@ -85,7 +83,7 @@ class UserGroupService(
       log.info("Adding group {} to userId {}", groupFormatted, userId)
       groupRepository.save(group)
       group.groupId?.let {
-        userGroupRepository.insertUserGroup(userId, it).awaitSingle()
+        userGroupRepository.insertUserGroup(userId, it)
       }
 
       roleRepository.saveAll(roleRepository.findRolesByGroupCode(group.groupCode).toList())
@@ -124,7 +122,7 @@ class UserGroupService(
         .map {
           it.groupId?.let {
             it1 ->
-            userGroupRepository.deleteUserGroup(userId, it1).awaitSingle()
+            userGroupRepository.deleteUserGroup(userId, it1)
           }
         }
       telemetryClient.trackEvent(
@@ -158,7 +156,7 @@ class UserGroupService(
     }
 
     log.info("Removing group {} from user {}", groupFormatted, username)
-    userGroupRepository.deleteUserGroup(userId, groupToRemove.groupId!!).awaitFirst()
+    userGroupRepository.deleteUserGroup(userId, groupToRemove.groupId!!)
 
     telemetryClient.trackEvent(
       "ExternalUserGroupRemoveSuccess",
