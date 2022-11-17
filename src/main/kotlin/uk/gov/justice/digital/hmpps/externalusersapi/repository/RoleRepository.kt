@@ -25,7 +25,7 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
         ur.user_id = :userId
      """
   )
-  suspend fun findRoleByUserId(userId: UUID): Flow<Authority>
+  fun findRolesByUserId(userId: UUID): Flow<Authority>
 
   @NonNull
   @Query(
@@ -39,5 +39,5 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
           where g.group_code = :groupCode
     """
   )
-  suspend fun findRolesByGroupCode(groupCode: String): Flow<Authority>
+  fun findRolesByGroupCode(groupCode: String): Flow<Authority>
 }

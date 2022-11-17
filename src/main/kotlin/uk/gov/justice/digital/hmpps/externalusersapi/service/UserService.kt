@@ -27,7 +27,7 @@ class UserService(
       groupRepository.findGroupsByUserId(it)
     }?.toList()
 
-    val roles = user.id?.let { roleRepository.findRoleByUserId(it) }?.toList()
+    val roles = user.id?.let { roleRepository.findRolesByUserId(it) }?.toList()
 
     groups?.toList()
       ?.let {
