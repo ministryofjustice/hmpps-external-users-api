@@ -21,5 +21,5 @@ interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssigna
            on r.role_id=gs.role_id 
           where g.group_code = :groupCode """
   )
-  suspend fun findGroupAssignableRoleByGroupCode(groupCode: String): Flow<UserAssignableRole>
+  fun findGroupAssignableRoleByGroupCode(groupCode: String): Flow<UserAssignableRole>
 }
