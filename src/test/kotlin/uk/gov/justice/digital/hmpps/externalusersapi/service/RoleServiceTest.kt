@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -135,7 +136,7 @@ class RoleServiceTest {
       runBlocking { whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf(role1, role2)) }
 
       val allRoles = roleService.getRoles(null)
-      assertThat(allRoles.size).isEqualTo(2)
+      assertThat(allRoles.toList().size).isEqualTo(2)
     }
 
     @Test
@@ -143,7 +144,7 @@ class RoleServiceTest {
       whenever(roleSearchRepository.searchForRoles(any())).thenReturn(flowOf())
 
       val allRoles = roleService.getRoles(null)
-      assertThat(allRoles.size).isEqualTo(0)
+      assertThat(allRoles.toList().size).isEqualTo(0)
     }
 
     @Test

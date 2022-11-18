@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -65,20 +67,20 @@ class RoleControllerTest {
     fun `get roles`(): Unit = runBlocking {
       val role1 = Authority(id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role1", roleDescription = "First Role", "DPS_ADM")
       val role2 = Authority(id = UUID.randomUUID(), roleCode = "RO2", roleName = "Role2", roleDescription = "Second Role", "DPS_ADM")
-      whenever(roleService.getRoles(any())).thenReturn(listOf(role1, role2))
+      whenever(roleService.getRoles(any())).thenReturn(flowOf(role1, role2))
 
       val roles = roleController.getRoles(listOf())
       verify(roleService).getRoles(listOf())
-      assertThat(roles.size).isEqualTo(2)
+      assertThat(roles.toList().size).isEqualTo(2)
     }
 
     @Test
     fun `No Roles Found`(): Unit = runBlocking {
-      whenever(roleService.getRoles(any())).thenReturn(listOf())
+      whenever(roleService.getRoles(any())).thenReturn(flowOf())
 
       val noRoles = roleController.getRoles(listOf())
       verify(roleService).getRoles(listOf())
-      assertThat(noRoles.size).isEqualTo(0)
+      assertThat(noRoles.toList().size).isEqualTo(0)
     }
   }
 
