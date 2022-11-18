@@ -17,7 +17,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
-import java.lang.RuntimeException
 import java.util.UUID
 
 @Service
@@ -138,13 +137,11 @@ class UserGroupService(
     log.debug("Removing user group $groupCode from user $username")
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
-    val user = userRepository.findByUsernameAndSource(username) ?: throw RuntimeException()
-    val userId = user.id!!
+    val user = userRepository.findByUsernameAndSource(username) ?: throw NotFoundException("User with username $username not found")
 
     // Get the user's groups
     val groups = groupRepository.findGroupsByUsername(username).toList()
-    val groupToRemove = groups.find { it.groupCode == groupFormatted }
-    groupToRemove ?: throw UserGroupException("Remove", "group", "missing")
+    val groupToRemove = groups.find { it.groupCode == groupFormatted } ?: throw UserGroupException("Remove", "group", "missing")
 
     if (!checkGroupModifier(groupFormatted, authorities, modifier)) {
       throw UserGroupManagerException("delete", "group", "managerNotMember")
@@ -155,7 +152,7 @@ class UserGroupService(
     }
 
     log.info("Removing group {} from user {}", groupFormatted, username)
-    userGroupRepository.deleteUserGroup(userId, groupToRemove.groupId!!)
+    userGroupRepository.deleteUserGroup(user.id!!, groupToRemove.groupId!!)
 
     telemetryClient.trackEvent(
       "ExternalUserGroupRemoveSuccess",

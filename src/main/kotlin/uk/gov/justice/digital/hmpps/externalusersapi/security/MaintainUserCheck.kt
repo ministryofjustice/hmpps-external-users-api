@@ -8,7 +8,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
-import java.util.Optional
 
 @Service
 class MaintainUserCheck(
@@ -24,15 +23,14 @@ class MaintainUserCheck(
 
   @Throws(GroupRelationshipException::class)
   suspend fun ensureMaintainerGroupRelationship(
-    userName: String,
+    maintainerName: String,
     groupCode: String,
   ) {
     // if they have maintain privileges then all good
     if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
-    val maintainer = userService.getUserAndGroupByUserName(userName)
-    Optional.of(maintainer!!).orElseThrow()
+    val maintainer = userService.getUserAndGroupByUserName(maintainerName)
     // otherwise group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
       // no group in common, so disallow
@@ -48,7 +46,6 @@ class MaintainUserCheck(
     }
     // otherwise group managers must have a group in common for maintenance
     val loggedInUserEmail = userService.getUser(loggedInUser)
-    Optional.of(loggedInUserEmail!!).orElseThrow()
     val userGroups = groupRepository.findGroupsByUsername(user.getUserName()).toSet()
 
     if (Sets.intersection(loggedInUserEmail.groups, userGroups).isEmpty()) {

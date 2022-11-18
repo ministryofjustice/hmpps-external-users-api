@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import kotlinx.coroutines.flow.toList
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.model.User
@@ -8,7 +9,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
-import java.util.Optional
 
 @Service
 @Transactional(readOnly = true)
@@ -17,50 +17,33 @@ class UserService(
   private val userRepository: UserRepository,
   private val groupRepository: GroupRepository,
 ) {
-  @Transactional
-  suspend fun getUser(username: String): User? {
 
-    val user = userRepository.findByUsernameAndSource(username)
-    Optional.of(user!!).orElseThrow()
-    var userWithGroupAndRoles = User(username = user.getUserName(), source = user.source)
-    val groups = user.id?.let {
-      groupRepository.findGroupsByUserId(it)
-    }?.toList()
+  @Transactional(readOnly = true)
+  suspend fun findUser(username: String) = userRepository.findByUsernameAndSource(username)
+    ?: throw UsernameNotFoundException("User with username $username not found")
 
-    val roles = user.id?.let { roleRepository.findRolesByUserId(it) }?.toList()
+  @Transactional(readOnly = true)
+  suspend fun getUser(username: String): User {
+    val user = findUser(username)
+    val groups = groupRepository.findGroupsByUserId(user.id!!).toList()
+    val roles = roleRepository.findRolesByUserId(user.id!!).toList()
 
-    groups?.toList()
-      ?.let {
-        roles?.toList()
-          ?.let { it1 ->
-            userWithGroupAndRoles = User(
-              username = username,
-              authorities = it1.toSet(),
-              groups = it.toSet(),
-              source = AuthSource.auth
-            )
-          }
-      }
-    return userWithGroupAndRoles
+    return User(
+      username = username,
+      authorities = roles.toSet(),
+      groups = groups.toSet(),
+      source = AuthSource.auth
+    )
   }
 
   @Transactional
-  suspend fun getUserAndGroupByUserName(username: String): User? {
-
-    val user = userRepository.findByUsernameAndSource(username)
-    Optional.of(user!!).orElseThrow()
-    var userWithGroup = User(username = user.getUserName(), source = user.source)
-    val groups = user.id?.let {
-      groupRepository.findGroupsByUserId(it)
-    }?.toList()
-    groups?.toList()
-      ?.let { it ->
-        userWithGroup = User(
-          username = username,
-          groups = it.toSet(),
-          source = AuthSource.auth
-        )
-      }
-    return userWithGroup
+  suspend fun getUserAndGroupByUserName(username: String): User {
+    val user = findUser(username)
+    val groups = groupRepository.findGroupsByUserId(user.id!!).toList()
+    return User(
+      username = username,
+      groups = groups.toSet(),
+      source = AuthSource.auth
+    )
   }
 }
