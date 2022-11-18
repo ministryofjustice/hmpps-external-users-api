@@ -57,12 +57,7 @@ class RoleService(
     )
   }
 
-  suspend fun getRoles(
-    adminTypes: List<AdminType>?,
-  ): List<Authority> {
-    val rolesFilter = RoleFilter(adminTypes = adminTypes)
-    return roleSearchRepository.searchForRoles(rolesFilter).toList()
-  }
+  suspend fun getRoles(adminTypes: List<AdminType>?) = roleSearchRepository.searchForRoles(RoleFilter(adminTypes = adminTypes))
 
   suspend fun getRoles(
     roleName: String?,
