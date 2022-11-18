@@ -26,15 +26,11 @@ class EmailDomainController(
 
   @GetMapping("/email-domains")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  suspend fun domainList(): List<EmailDomainDto> {
-    return emailDomainService.domainList()
-  }
+  suspend fun domainList() = emailDomainService.domainList()
 
   @GetMapping("/email-domains/{id}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  suspend fun domain(@PathVariable id: UUID): EmailDomainDto {
-    return emailDomainService.domain(id)
-  }
+  suspend fun domain(@PathVariable id: UUID): EmailDomainDto = emailDomainService.domain(id)
 
   @PostMapping("/email-domains")
   @ResponseStatus(HttpStatus.CREATED)

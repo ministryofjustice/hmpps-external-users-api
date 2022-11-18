@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
@@ -32,7 +31,7 @@ class GroupsService(
   private val maintainUserCheck: MaintainUserCheck,
 ) {
 
-  suspend fun getAllGroups(): Flow<Group> = groupRepository.findAllByOrderByGroupName()
+  suspend fun getAllGroups() = groupRepository.findAllByOrderByGroupName()
 
   @Throws(GroupNotFoundException::class)
   suspend fun getGroupDetail(groupCode: String): GroupDetails =
