@@ -32,7 +32,7 @@ class GroupsService(
   private val maintainUserCheck: MaintainUserCheck,
 ) {
 
-  suspend fun getAllGroups(): Flow<Group> = groupRepository.findAllByOrderByGroupName()
+  fun getAllGroups(): Flow<Group> = groupRepository.findAllByOrderByGroupName()
 
   @Throws(GroupNotFoundException::class)
   suspend fun getGroupDetail(groupCode: String): GroupDetails =
