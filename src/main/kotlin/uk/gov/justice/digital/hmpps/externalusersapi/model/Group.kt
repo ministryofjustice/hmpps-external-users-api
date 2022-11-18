@@ -1,39 +1,22 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.model
 
-import org.hibernate.annotations.GenericGenerator
-import java.io.Serializable
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
-import javax.persistence.CascadeType
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.OneToMany
-import javax.persistence.Table
 
-@Entity
-@Table(name = "GROUPS")
 class Group(
-  @Column(name = "group_code", nullable = false) val groupCode: String,
-  @Column(name = "group_name", nullable = false) var groupName: String,
-) : Serializable {
-  @Id
-  @GeneratedValue(generator = "UUID")
-  @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-  @Column(name = "group_id", updatable = false, nullable = false)
-  val id: UUID? = null
+  val groupCode: String,
+  var groupName: String,
+  val id: UUID? = null,
 
-  @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
-  val assignableRoles: MutableSet<GroupAssignableRole> = mutableSetOf()
-
-  @OneToMany(mappedBy = "group", cascade = [CascadeType.ALL], orphanRemoval = true)
-  val children: MutableSet<ChildGroup> = mutableSetOf()
+) {
+  var children: MutableSet<ChildGroup> = mutableSetOf()
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
 
-    other as Group
+    other as uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 
     if (groupCode != other.groupCode) return false
 
@@ -41,4 +24,8 @@ class Group(
   }
 
   override fun hashCode(): Int = groupCode.hashCode()
+
+  constructor(g: Group, children: MutableSet<ChildGroup>) : this(g.groupCode, g.groupName, g.groupId) {
+    this.children = children
+  }
 }

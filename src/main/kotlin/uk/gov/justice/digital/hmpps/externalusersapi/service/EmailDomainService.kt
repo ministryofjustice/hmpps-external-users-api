@@ -1,11 +1,12 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
-import org.springframework.data.repository.findByIdOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.EmailDomainExclusions
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
 import java.util.UUID
@@ -21,7 +22,7 @@ class EmailDomainService(
   }
 
   @Transactional(readOnly = true)
-  fun domainList(): List<EmailDomainDto> {
+  suspend fun domainList(): List<EmailDomainDto> {
     val allEmailDomains = emailDomainRepository.findAll()
     val emailDomainDtoList = allEmailDomains.map { emailDomain ->
       EmailDomainDto(
@@ -30,17 +31,16 @@ class EmailDomainService(
         emailDomain.description.toString()
       )
     }
-
-    return emailDomainDtoList.sortedWith(compareBy { it.domain })
+    return emailDomainDtoList.toList().sortedWith(compareBy { it.domain })
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun domain(id: UUID): EmailDomainDto {
+  suspend fun domain(id: UUID): EmailDomainDto {
     return toDto(retrieveDomain(id, "retrieve"))
   }
 
   @Throws(EmailDomainAdditionBarredException::class)
-  fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
+  suspend fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
     val domainNameInternal = if (newDomain.name.startsWith(PERCENT)) newDomain.name else PERCENT + newDomain.name
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
@@ -55,26 +55,23 @@ class EmailDomainService(
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  fun removeDomain(id: UUID) {
+  suspend fun removeDomain(id: UUID) {
     val emailDomain = retrieveDomain(id, "delete")
     emailDomainRepository.delete(emailDomain)
   }
 
-  private fun toDto(emailDomain: EmailDomain): EmailDomainDto {
-    return EmailDomainDto(
-      emailDomain.id.toString(),
-      cleanDomainNameForDisplay(emailDomain.name),
-      emailDomain.description.toString()
-    )
-  }
+  private fun toDto(emailDomain: EmailDomain): EmailDomainDto = EmailDomainDto(
+    emailDomain.id.toString(),
+    cleanDomainNameForDisplay(emailDomain.name),
+    emailDomain.description.toString()
+  )
 
-  private fun retrieveDomain(uuid: UUID, action: String): EmailDomain {
-    return emailDomainRepository.findByIdOrNull(uuid) ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
-  }
+  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain =
+    emailDomainRepository.findById(uuid)
+      ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
 
-  private fun cleanDomainNameForDisplay(persistedDomainName: String): String {
-    return persistedDomainName.removePrefix(PERCENT).removePrefix(".")
-  }
+  private fun cleanDomainNameForDisplay(persistedDomainName: String): String =
+    persistedDomainName.removePrefix(PERCENT).removePrefix(".")
 }
 
 class EmailDomainAdditionBarredException(domain: String, errorCode: String) :

@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -11,11 +13,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.EmailDomainExclusions
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.EmailDomainRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.EmailDomain
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateEmailDomainDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailDomainDto
-import java.util.Optional
 import java.util.UUID
 
 class EmailDomainServiceTest {
@@ -26,13 +27,13 @@ class EmailDomainServiceTest {
   private val service = EmailDomainService(emailDomainRepository, emailDomainExclusions)
 
   @Test
-  fun shouldRetrieveEmailDomainList() {
+  fun shouldRetrieveEmailDomainList(): Unit = runBlocking {
     val randomUUID = UUID.randomUUID()
     val randomUUID2 = UUID.randomUUID()
     val randomUUID3 = UUID.randomUUID()
 
     whenever(emailDomainRepository.findAll()).thenReturn(
-      listOf(
+      flowOf(
         EmailDomain(id = randomUUID, name = "acc.com", description = "description"),
         EmailDomain(id = randomUUID2, name = "%adc.com", description = "description"),
         EmailDomain(id = randomUUID3, name = "%.abc.com", description = "description"),
@@ -51,7 +52,7 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldNotAddDomainWhenAlreadyPresent() {
+  fun shouldNotAddDomainWhenAlreadyPresent(): Unit = runBlocking {
     whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
       EmailDomain(
         name = newDomain.name,
@@ -59,7 +60,7 @@ class EmailDomainServiceTest {
       )
     )
 
-    assertThatThrownBy { service.addDomain(newDomain) }
+    assertThatThrownBy { runBlocking { service.addDomain(newDomain) } }
       .isInstanceOf(EmailDomainAdditionBarredException::class.java)
       .hasMessage("Unable to add email domain: ${newDomain.name} to allowed list with reason: domain already present in allowed list")
 
@@ -68,9 +69,9 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldNotAddDomainWhenExcluded() {
+  fun shouldNotAddDomainWhenExcluded(): Unit = runBlocking {
     whenever(emailDomainExclusions.contains(newDomain.name)).thenReturn(true)
-    assertThatThrownBy { service.addDomain(newDomain) }
+    assertThatThrownBy { runBlocking { service.addDomain(newDomain) } }
       .isInstanceOf(EmailDomainAdditionBarredException::class.java)
       .hasMessage("Unable to add email domain: ${newDomain.name} to allowed list with reason: domain present in excluded list")
 
@@ -78,7 +79,7 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldPersistDomainWithAddedPercentPrefixWhenDomainNotAlreadyPresentOrExcluded() {
+  fun shouldPersistDomainWithAddedPercentPrefixWhenDomainNotAlreadyPresentOrExcluded(): Unit = runBlocking {
 
     whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), newDomain.name, newDomain.description))
     service.addDomain(newDomain)
@@ -92,7 +93,7 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldNotAddPercentPrefixWhenDomainNameAlreadyHasPercentPrefix() {
+  fun shouldNotAddPercentPrefixWhenDomainNameAlreadyHasPercentPrefix(): Unit = runBlocking {
 
     val domain = CreateEmailDomainDto("%123.co.uk", "test")
     whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), domain.name, domain.description))
@@ -107,11 +108,11 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldNotRemoveDomainWhenDomainNotPresent() {
+  fun shouldNotRemoveDomainWhenDomainNotPresent(): Unit = runBlocking {
     val id = UUID.randomUUID()
-    whenever(emailDomainRepository.findById(id)).thenReturn(Optional.empty())
+    whenever(emailDomainRepository.findById(id)).thenReturn(null)
 
-    assertThatThrownBy { service.removeDomain(id) }
+    assertThatThrownBy { runBlocking { service.removeDomain(id) } }
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to delete email domain id: $id with reason: notfound")
 
@@ -119,10 +120,10 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldRemoveDomainWhenDomainPresent() {
+  fun shouldRemoveDomainWhenDomainPresent(): Unit = runBlocking {
     val randomUUID = UUID.randomUUID()
     val emailDomain = EmailDomain(randomUUID, "abc.com")
-    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
+    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(emailDomain)
 
     service.removeDomain(randomUUID)
 
@@ -130,11 +131,11 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldRetrieveDomain() {
+  fun shouldRetrieveDomain(): Unit = runBlocking {
     val randomUUID = UUID.randomUUID()
     val id = randomUUID.toString()
     val emailDomain = EmailDomain(randomUUID, "%.abc.com", "Description")
-    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.of(emailDomain))
+    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(emailDomain)
 
     val actualDomain = service.domain(randomUUID)
     val expectedDomain = EmailDomainDto(id, "abc.com", "Description")
@@ -143,12 +144,12 @@ class EmailDomainServiceTest {
   }
 
   @Test
-  fun shouldThrowEmailDomainNotFoundExceptionWhenDomainNotFound() {
+  fun shouldThrowEmailDomainNotFoundExceptionWhenDomainNotFound(): Unit = runBlocking {
     val randomUUID = UUID.randomUUID()
     val id = randomUUID.toString()
-    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(Optional.empty())
+    whenever(emailDomainRepository.findById(randomUUID)).thenReturn(null)
 
-    assertThatThrownBy { service.domain(randomUUID) }
+    assertThatThrownBy { runBlocking { service.domain(randomUUID) } }
       .isInstanceOf(EmailDomainNotFoundException::class.java)
       .hasMessage("Unable to retrieve email domain id: $id with reason: notfound")
   }

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
@@ -70,7 +71,7 @@ class RoleController(
   )
   @ResponseStatus(HttpStatus.CREATED)
   @Throws(RoleService.RoleExistsException::class)
-  fun createRole(
+  suspend fun createRole(
     @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody
     createRole: CreateRole
@@ -100,14 +101,11 @@ class RoleController(
       )
     ]
   )
-  fun getRoles(
+  suspend fun getRoles(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(required = false)
     adminTypes: List<AdminType>?
-  ): List<RoleDetails> = roleService.getRoles(adminTypes)
-    .map {
-      RoleDetails(it)
-    }
+  ) = roleService.getRoles(adminTypes).map { RoleDetails(it) }
 
   @GetMapping("/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -143,7 +141,7 @@ class RoleController(
       )
     ]
   )
-  fun getRoles(
+  suspend fun getRoles(
     @Parameter(description = "Role name or partial of a role name")
     @RequestParam(required = false)
     roleName: String?,
@@ -197,11 +195,11 @@ class RoleController(
       )
     ]
   )
-  fun getRoleDetails(
+  suspend fun getRoleDetails(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
     role: String
-  ): RoleDetails = RoleDetails(roleService.getRoleDetails(role))
+  ): RoleDetails = roleService.getRoleDetails(role)
 
   @PutMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -237,7 +235,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleName(
+  suspend fun amendRoleName(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     role: String,
@@ -282,7 +280,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleDescription(
+  suspend fun amendRoleDescription(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     role: String,
@@ -327,7 +325,7 @@ class RoleController(
       )
     ]
   )
-  fun amendRoleAdminType(
+  suspend fun amendRoleAdminType(
     @Parameter(description = "The role code of the role.", required = true)
     @PathVariable
     roleCode: String,
@@ -365,7 +363,10 @@ data class RoleDetails(
     r.roleCode,
     r.roleName,
     r.roleDescription,
-    r.adminType
+    r.adminType.split(",").map {
+      it.trim()
+      AdminType.valueOf(it)
+    }
   )
 }
 

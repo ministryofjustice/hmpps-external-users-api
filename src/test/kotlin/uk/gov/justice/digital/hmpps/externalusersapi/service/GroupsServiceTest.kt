@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -14,17 +16,20 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.ChildGroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableRoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import java.util.UUID
 
 class GroupsServiceTest {
   private val groupRepository: GroupRepository = mock()
@@ -35,31 +40,33 @@ class GroupsServiceTest {
   private val userRepository: UserRepository = mock()
   private val userGroupService: UserGroupService = mock()
   private val authentication: Authentication = mock()
+  private val groupAssignableRoleRepository: GroupAssignableRoleRepository = mock()
   private val groupsService = GroupsService(
     groupRepository,
-    maintainUserCheck,
     childGroupRepository,
     telemetryClient,
     authenticationFacade,
     userRepository,
-    userGroupService
+    userGroupService,
+    groupAssignableRoleRepository,
+    maintainUserCheck
   )
 
   @BeforeEach
-  fun initSecurityContext() {
-    whenever(authenticationFacade.currentUsername).thenReturn("username")
+  fun initSecurityContext(): Unit = runBlocking {
+    whenever(authenticationFacade.getUsername()).thenReturn("username")
   }
 
   @Nested
   inner class Groups {
     @Test
-    fun `get all groups`() {
+    fun `get all groups`(): Unit = runBlocking {
       val dbGroup1 = Group("GROUP_1", "first group")
       val dbGroup2 = Group("GROUP_2", "second group")
-      val allGroups = listOf(dbGroup1, dbGroup2)
+      val allGroups = flowOf(dbGroup1, dbGroup2)
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
 
-      val actualGroups = groupsService.allGroups
+      val actualGroups = groupsService.getAllGroups()
       assertThat(actualGroups).isEqualTo(allGroups)
       verify(groupRepository).findAllByOrderByGroupName()
     }
@@ -69,12 +76,12 @@ class GroupsServiceTest {
   inner class DeleteChildGroup {
 
     @Test
-    fun `Delete child group`() {
-      val childGroup = ChildGroup("CG", "disc")
+    fun `Delete child group`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CG", "disc", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
 
       groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).delete(childGroup)
+      verify(childGroupRepository).deleteByGroupCode("CG")
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
@@ -83,11 +90,11 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Child Group not found`() {
+    fun `Child Group not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        groupsService.deleteChildGroup("CG")
+        runBlocking { groupsService.deleteChildGroup("CG") }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }
@@ -97,7 +104,7 @@ class GroupsServiceTest {
   inner class ParentGroup {
 
     @Test
-    fun `Create group`() {
+    fun `Create group`(): Unit = runBlocking {
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(null)
 
@@ -113,18 +120,21 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Create group exists`() {
+    fun `Create group exists`(): Unit = runBlocking {
+
       val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(Group("code", "name"))
 
       Assertions.assertThatThrownBy {
-        groupsService.createGroup(createGroup)
+        runBlocking {
+          groupsService.createGroup(createGroup)
+        }
       }.isInstanceOf(GroupExistsException::class.java)
         .hasMessage("Unable to create group: CG with reason: group code already exists")
     }
 
     @Test
-    fun `update group details`() {
+    fun `update group details`(): Unit = runBlocking {
       val dbGroup = Group("bob", "disc")
       val groupAmendment = GroupAmendment("Joe")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
@@ -141,13 +151,20 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `get group details`() {
-      val dbGroup = Group("bob", "disc")
+    fun `get group details`(): Unit = runBlocking {
+      val dbGroup = Group("bob", "disc", UUID.randomUUID())
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
+      val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
+      whenever(childGroupRepository.findAllByGroup(any())).thenReturn(childGroup)
+      val userAssignableRole = flowOf(UserAssignableRole("RC", "Role name", true))
+      whenever(groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(any())).thenReturn(userAssignableRole)
 
       val group = groupsService.getGroupDetail("bob")
 
-      assertThat(group).isEqualTo(dbGroup)
+      assertThat(group.groupCode).isEqualTo(dbGroup.groupCode)
+      assertThat(group.groupName).isEqualTo(dbGroup.groupName)
+      assertThat(group.assignableRoles).isNotNull
+      assertThat(group.children).isNotNull
       verify(groupRepository).findByGroupCode("bob")
       verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
     }
@@ -157,34 +174,41 @@ class GroupsServiceTest {
   inner class DeleteGroup {
 
     @BeforeEach
-    fun initSecurityContext() {
-      whenever(authenticationFacade.authentication).thenReturn(authentication)
-      whenever(authenticationFacade.authentication.authorities).thenReturn(setOf(Authority("ROLE_COMMUNITY", "Role Community")))
+    fun initSecurityContext(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_COMMUNITY")))
     }
-    @Test
-    fun `delete group, no members`() {
-      val dbGroup = Group("groupCode", "disc")
-      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
-      whenever(userRepository.findAll(any())).thenReturn(listOf())
 
-      groupsService.deleteGroup("groupCode",)
+    @Test
+    fun `delete group, no members`(): Unit = runBlocking {
+      val groupUUID = UUID.randomUUID()
+      val dbGroup = Group("groupCode", "disc", groupUUID)
+      whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
+      whenever(childGroupRepository.findAllByGroup(groupUUID)).thenReturn(flowOf())
+      whenever(userRepository.findAllByGroupCode("groupCode")).thenReturn(flowOf())
+
+      groupsService.deleteGroup("groupCode")
+      verify(childGroupRepository).findAllByGroup(groupUUID)
       verify(groupRepository).findByGroupCode("groupCode")
-      verify(userRepository).findAll(any())
+      verify(userRepository).findAllByGroupCode("groupCode")
       verify(groupRepository).delete(dbGroup)
     }
 
     @Test
-    fun `delete group, with members`() {
+    fun `delete group, with members`(): Unit = runBlocking {
+      val groupUUID = UUID.randomUUID()
       val user1 = UserHelper.createSampleUser(username = "user1")
       val user2 = UserHelper.createSampleUser(username = "user2")
-      val dbGroup = Group("groupCode", "disc")
+      val dbGroup = Group("groupCode", "disc", groupUUID)
       whenever(groupRepository.findByGroupCode("groupCode")).thenReturn(dbGroup)
-      whenever(userRepository.findAll(any())).thenReturn(listOf(user1, user2))
+      whenever(childGroupRepository.findAllByGroup(groupUUID)).thenReturn(flowOf())
+      whenever(userRepository.findAllByGroupCode("groupCode")).thenReturn(flowOf(user1, user2))
 
       groupsService.deleteGroup("groupCode")
+      verify(childGroupRepository).findAllByGroup(groupUUID)
       verify(groupRepository).findByGroupCode("groupCode")
-      verify(userRepository).findAll(any())
-      verify(userGroupService, times(2)).removeGroup(anyString(), anyString(), anyString(), any())
+      verify(userRepository).findAllByGroupCode("groupCode")
+      verify(userGroupService, times(2)).removeUserGroup(anyString(), anyString(), anyString(), any())
       verify(groupRepository).delete(dbGroup)
     }
   }
@@ -192,12 +216,12 @@ class GroupsServiceTest {
   @Nested
   inner class ChildGroup {
     @Test
-    fun `Delete child group`() {
-      val childGroup = ChildGroup("CG", "disc")
+    fun `Delete child group`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CG", "disc", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(childGroup)
 
       groupsService.deleteChildGroup("CG")
-      verify(childGroupRepository).delete(childGroup)
+      verify(childGroupRepository).deleteByGroupCode("CG")
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
@@ -206,18 +230,18 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Delete child Group not found`() {
+    fun `Delete child Group not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode("CG")).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        groupsService.deleteChildGroup("CG")
+        runBlocking { groupsService.deleteChildGroup("CG") }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }
 
     @Test
-    fun `Update child group details`() {
-      val dbGroup = ChildGroup("bob", "disc")
+    fun `Update child group details`(): Unit = runBlocking {
+      val dbGroup = ChildGroup("bob", "disc", UUID.randomUUID())
       val groupAmendment = GroupAmendment("Joe")
       whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
 
@@ -233,8 +257,8 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Retrieve child group details`() {
-      val childGroup = ChildGroup("CHILD_1", "test")
+    fun `Retrieve child group details`(): Unit = runBlocking {
+      val childGroup = ChildGroup("CHILD_1", "test", UUID.randomUUID())
       whenever(childGroupRepository.findByGroupCode(childGroup.groupCode)).thenReturn(childGroup)
 
       val actualChildGroupDetail = groupsService.getChildGroupDetail(childGroup.groupCode)
@@ -243,11 +267,13 @@ class GroupsServiceTest {
     }
 
     @Test
-    fun `Retrieve child group details not found`() {
+    fun `Retrieve child group details not found`(): Unit = runBlocking {
       whenever(childGroupRepository.findByGroupCode(anyString())).thenReturn(null)
 
       Assertions.assertThatThrownBy {
-        groupsService.getChildGroupDetail("CG")
+        runBlocking {
+          groupsService.getChildGroupDetail("CG")
+        }
       }.isInstanceOf(ChildGroupNotFoundException::class.java)
         .hasMessage("Unable to get child group: CG with reason: notfound")
     }

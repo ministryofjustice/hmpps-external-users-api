@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
 
@@ -68,7 +68,7 @@ class UserGroupController(
       )
     ]
   )
-  fun groupsByUserId(
+  suspend fun groupsByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
@@ -126,7 +126,7 @@ class UserGroupController(
       )
     ]
   )
-  fun removeGroupByUserId(
+  suspend fun removeGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: UUID,
     @Parameter(description = "The group to be delete from the user.", required = true)
@@ -181,7 +181,7 @@ class UserGroupController(
       )
     ]
   )
-  fun addGroupByUserId(
+  suspend fun addGroupByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
     @Parameter(description = "The group code of the group to be added to the user.", required = true) @PathVariable

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import kotlinx.coroutines.flow.map
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -16,10 +17,9 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
@@ -60,7 +60,7 @@ class GroupsController(
       )
     ]
   )
-  fun allGroups(): List<UserGroup> = groupsService.allGroups.map { UserGroup(it) }
+  suspend fun allGroups() = groupsService.getAllGroups().map { UserGroup(it) }
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -96,11 +96,11 @@ class GroupsController(
       )
     ]
   )
-  fun getGroupDetail(
+  suspend fun getGroupDetails(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
-  ): GroupDetails = GroupDetails(groupsService.getGroupDetail(group))
+  ): GroupDetails = groupsService.getGroupDetail(group)
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
@@ -136,7 +136,7 @@ class GroupsController(
       )
     ]
   )
-  fun getChildGroupDetail(
+  suspend fun getChildGroupDetail(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
@@ -180,7 +180,7 @@ class GroupsController(
       )
     ]
   )
-  fun amendGroupName(
+  suspend fun amendGroupName(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String,
@@ -226,7 +226,7 @@ class GroupsController(
       )
     ]
   )
-  fun amendChildGroupName(
+  suspend fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
@@ -272,7 +272,7 @@ class GroupsController(
       )
     ]
   )
-  fun deleteChildGroup(
+  suspend fun deleteChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
@@ -315,7 +315,7 @@ class GroupsController(
     ]
   )
   @Throws(GroupExistsException::class, GroupNotFoundException::class)
-  fun createGroup(
+  suspend fun createGroup(
     @Parameter(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
     createGroup: CreateGroup
@@ -356,7 +356,7 @@ class GroupsController(
     ]
   )
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
-  fun deleteGroup(
+  suspend fun deleteGroup(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
     group: String
@@ -397,7 +397,7 @@ class GroupsController(
     ]
   )
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
-  fun createChildGroup(
+  suspend fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
     @Valid @RequestBody
     createChildGroup: CreateChildGroup
@@ -424,9 +424,8 @@ data class UserAssignableRole(
 
   @Schema(required = true, description = "automatic", example = "TRUE")
   val automatic: Boolean
-) {
-  constructor(a: Authority, automatic: Boolean) : this(a.roleCode, a.roleName, automatic)
-}
+)
+
 data class CreateGroup(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   @field:NotBlank(message = "group code must be supplied")
@@ -440,28 +439,6 @@ data class CreateGroup(
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
   val groupName: String
 )
-
-@Schema(description = "Group Details")
-data class GroupDetails(
-  @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
-  val groupCode: String,
-
-  @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-  val groupName: String,
-
-  @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<UserAssignableRole>,
-
-  @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroup>
-) {
-  constructor(g: Group) : this(
-    g.groupCode,
-    g.groupName,
-    g.assignableRoles.map { UserAssignableRole(it.role, it.automatic) }.sortedBy { it.roleName },
-    g.children.map { UserGroup(it) }.sortedBy { it.groupName }
-  )
-}
 
 @Schema(description = "Group Details")
 data class ChildGroupDetails(

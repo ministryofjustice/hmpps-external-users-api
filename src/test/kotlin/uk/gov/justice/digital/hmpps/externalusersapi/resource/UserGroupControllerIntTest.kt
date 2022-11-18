@@ -222,7 +222,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .json(
           """[
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
-          {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}       
+          {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}
         ]
           """.trimIndent()
         )
@@ -239,7 +239,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .json(
           """[
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
-          {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}       
+          {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}
         ]
           """.trimIndent()
         )

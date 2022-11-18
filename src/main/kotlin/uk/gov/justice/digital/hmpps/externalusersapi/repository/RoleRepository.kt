@@ -1,0 +1,43 @@
+package uk.gov.justice.digital.hmpps.externalusersapi.repository
+
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.r2dbc.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineSortingRepository
+import org.springframework.lang.NonNull
+import org.springframework.stereotype.Repository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
+import java.util.UUID
+
+@Repository
+interface RoleRepository : CoroutineSortingRepository<Authority, String> {
+
+  fun findByAdminTypeContainingOrderByRoleName(adminType: String): Flow<Authority>
+
+  suspend fun findByRoleCode(roleCode: String?): Authority?
+
+  @NonNull
+  @Query(
+    """
+      select r.*
+      from roles r
+        inner join user_role ur on r.role_id = ur.role_id
+      where
+        ur.user_id = :userId
+     """
+  )
+  fun findRolesByUserId(userId: UUID): Flow<Authority>
+
+  @NonNull
+  @Query(
+    """
+      select distinct r.*
+       from group_assignable_role gs
+         inner join groups g 
+            on g.group_id = gs.group_id 
+         inner join roles r 
+           on r.role_id=gs.role_id 
+          where g.group_code = :groupCode
+    """
+  )
+  fun findRolesByGroupCode(groupCode: String): Flow<Authority>
+}

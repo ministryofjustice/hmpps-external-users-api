@@ -20,7 +20,7 @@ class ApplicationInsightsConfiguration {
     return TelemetryClient()
   }
 
-  companion object {
+  private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

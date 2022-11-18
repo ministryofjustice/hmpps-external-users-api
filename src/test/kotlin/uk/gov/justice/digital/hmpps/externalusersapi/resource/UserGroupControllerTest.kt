@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -8,9 +9,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.model.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
 
@@ -22,20 +23,22 @@ class UserGroupControllerTest {
   inner class Groups {
 
     @Test
-    fun `groups userNotFound`() {
+    fun `groups userNotFound`(): Unit = runBlocking {
       whenever(userGroupService.getGroups(any())).thenReturn(null)
       Assertions.assertThatThrownBy {
-        userGroupController.groupsByUserId(UUID.randomUUID())
+        runBlocking {
+          userGroupController.groupsByUserId(UUID.randomUUID())
+        }
       }
         .isInstanceOf(UsernameNotFoundException::class.java)
     }
 
     @Test
-    fun `groups no children`() {
+    fun `groups no children`(): Unit = runBlocking {
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
       whenever(userGroupService.getGroups(any())).thenReturn(
-        setOf(
+        mutableListOf(
           group1,
           group2
         )
@@ -46,40 +49,46 @@ class UserGroupControllerTest {
     }
 
     @Test
-    fun `groups default children`() {
+    fun `groups default children`(): Unit = runBlocking {
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
-      val childGroup = ChildGroup("CHILD_1", "child 1")
+      val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
       group2.children.add(childGroup)
       whenever(userGroupService.getGroups(any())).thenReturn(
-        setOf(
+        mutableListOf(
           group1,
           group2
         )
       )
       val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      Assertions.assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
+      Assertions.assertThat(responseEntity).containsOnly(
+        UserGroup("FRED", "desc"),
+        UserGroup("CHILD_1", "child 1")
+      )
     }
 
     @Test
-    fun `groups with children requested`() {
+    fun `groups with children requested`(): Unit = runBlocking {
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
-      val childGroup = ChildGroup("CHILD_1", "child 1")
+      val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
       group2.children.add(childGroup)
       whenever(userGroupService.getGroups(any())).thenReturn(
-        setOf(
+        mutableListOf(
           group1,
           group2
         )
       )
       val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      Assertions.assertThat(responseEntity).containsOnly(UserGroup("FRED", "desc"), UserGroup("CHILD_1", "child 1"))
+      Assertions.assertThat(responseEntity).containsOnly(
+        UserGroup("FRED", "desc"),
+        UserGroup("CHILD_1", "child 1")
+      )
     }
   }
 
   @Test
-  fun `should remove group by user id`() {
+  fun `should remove group by user id`(): Unit = runBlocking {
     val id = UUID.randomUUID()
     userGroupController.removeGroupByUserId(id, "test group")
 
@@ -87,7 +96,7 @@ class UserGroupControllerTest {
   }
 
   @Test
-  fun `should add group to user`() {
+  fun `should add group to user`(): Unit = runBlocking {
     val id = UUID.randomUUID()
     userGroupController.addGroupByUserId(id, "test group")
 

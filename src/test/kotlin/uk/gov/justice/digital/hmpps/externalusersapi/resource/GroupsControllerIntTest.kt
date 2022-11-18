@@ -35,8 +35,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied"
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied"
             )
           )
         }
@@ -118,8 +118,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to FORBIDDEN.value(),
-              "developerMessage" to "Access is denied",
-              "userMessage" to "Access is denied",
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied",
               "errorCode" to null,
               "moreInfo" to null
             )
@@ -201,10 +201,11 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupName]")
-          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
-          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
+
+          assertThat(it["userMessage"] as String).startsWith("Validation failure:")
+
           assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["userMessage"] as String).contains("groupName: size must be between 4 and 100")
         }
     }
 
@@ -219,8 +220,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          assertThat(it["userMessage"] as String).startsWith("Access is denied")
-          assertThat(it["developerMessage"] as String).startsWith("Access is denied")
+          assertThat(it["userMessage"] as String).contains("Denied")
+          assertThat(it["developerMessage"] as String).contains("Denied")
         }
     }
 
@@ -254,9 +255,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Change group name`() {
       webTestClient
-        .put().uri("/groups/child/CHILD_9")
+        .put().uri("/groups/child/CHILD_3")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("groupName" to "new group name")))
+        .body(BodyInserters.fromValue(mapOf("groupName" to "new child group name")))
         .exchange()
         .expectStatus().isOk
     }
@@ -271,10 +272,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupName]")
-          assertThat(it["userMessage"] as String).contains("default message [size must be between 4 and 100]")
-          assertThat(it["developerMessage"] as String).contains("default message [groupName]")
-          assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
+          assertThat(it["userMessage"] as String).contains("Validation failure: groupName: size must be between 4 and 100")
+          assertThat(it["developerMessage"] as String).contains(" default message [groupName],100,4]; default message [size must be between 4 and 100]]")
         }
     }
 
@@ -289,8 +288,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"] as Int).isEqualTo(FORBIDDEN.value())
-          assertThat(it["userMessage"] as String).startsWith("Access is denied")
-          assertThat(it["developerMessage"] as String).startsWith("Access is denied")
+          assertThat(it["userMessage"] as String).startsWith("Denied")
+          assertThat(it["developerMessage"] as String).startsWith("Denied")
         }
     }
 
@@ -355,8 +354,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
-          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
+          assertThat(it["userMessage"] as String).contains("groupCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("groupName: size must be between 4 and 100")
         }
     }
 
@@ -376,8 +375,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
-          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
+          assertThat(it["userMessage"] as String).contains("groupCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("groupName: size must be between 4 and 100")
         }
     }
 
@@ -397,8 +396,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
-          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
+          assertThat(it["userMessage"] as String).contains("groupCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("groupName: size must be between 4 and 100")
         }
     }
 
@@ -418,8 +417,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupCode],[Ljavax.validation.constraints.Pattern")
-          assertThat(it["userMessage"] as String).contains("default message [groupName],[Ljavax.validation.constraints.Pattern")
+          assertThat(it["userMessage"] as String).contains("groupCode: must match \"^[0-9A-Za-z_]*\"")
+          assertThat(it["userMessage"] as String).contains("groupName: must match \"^[0-9A-Za-z- ,.()'&]*\$")
         }
     }
 
@@ -441,7 +440,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+      {"userMessage":"Denied","developerMessage":"Denied"}
           """.trimIndent()
         )
     }
@@ -601,7 +600,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-      {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+      {"userMessage":"Denied","developerMessage":"Denied"}
           """.trimIndent()
         )
     }
@@ -670,7 +669,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json(
           """
-     {"userMessage":"Access is denied","developerMessage":"Access is denied"}
+     {"userMessage":"Denied","developerMessage":"Denied"}
           """.trimIndent()
         )
     }
@@ -693,9 +692,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).contains("default message [groupCode],30,2]")
-          assertThat(it["userMessage"] as String).contains("default message [groupName],100,4]")
-          assertThat(it["userMessage"] as String).contains("default message [parentGroupCode],30,2]")
+          assertThat(it["userMessage"] as String).contains("groupCode: size must be between 2 and 30")
+          assertThat(it["userMessage"] as String).contains("groupName: size must be between 4 and 100")
         }
     }
 

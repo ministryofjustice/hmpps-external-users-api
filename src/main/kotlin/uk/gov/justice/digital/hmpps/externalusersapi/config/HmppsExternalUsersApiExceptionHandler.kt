@@ -14,7 +14,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.bind.support.WebExchangeBindException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.server.ServerWebInputException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.GroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
@@ -85,6 +87,38 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(WebExchangeBindException::class)
+  fun handleWebExchangeBindException(e: WebExchangeBindException): ResponseEntity<ErrorResponse> {
+    log.info("Validation exception: {}", e.message)
+    val message = if (e.hasFieldErrors())
+      e.fieldErrors.joinToString("; ") { fieldError -> fieldError.field + ": " + fieldError.defaultMessage }
+    else { e.message }
+
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Validation failure: $message",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(ServerWebInputException::class)
+  fun handleServerWebInputException(e: ServerWebInputException): ResponseEntity<ErrorResponse> {
+    log.error("Parameter conversion exception: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "Parameter conversion failure: ${e.message}",
           developerMessage = e.message
         )
       )
@@ -327,6 +361,7 @@ class HmppsExternalUsersApiExceptionHandler {
         )
       )
   }
+
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }

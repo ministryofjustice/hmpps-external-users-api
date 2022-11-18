@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
@@ -22,17 +23,17 @@ class EmailDomainControllerTest {
   private val controller = EmailDomainController(emailDomainService, telemetryClient, securityUserContext)
 
   @Test
-  fun shouldRespondWithEmailDomainsRetrieved() {
+  fun shouldRespondWithEmailDomainsRetrieved(): Unit = runBlocking {
     whenever(emailDomainService.domainList()).thenReturn(emailDomains)
 
-    val emailDomains = controller.domainList()
+    val actualEmailDomains = controller.domainList()
 
-    assertEquals(emailDomains, this.emailDomains)
-    verifyNoInteractions(this.emailDomains)
+    assertEquals(emailDomains, actualEmailDomains)
+    verifyNoInteractions(emailDomains)
   }
 
   @Test
-  fun shouldRespondWithSingleEmailDomain() {
+  fun shouldRespondWithSingleEmailDomain(): Unit = runBlocking {
     val id = UUID.randomUUID()
     val emailDomain = EmailDomainDto(id.toString(), "123.co.uk", "test")
     whenever(emailDomainService.domain(id)).thenReturn(emailDomain)
@@ -43,14 +44,14 @@ class EmailDomainControllerTest {
   }
 
   @Test
-  fun shouldAddEmailDomain() {
+  fun shouldAddEmailDomain(): Unit = runBlocking {
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
     controller.addEmailDomain(newEmailDomain)
     verify(emailDomainService).addDomain(newEmailDomain)
   }
 
   @Test
-  fun shouldDeleteEmailDomain() {
+  fun shouldDeleteEmailDomain(): Unit = runBlocking {
     val uuid = UUID.randomUUID()
 
     controller.deleteEmailDomain(uuid)
@@ -59,7 +60,7 @@ class EmailDomainControllerTest {
   }
 
   @Test
-  fun shouldRecordEmailDomainCreateSuccessEvent() {
+  fun shouldRecordEmailDomainCreateSuccessEvent(): Unit = runBlocking {
     whenever(securityUserContext.principal).thenReturn("Fred")
     val eventDetails = argumentCaptor<Map<String, String>>()
     val newEmailDomain = CreateEmailDomainDto("%123.co.uk", "test")
@@ -72,7 +73,7 @@ class EmailDomainControllerTest {
   }
 
   @Test
-  fun shouldRecordEmailDomainDeleteSuccessEvent() {
+  fun shouldRecordEmailDomainDeleteSuccessEvent(): Unit = runBlocking {
     whenever(securityUserContext.principal).thenReturn("Fred")
     val eventDetails = argumentCaptor<Map<String, String>>()
     val id = UUID.randomUUID()

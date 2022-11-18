@@ -9,19 +9,20 @@ spring:
     max-in-memory-size: 10MB
   flyway:
     enabled: false
-  jpa:
+
+  r2dbc:
+    url: r2dbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}
+    pool:
+      max-life-time: -1
     properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+      ssl: true
+      sslRootCert: /home/appuser/.postgresql/root.crt
 
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${api.base.url.oauth}/.well-known/jwks.json
-
-  datasource:
-    url: jdbc:postgresql://${SPRING_DATASOURCE_ENDPOINT}/${SPRING_DATASOURCE_NAME}?sslmode=verify-full
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
@@ -48,6 +49,11 @@ server:
   shutdown: graceful
   error:
     include-message: always
+
+azure:
+  application-insights:
+    web:
+      enabled: false
 
 management:
   endpoints:

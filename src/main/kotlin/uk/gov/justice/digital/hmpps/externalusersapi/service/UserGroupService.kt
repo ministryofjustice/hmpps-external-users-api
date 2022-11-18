@@ -1,17 +1,19 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.hibernate.Hibernate
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.GroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.jpa.repository.UserRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.model.User
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserGroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -24,21 +26,31 @@ class UserGroupService(
   private val groupRepository: GroupRepository,
   private val maintainUserCheck: MaintainUserCheck,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade
+  private val authenticationFacade: AuthenticationFacade,
+  private val roleRepository: RoleRepository,
+  private val childGroupRepository: ChildGroupRepository,
+  private val userGroupRepository: UserGroupRepository,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  val allGroups: List<Group>
-    get() = groupRepository.findAllByOrderByGroupName()
+  suspend fun getGroups(userId: UUID): MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group>? =
 
-  fun getGroups(userId: UUID): Set<Group>? =
-    userRepository.findByIdOrNull(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, u)
-      Hibernate.initialize(u.groups)
-      u.groups.forEach { Hibernate.initialize(it.children) }
-      u.groups
+    userRepository.findById(userId)?.let { u: User ->
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
+
+      val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
+      val groupWithChildren: MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group> = mutableListOf()
+      groups.forEach { group ->
+        groupWithChildren.add(
+          uk.gov.justice.digital.hmpps.externalusersapi.model.Group(
+            group,
+            childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()
+          )
+        )
+      }
+      return groupWithChildren
     }
 
   @Transactional
@@ -47,29 +59,35 @@ class UserGroupService(
     UserGroupManagerException::class,
     UserGroupRelationshipException::class
   )
-  fun addGroupByUserId(userId: UUID, groupCode: String) {
+  suspend fun addGroupByUserId(userId: UUID, groupCode: String) {
     // already checked that user exists
-    userRepository.findByIdOrNull(userId)?.let { user ->
+    userRepository.findById(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
       // check that group exists
       val group =
-        groupRepository.findByGroupCode(groupFormatted) ?: throw UserGroupException("group", "notfound")
-      if (user.groups.contains(group)) {
-        throw UserGroupException("group", "exists")
+        groupRepository.findByGroupCode(groupFormatted) ?: throw UserGroupException("Add", "group", "notfound")
+
+      val userGroup = groupRepository.findGroupsByUserId(userId)
+      if (userGroup.toList().contains(group)) {
+        throw UserGroupException("Add", "group", "exists")
       }
       // check that modifier is able to add user to group
-      if (!checkGroupModifier(groupCode, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+      if (!checkGroupModifier(groupCode, authenticationFacade.getAuthentication().authorities, authenticationFacade.getUsername())) {
         throw UserGroupManagerException("Add", "group", "managerNotMember")
       }
       // check that modifier is able to maintain the user
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.currentUsername, authenticationFacade.authentication.authorities, user)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, user)
 
       log.info("Adding group {} to userId {}", groupFormatted, userId)
-      user.groups.add(group)
-      user.authorities.addAll(group.assignableRoles.filter { it.automatic }.map { it.role })
+      groupRepository.save(group)
+      group.groupId?.let {
+        userGroupRepository.insertUserGroup(userId, it)
+      }
+
+      roleRepository.saveAll(roleRepository.findRolesByGroupCode(group.groupCode).toList())
       telemetryClient.trackEvent(
         "AuthUserGroupAddSuccess",
-        mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.currentUsername),
+        mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
         null
       )
     }
@@ -77,29 +95,37 @@ class UserGroupService(
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
-  fun removeGroupByUserId(
+  suspend fun removeGroupByUserId(
     userId: UUID,
     groupCode: String
   ) {
-    userRepository.findByIdOrNull(userId)?.let { user ->
+
+    userRepository.findById(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
-      if (user.groups.map { it.groupCode }.none { it == groupFormatted }
+      val userGroup = groupRepository.findGroupsByUserId(userId).toList().toMutableSet()
+      if (userGroup.map { it.groupCode }.none { it == groupFormatted }
       ) {
-        throw UserGroupException("group", "missing")
+        throw UserGroupException("Remove", "group", "missing")
       }
-      if (!checkGroupModifier(groupFormatted, authenticationFacade.authentication.authorities, authenticationFacade.currentUsername)) {
+      if (!checkGroupModifier(groupFormatted, authenticationFacade.getAuthentication().authorities, authenticationFacade.getUsername())) {
         throw UserGroupManagerException("delete", "group", "managerNotMember")
       }
 
-      if (user.groups.count() == 1 && !canMaintainUsers(authenticationFacade.authentication.authorities)) {
+      if (userGroup.count() == 1 && !canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
         throw UserLastGroupException("group", "last")
       }
-
       log.info("Removing group {} from userId {}", groupFormatted, userId)
-      user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
+      userGroup.map { it }
+        .filter { it.groupCode == groupFormatted }
+        .map {
+          it.groupId?.let {
+            it1 ->
+            userGroupRepository.deleteUserGroup(userId, it1)
+          }
+        }
       telemetryClient.trackEvent(
         "UserGroupRemoveSuccess",
-        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.currentUsername),
+        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.getUsername()),
         null
       )
     }
@@ -107,24 +133,27 @@ class UserGroupService(
 
   @Transactional
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
-  fun removeGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
+  suspend fun removeUserGroup(username: String, groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
+    log.debug("Removing user group $groupCode from user $username")
     val groupFormatted = formatGroup(groupCode)
     // already checked that user exists
-    val user = userRepository.findByUsername(username).orElseThrow()
-    if (user.groups.map { it.groupCode }.none { it == groupFormatted }
-    ) {
-      throw UserGroupException("group", "missing")
-    }
+    val user = userRepository.findByUsernameAndSource(username) ?: throw NotFoundException("User with username $username not found")
+
+    // Get the user's groups
+    val groups = groupRepository.findGroupsByUsername(username).toList()
+    val groupToRemove = groups.find { it.groupCode == groupFormatted } ?: throw UserGroupException("Remove", "group", "missing")
+
     if (!checkGroupModifier(groupFormatted, authorities, modifier)) {
       throw UserGroupManagerException("delete", "group", "managerNotMember")
     }
 
-    if (user.groups.count() == 1 && !canMaintainUsers(authorities)) {
+    if (groups.size == 1 && !canMaintainUsers(authorities)) {
       throw UserLastGroupException("group", "last")
     }
 
     log.info("Removing group {} from user {}", groupFormatted, username)
-    user.groups.removeIf { a: Group -> a.groupCode == groupFormatted }
+    userGroupRepository.deleteUserGroup(user.id!!, groupToRemove.groupId!!)
+
     telemetryClient.trackEvent(
       "ExternalUserGroupRemoveSuccess",
       mapOf("username" to username, "group" to groupCode.trim(), "admin" to modifier),
@@ -132,7 +161,7 @@ class UserGroupService(
     )
   }
 
-  private fun checkGroupModifier(
+  private suspend fun checkGroupModifier(
     groupCode: String,
     authorities: Collection<GrantedAuthority>,
     modifier: String?
@@ -147,22 +176,20 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  fun getGroupsByUserName(username: String?): Set<Group>? {
-    val user = userRepository.findByUsername(username?.trim()?.uppercase())
-    return user.map { u: User ->
-      Hibernate.initialize(u.groups)
-      u.groups.forEach { Hibernate.initialize(it.children) }
-      u.groups
-    }.orElse(null)
-  }
+  suspend fun getGroupsByUserName(username: String?): Set<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group>? =
+    username?.let {
+      userRepository.findByUsernameAndSource(username.trim().uppercase())?.let {
+        groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
+      }
+    }
 
-  fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers(authorities)) allGroups.toList()
+  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group> =
+    if (canMaintainUsers(authorities)) groupRepository.findAllByOrderByGroupName().toList()
     else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }
 
-class UserGroupException(field: String, errorCode: String) :
-  Exception("Add group failed for field $field with reason: $errorCode")
+class UserGroupException(action: String = "add", field: String, errorCode: String) :
+  Exception("$action group failed for field $field with reason: $errorCode")
 
 class UserGroupManagerException(action: String = "add", field: String, errorCode: String) :
   Exception("$action group failed for field $field with reason: $errorCode")
