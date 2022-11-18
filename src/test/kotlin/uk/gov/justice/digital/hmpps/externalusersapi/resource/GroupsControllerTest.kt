@@ -2,6 +2,8 @@
 
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -34,10 +36,15 @@ class GroupsControllerTest {
     fun allGroups(): Unit = runBlocking {
       val group1 = Group("GROUP_1", "first group")
       val group2 = Group("GLOBAL_SEARCH", "global search")
-      whenever(groupsService.getAllGroups()).thenReturn(listOf(group2, group1))
+      val userGroup1 = UserGroup(group1)
+      val userGroup2 = UserGroup(group2)
+      val allGroups = flowOf(group1, group2)
+      val allUserGroups = flowOf(userGroup1, userGroup2)
+
+      whenever(groupsService.getAllGroups()).thenReturn(allGroups)
       val response = groupsController.allGroups()
       verify(groupsService).getAllGroups()
-      assertThat(response).containsOnly(UserGroup(group1), UserGroup(group2))
+      assertThat(response.toList()).isEqualTo(allUserGroups.toList())
     }
   }
 

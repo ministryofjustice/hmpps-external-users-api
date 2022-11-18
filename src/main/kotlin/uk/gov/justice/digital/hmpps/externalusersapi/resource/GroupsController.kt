@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import kotlinx.coroutines.flow.map
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -59,7 +60,7 @@ class GroupsController(
       )
     ]
   )
-  suspend fun allGroups(): List<UserGroup> = groupsService.getAllGroups().map { UserGroup(it) }
+  suspend fun allGroups() = groupsService.getAllGroups().map { UserGroup(it) }
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")

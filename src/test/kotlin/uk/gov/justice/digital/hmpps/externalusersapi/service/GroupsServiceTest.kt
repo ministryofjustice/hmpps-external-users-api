@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
@@ -68,7 +67,7 @@ class GroupsServiceTest {
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
 
       val actualGroups = groupsService.getAllGroups()
-      assertThat(actualGroups).isEqualTo(allGroups.toList())
+      assertThat(actualGroups).isEqualTo(allGroups)
       verify(groupRepository).findAllByOrderByGroupName()
     }
   }
