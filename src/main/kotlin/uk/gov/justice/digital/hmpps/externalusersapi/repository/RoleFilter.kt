@@ -90,17 +90,17 @@ class RoleFilter(
     }
 
     if (!roleCode.isNullOrBlank()) {
-      appendWHERETo(sqlBuilder)
-      appendANDTo(sqlBuilder)
+      appendWhere(sqlBuilder)
+      appendAnd(sqlBuilder)
       sqlBuilder.append(format(ROLE_CODE_FILTER, toLikeString(roleCode.trim())).uppercase())
       filterStarted = true
     }
 
     adminTypes?.let {
       if (it.isNotEmpty()) {
-        appendWHERETo(sqlBuilder)
+        appendWhere(sqlBuilder)
         adminTypes.forEach { adminType ->
-          appendANDTo(sqlBuilder)
+          appendAnd(sqlBuilder)
           sqlBuilder.append(format(ADMIN_TYPE_FILTER, toLikeString(adminType.adminTypeCode)))
           filterStarted = true
         }
@@ -136,13 +136,13 @@ class RoleFilter(
 
   private fun <T> Optional<T>.unwrap(): T? = orElse(null)
 
-  private fun appendWHERETo(sqlBuilder: StringBuilder) {
+  private fun appendWhere(sqlBuilder: StringBuilder) {
     if (!filterStarted) {
       sqlBuilder.append(FILTER_START)
     }
   }
 
-  private fun appendANDTo(sqlBuilder: StringBuilder) {
+  private fun appendAnd(sqlBuilder: StringBuilder) {
     if (filterStarted) {
       sqlBuilder.append(SUBSEQUENT_FILTER)
     }
