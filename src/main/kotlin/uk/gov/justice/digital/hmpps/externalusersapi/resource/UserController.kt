@@ -25,9 +25,9 @@ import java.time.LocalDateTime
 
 @Validated
 @RestController
-@RequestMapping("/user")
-@Tag(name = "/user", description = "External User Controller")
-class ExternalUserController(private val userSearchService: UserSearchService) {
+@RequestMapping("/users")
+@Tag(name = "/users", description = "External User Controller")
+class UserController(private val userSearchService: UserSearchService) {
 
   @GetMapping("/search")
   @Operation(
@@ -71,7 +71,7 @@ class ExternalUserController(private val userSearchService: UserSearchService) {
     status: Status,
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
     @Parameter(hidden = true) authentication: Authentication
-  ): Page<ExternalUser> =
+  ): Page<User> =
     userSearchService.findAuthUsers(
       name,
       roles,
@@ -82,7 +82,7 @@ class ExternalUserController(private val userSearchService: UserSearchService) {
       status
     )
 
-  data class ExternalUser(
+  data class User(
     @Schema(
       required = true,
       description = "User ID",
