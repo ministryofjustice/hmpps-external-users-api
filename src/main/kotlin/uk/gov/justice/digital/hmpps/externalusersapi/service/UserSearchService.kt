@@ -31,7 +31,7 @@ class UserSearchService(
     authorities: Collection<GrantedAuthority>,
     status: Status,
     authSources: List<AuthSource> = listOf(AuthSource.auth),
-  ): Page<UserController.ExternalUser> = coroutineScope {
+  ): Page<UserController.User> = coroutineScope {
     val groupSearchCodes = if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {
@@ -48,11 +48,11 @@ class UserSearchService(
       pageable = pageable
     )
 
-    val externalUsers = async { userSearchRepository.searchForUsers(userFilter) }
+    val users = async { userSearchRepository.searchForUsers(userFilter) }
     val count = async { userSearchRepository.countAllBy(userFilter) }
 
     PageImpl(
-      externalUsers.await().toList(),
+      users.await().toList(),
       pageable,
       count.await()
     )

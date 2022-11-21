@@ -71,7 +71,7 @@ class UserController(private val userSearchService: UserSearchService) {
     status: Status,
     @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
     @Parameter(hidden = true) authentication: Authentication
-  ): Page<ExternalUser> =
+  ): Page<User> =
     userSearchService.findAuthUsers(
       name,
       roles,
@@ -82,7 +82,7 @@ class UserController(private val userSearchService: UserSearchService) {
       status
     )
 
-  data class ExternalUser(
+  data class User(
     @Schema(
       required = true,
       description = "User ID",
