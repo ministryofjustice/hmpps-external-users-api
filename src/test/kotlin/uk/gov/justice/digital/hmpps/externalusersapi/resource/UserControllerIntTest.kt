@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
-class ExternalUserControllerIntTest : IntegrationTestBase() {
+class UserControllerIntTest : IntegrationTestBase() {
 
   @Test
   fun `User search endpoint returns user data`() {
