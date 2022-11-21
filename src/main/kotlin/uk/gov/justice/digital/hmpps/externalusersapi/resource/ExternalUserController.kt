@@ -25,8 +25,8 @@ import java.time.LocalDateTime
 
 @Validated
 @RestController
-@RequestMapping("/user")
-@Tag(name = "/user", description = "External User Controller")
+@RequestMapping("/users")
+@Tag(name = "/users", description = "External User Controller")
 class ExternalUserController(private val userSearchService: UserSearchService) {
 
   @GetMapping("/search")

@@ -9,7 +9,7 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
   @Test
   fun `User search endpoint returns user data`() {
     webTestClient
-      .get().uri("/user/search?name=test2&groups=&roles=")
+      .get().uri("/users/search?name=test2&groups=&roles=")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
@@ -21,7 +21,7 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
   @Test
   fun `User search endpoint filters by status`() {
     webTestClient
-      .get().uri("/user/search?name=test2&groups=&roles=&status=INACTIVE")
+      .get().uri("/users/search?name=test2&groups=&roles=&status=INACTIVE")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
@@ -33,7 +33,7 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
   @Test
   fun `User search endpoint returns user data sorted by last name`() {
     webTestClient
-      .get().uri("/user/search?name=AUTH_DISABLED&groups=&roles=")
+      .get().uri("/users/search?name=AUTH_DISABLED&groups=&roles=")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
@@ -45,7 +45,7 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
   @Test
   fun `User search endpoint returns user data for group managers`() {
     webTestClient
-      .get().uri("/user/search?name=test2&groups=&roles=")
+      .get().uri("/users/search?name=test2&groups=&roles=")
       .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
       .exchange()
       .expectStatus().isOk
@@ -57,7 +57,7 @@ class ExternalUserControllerIntTest : IntegrationTestBase() {
   @Test
   fun `User search endpoint returns correct data when filtering by groups and roles`() {
     webTestClient
-      .get().uri("/user/search?groups=SITE_1_GROUP_1&roles=LICENCE_RO")
+      .get().uri("/users/search?groups=SITE_1_GROUP_1&roles=LICENCE_RO")
       .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
       .exchange()
       .expectStatus().isOk
