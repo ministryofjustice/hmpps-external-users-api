@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -16,15 +15,12 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
-import java.util.UUID
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
@@ -45,42 +41,6 @@ class GroupsControllerTest {
       val response = groupsController.allGroups()
       verify(groupsService).getAllGroups()
       assertThat(response.toList()).isEqualTo(allUserGroups.toList())
-    }
-  }
-
-  @Nested
-  inner class `child group` {
-    @Test
-    fun `child group details`(): Unit = runBlocking {
-      val childGroupCode = "CHILD_1"
-      val childGroupName = "Child - Site 1 - Group 2"
-      val uuid = UUID.randomUUID()
-
-      whenever(groupsService.getChildGroupDetail(childGroupCode)).thenReturn(
-        ChildGroup(
-          childGroupCode,
-          childGroupName,
-          uuid
-        )
-      )
-      val actualChildGroupDetail = groupsController.getChildGroupDetail(childGroupCode)
-
-      assertEquals(childGroupCode, actualChildGroupDetail.groupCode)
-      assertEquals(childGroupName, actualChildGroupDetail.groupName)
-      verify(groupsService).getChildGroupDetail(childGroupCode)
-    }
-
-    @Test
-    fun `amend child group name`(): Unit = runBlocking {
-      val groupAmendment = GroupAmendment("groupie")
-      groupsController.amendChildGroupName("group1", groupAmendment)
-      verify(groupsService).updateChildGroup("group1", groupAmendment)
-    }
-
-    @Test
-    fun `delete child group`(): Unit = runBlocking {
-      groupsController.deleteChildGroup("childGroup")
-      verify(groupsService).deleteChildGroup("childGroup")
     }
   }
 
@@ -160,42 +120,6 @@ class GroupsControllerTest {
     fun `delete group`(): Unit = runBlocking {
       groupsController.deleteGroup("GroupCode")
       verify(groupsService).deleteGroup("GroupCode")
-    }
-  }
-  @Nested
-  inner class `create child group` {
-    @Test
-    fun create(): Unit = runBlocking {
-      val childGroup = CreateChildGroup("PG", "CG", "Group")
-      groupsController.createChildGroup(childGroup)
-      verify(groupsService).createChildGroup(childGroup)
-    }
-
-    @Test
-    fun `create - group already exist exception`(): Unit = runBlocking {
-      doThrow(ChildGroupExistsException("child_code", "group code already exists")).whenever(groupsService)
-        .createChildGroup(
-          any()
-        )
-
-      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
-      assertThatThrownBy { runBlocking { groupsController.createChildGroup(childGroup) } }
-        .isInstanceOf(ChildGroupExistsException::class.java)
-        .withFailMessage("Unable to maintain group: code with reason: group code already exists")
-    }
-
-    @Test
-    fun `create - parent group not found exception`(): Unit = runBlocking {
-      doThrow(GroupNotFoundException("create", "NotGroup", "ParentGroupNotFound")).whenever(groupsService)
-        .createChildGroup(
-          any()
-        )
-
-      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
-
-      assertThatThrownBy { runBlocking { groupsController.createChildGroup(childGroup) } }
-        .isInstanceOf(GroupNotFoundException::class.java)
-        .withFailMessage("Unable to maintain group: NotGroup with reason: not found")
     }
   }
 }
