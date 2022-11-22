@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource.data
 
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.GroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 
 @Schema(description = "User Group")
@@ -12,6 +13,6 @@ data class UserGroup(
   val groupName: String,
 ) {
   constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group) : this(g.groupCode, g.groupName)
-  constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.model.Group) : this(g.groupCode, g.groupName)
+  constructor(g: GroupDto) : this(g.groupCode, g.groupName)
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }

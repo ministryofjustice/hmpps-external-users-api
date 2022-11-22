@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.GroupDtoAssembler
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.GroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserGroupRepository
@@ -28,29 +29,17 @@ class UserGroupService(
   private val telemetryClient: TelemetryClient,
   private val authenticationFacade: AuthenticationFacade,
   private val roleRepository: RoleRepository,
-  private val childGroupRepository: ChildGroupRepository,
   private val userGroupRepository: UserGroupRepository,
+  private val groupDtoAssembler: GroupDtoAssembler
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  suspend fun getGroups(userId: UUID): MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group>? =
-
+  suspend fun getGroups(userId: UUID): MutableList<GroupDto>? =
     userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
-
-      val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
-      val groupWithChildren: MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group> = mutableListOf()
-      groups.forEach { group ->
-        groupWithChildren.add(
-          uk.gov.justice.digital.hmpps.externalusersapi.model.Group(
-            group,
-            childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()
-          )
-        )
-      }
-      return groupWithChildren
+      return groupDtoAssembler.assembleGroupDtoList(userId)
     }
 
   @Transactional

@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.config
 
-import uk.gov.justice.digital.hmpps.externalusersapi.model.User
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.UserDto
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
@@ -29,9 +29,9 @@ class UserHelper {
       groups: Set<Group> = emptySet(),
       source: AuthSource = AuthSource.auth,
       id: UUID? = null,
-    ): User {
+    ): UserDto {
 
-      val user = User(
+      val user = UserDto(
         username = username,
         authorities = authorities,
         groups = groups,

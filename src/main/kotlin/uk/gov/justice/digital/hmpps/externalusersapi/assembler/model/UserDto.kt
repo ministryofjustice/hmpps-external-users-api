@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.assembler.model
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
@@ -12,7 +12,7 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
 @Table(name = "USERS")
-class User(
+class UserDto(
   private var username: String,
 
   /**

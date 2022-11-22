@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.externalusersapi.model
+package uk.gov.justice.digital.hmpps.externalusersapi.assembler.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 

@@ -16,8 +16,8 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException

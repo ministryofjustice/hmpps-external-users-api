@@ -4,16 +4,16 @@ import com.google.common.collect.Sets
 import kotlinx.coroutines.flow.toSet
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.UserDtoAssembler
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
-import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 
 @Service
 class MaintainUserCheck(
   private val authenticationFacade: AuthenticationFacade,
-  private val userService: UserService,
-  private val groupRepository: GroupRepository
+  private val groupRepository: GroupRepository,
+  private val userDtoAssembler: UserDtoAssembler
 ) {
   companion object {
     fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
@@ -26,30 +26,30 @@ class MaintainUserCheck(
     maintainerName: String,
     groupCode: String,
   ) {
-    // if they have maintain privileges then all good
+    // All good if the user is allowed to maintain
     if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
-    val maintainer = userService.getUserAndGroupByUserName(maintainerName)
-    // otherwise group managers must have a group in common for maintenance
+    val maintainer = userDtoAssembler.assembleUser(maintainerName)
+    // Otherwise, group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
-      // no group in common, so disallow
+      // No group in common, so disallow
       throw GroupRelationshipException(groupCode, "Group not with your groups")
     }
   }
 
   @Throws(UserGroupRelationshipException::class)
   suspend fun ensureUserLoggedInUserRelationship(loggedInUser: String, authorities: Collection<GrantedAuthority>, user: User) {
-    // if they have maintain privileges then all good
+    // All good if the user is allowed to maintain
     if (canMaintainUsers(authorities)) {
       return
     }
-    // otherwise group managers must have a group in common for maintenance
-    val loggedInUserEmail = userService.getUser(loggedInUser)
+    // Otherwise, group managers must have a group in common for maintenance
+    val loggedInUserEmail = userDtoAssembler.assembleUserWithAuthorities(loggedInUser)
     val userGroups = groupRepository.findGroupsByUsername(user.getUserName()).toSet()
 
     if (Sets.intersection(loggedInUserEmail.groups, userGroups).isEmpty()) {
-      // no group in common, so disallow
+      // No group in common, so disallow
       throw UserGroupRelationshipException(user.name, "User not with your groups")
     }
   }

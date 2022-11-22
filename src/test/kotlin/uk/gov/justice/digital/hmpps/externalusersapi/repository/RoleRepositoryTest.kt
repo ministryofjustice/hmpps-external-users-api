@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 
 @DataR2dbcTest

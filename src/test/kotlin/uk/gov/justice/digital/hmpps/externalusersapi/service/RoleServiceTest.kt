@@ -17,10 +17,10 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.externalusersapi.assembler.model.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_LSA
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
