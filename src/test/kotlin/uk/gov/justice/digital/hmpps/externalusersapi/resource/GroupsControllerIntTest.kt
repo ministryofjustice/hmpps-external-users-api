@@ -153,7 +153,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     fun `Group details endpoint returns error when group not found`() {
       webTestClient
         .get().uri("/groups/bob")
-        .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .headers(setAuthorisation("AUTH_USER", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNotFound
         .expectHeader().contentType(APPLICATION_JSON)
