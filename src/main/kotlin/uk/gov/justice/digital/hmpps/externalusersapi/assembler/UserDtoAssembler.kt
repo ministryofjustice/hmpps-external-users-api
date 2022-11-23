@@ -17,7 +17,7 @@ class UserDtoAssembler(
   private val roleRepository: RoleRepository
 ) {
 
-  suspend fun assembleUserWithAuthorities(username: String): UserDto {
+  suspend fun assembleUserWithGroupsAndAuthorities(username: String): UserDto {
     val user = userService.findUser(username)
     val groups = groupRepository.findGroupsByUserId(user.id!!).toList()
     val roles = roleRepository.findRolesByUserId(user.id!!).toList()
@@ -30,7 +30,7 @@ class UserDtoAssembler(
     )
   }
 
-  suspend fun assembleUser(username: String): UserDto {
+  suspend fun assembleUserWithGroups(username: String): UserDto {
     val user = userService.findUser(username)
     val groups = groupRepository.findGroupsByUserId(user.id!!).toList()
     return UserDto(

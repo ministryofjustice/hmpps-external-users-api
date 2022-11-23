@@ -30,7 +30,7 @@ class MaintainUserCheck(
     if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
       return
     }
-    val maintainer = userDtoAssembler.assembleUser(maintainerName)
+    val maintainer = userDtoAssembler.assembleUserWithGroups(maintainerName)
     // Otherwise, group managers must have a group in common for maintenance
     if (maintainer.groups.none { it.groupCode == groupCode }) {
       // No group in common, so disallow
@@ -45,7 +45,7 @@ class MaintainUserCheck(
       return
     }
     // Otherwise, group managers must have a group in common for maintenance
-    val loggedInUserEmail = userDtoAssembler.assembleUserWithAuthorities(loggedInUser)
+    val loggedInUserEmail = userDtoAssembler.assembleUserWithGroupsAndAuthorities(loggedInUser)
     val userGroups = groupRepository.findGroupsByUsername(user.getUserName()).toSet()
 
     if (Sets.intersection(loggedInUserEmail.groups, userGroups).isEmpty()) {
