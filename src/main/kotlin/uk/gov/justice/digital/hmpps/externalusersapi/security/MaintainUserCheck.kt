@@ -42,7 +42,11 @@ class MaintainUserCheck(
   }
 
   @Throws(UserGroupRelationshipException::class)
-  suspend fun ensureUserLoggedInUserRelationship(loggedInUser: String, authorities: Collection<GrantedAuthority>, user: User) = coroutineScope {
+  suspend fun ensureUserLoggedInUserRelationship(
+    loggedInUser: String,
+    authorities: Collection<GrantedAuthority>,
+    user: User,
+  ) = coroutineScope {
 
     // All good if user holds maintain privilege
     if (canMaintainUsers(authorities)) {
