@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
@@ -32,15 +34,16 @@ class GroupsService(
   suspend fun getAllGroups() = groupRepository.findAllByOrderByGroupName()
 
   @Throws(GroupNotFoundException::class)
-  suspend fun getGroupDetail(groupCode: String): GroupDetails =
-    groupRepository.findByGroupCode(groupCode)
-      ?.let {
-        val children = childGroupRepository.findAllByGroup(it.groupId).toList()
-        val assignableRole = groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode).toList()
-        maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
-        GroupDetails(it, children, assignableRole)
-      }
-      ?: throw GroupNotFoundException("get", groupCode, "notfound")
+  suspend fun getGroupDetail(groupCode: String): GroupDetails = coroutineScope {
+    maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
+
+    val group = async { groupRepository.findByGroupCode(groupCode) }
+    group.await()?.let {
+      val children = async { childGroupRepository.findAllByGroup(it.groupId) }
+      val assignableRoles = async { groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode) }
+      GroupDetails(it, children.await().toList(), assignableRoles.await().toList())
+    } ?: throw GroupNotFoundException("get", groupCode, "notfound")
+  }
 
   @Transactional
   @Throws(GroupNotFoundException::class)
