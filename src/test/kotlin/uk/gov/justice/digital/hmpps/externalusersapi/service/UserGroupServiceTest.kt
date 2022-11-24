@@ -457,11 +457,7 @@ class UserGroupServiceTest {
 
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
       doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
-        .ensureUserLoggedInUserRelationship(
-          anyString(),
-          any(),
-          any()
-        )
+        .ensureUserLoggedInUserRelationship(anyString())
 
       assertThatThrownBy {
         runBlocking {

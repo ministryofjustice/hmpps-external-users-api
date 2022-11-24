@@ -10,7 +10,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
@@ -22,16 +21,13 @@ internal class UserRoleServiceTest {
   private val userRepository: UserRepository = mock()
   private val roleRepository: RoleRepository = mock()
   private val maintainUserCheck: MaintainUserCheck = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
-  private val service = UserRoleService(userRepository, maintainUserCheck, authenticationFacade, roleRepository)
+  private val service = UserRoleService(userRepository, maintainUserCheck, roleRepository)
 
   @Nested
   inner class GetAuthUserByUserId {
     @Test
     fun getRolesSuccess(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("admin")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       val id = UUID.randomUUID()
       val user = UserHelper.createSampleUser(username = "user")

@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 
 @Service
 class MaintainUserCheck(
@@ -39,21 +38,17 @@ class MaintainUserCheck(
   }
 
   @Throws(UserGroupRelationshipException::class)
-  suspend fun ensureUserLoggedInUserRelationship(
-    loggedInUser: String,
-    authorities: Collection<GrantedAuthority>,
-    user: User,
-  ) = coroutineScope {
+  suspend fun ensureUserLoggedInUserRelationship(userName: String) = coroutineScope {
 
     // All good if user holds maintain privilege
-    if (!canMaintainUsers(authorities)) {
+    if (!canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
       // Otherwise, group managers must have a group in common for maintenance
-      val loggedInUserGroups = async { groupRepository.findGroupsByUsername(loggedInUser) }
-      val userGroups = async { groupRepository.findGroupsByUsername(user.getUserName()) }
+      val loggedInUserGroups = async { groupRepository.findGroupsByUsername(authenticationFacade.getUsername()) }
+      val userGroups = async { groupRepository.findGroupsByUsername(userName) }
 
       if (Sets.intersection(loggedInUserGroups.await().toSet(), userGroups.await().toSet()).isEmpty()) {
         // No group in common, so disallow
-        throw UserGroupRelationshipException(user.name, "User not with your groups")
+        throw UserGroupRelationshipException(userName, "User not with your groups")
       }
     }
   }
