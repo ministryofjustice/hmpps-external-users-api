@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0-beta"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.6.0"
   kotlin("plugin.spring") version "1.7.21"
 }
 
@@ -30,16 +30,16 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.10.0")
 
   implementation("org.flywaydb:flyway-core")
-  runtimeOnly("org.postgresql:r2dbc-postgresql:0.9.2.RELEASE")
+  runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.0.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
-  runtimeOnly("org.postgresql:postgresql:42.5.0")
-  implementation("io.opentelemetry:opentelemetry-api:1.20.0")
+  runtimeOnly("org.postgresql:postgresql:42.5.1")
+  implementation("io.opentelemetry:opentelemetry-api:1.20.1")
 
-  implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.12")
-  implementation("org.springdoc:springdoc-openapi-security:1.6.12")
+  implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.13")
+  implementation("org.springdoc:springdoc-openapi-security:1.6.13")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -47,7 +47,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.17.5")
+  testImplementation("org.testcontainers:postgresql:1.17.6")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
