@@ -46,16 +46,15 @@ class MaintainUserCheck(
   ) = coroutineScope {
 
     // All good if user holds maintain privilege
-    if (canMaintainUsers(authorities)) {
-      return@coroutineScope
-    }
-    // Otherwise, group managers must have a group in common for maintenance
-    val loggedInUserGroups = async { groupRepository.findGroupsByUsername(loggedInUser) }
-    val userGroups = async { groupRepository.findGroupsByUsername(user.getUserName()) }
+    if (!canMaintainUsers(authorities)) {
+      // Otherwise, group managers must have a group in common for maintenance
+      val loggedInUserGroups = async { groupRepository.findGroupsByUsername(loggedInUser) }
+      val userGroups = async { groupRepository.findGroupsByUsername(user.getUserName()) }
 
-    if (Sets.intersection(loggedInUserGroups.await().toSet(), userGroups.await().toSet()).isEmpty()) {
-      // No group in common, so disallow
-      throw UserGroupRelationshipException(user.name, "User not with your groups")
+      if (Sets.intersection(loggedInUserGroups.await().toSet(), userGroups.await().toSet()).isEmpty()) {
+        // No group in common, so disallow
+        throw UserGroupRelationshipException(user.name, "User not with your groups")
+      }
     }
   }
 }
