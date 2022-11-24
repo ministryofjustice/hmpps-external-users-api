@@ -14,6 +14,7 @@ data class UserGroup(
     if (other !is UserGroup) return false
 
     if (userId != other.userId) return false
+    if (groupId != other.groupId) return false
 
     return true
   }
