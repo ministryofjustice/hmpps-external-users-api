@@ -150,7 +150,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Group details endpoint returns error when group not found`() {
+    fun `Group details endpoint returns not found when group not found`() {
       webTestClient
         .get().uri("/groups/bob")
         .headers(setAuthorisation("AUTH_USER", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -164,6 +164,28 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "status" to NOT_FOUND.value(),
               "developerMessage" to "Unable to get group: bob with reason: notfound",
               "userMessage" to "Group Not found: Unable to get group: bob with reason: notfound",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Group details endpoint returns forbidden when group manager not in group`() {
+      webTestClient
+        .get().uri("/groups/bob")
+        .headers(setAuthorisation("AUTH_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to FORBIDDEN.value(),
+              "developerMessage" to "Unable to maintain group: bob with reason: Group not with your groups",
+              "userMessage" to "Maintain group relationship exception: Unable to maintain group: bob with reason: Group not with your groups",
               "errorCode" to null,
               "moreInfo" to null
             )
