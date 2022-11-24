@@ -26,18 +26,15 @@ class MaintainUserCheck(
   suspend fun ensureMaintainerGroupRelationship(
     maintainerName: String,
     groupCode: String,
-  ) = coroutineScope {
-
+  ) {
     // All good if user holds maintain privilege
-    if (authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
-      return@coroutineScope
-    }
-
-    // Otherwise, group managers must have a group in common for maintenance
-    val groupsByUsername = async { groupRepository.findGroupsByUsername(maintainerName) }
-    if (groupsByUsername.await().toList().none { it.groupCode == groupCode }) {
-      // No group in common, so disallow
-      throw GroupRelationshipException(groupCode, "Group not with your groups")
+    if (!authenticationFacade.hasRoles("ROLE_MAINTAIN_OAUTH_USERS")) {
+      // Otherwise, group managers must have a group in common for maintenance
+      val groupsByUsername = groupRepository.findGroupsByUsername(maintainerName)
+      if (groupsByUsername.toList().none { it.groupCode == groupCode }) {
+        // No group in common, so disallow
+        throw GroupRelationshipException(groupCode, "Group not with your groups")
+      }
     }
   }
 

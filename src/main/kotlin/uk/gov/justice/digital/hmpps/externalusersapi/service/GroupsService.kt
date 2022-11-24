@@ -37,8 +37,8 @@ class GroupsService(
   suspend fun getGroupDetail(groupCode: String): GroupDetails = coroutineScope {
     maintainUserCheck.ensureMaintainerGroupRelationship(authenticationFacade.getUsername(), groupCode)
 
-    val group = async { groupRepository.findByGroupCode(groupCode) }
-    group.await()?.let {
+    val group = groupRepository.findByGroupCode(groupCode)
+    group?.let {
       val children = async { childGroupRepository.findAllByGroup(it.groupId) }
       val assignableRoles = async { groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(it.groupCode) }
       GroupDetails(it, children.await().toList(), assignableRoles.await().toList())
