@@ -38,7 +38,7 @@ class UserGroupService(
   suspend fun getGroups(userId: UUID): MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group>? =
 
     userRepository.findById(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, u)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
 
       val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
       val groupWithChildren: MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group> = mutableListOf()
@@ -76,7 +76,7 @@ class UserGroupService(
         throw UserGroupManagerException("Add", "group", "managerNotMember")
       }
       // check that modifier is able to maintain the user
-      maintainUserCheck.ensureUserLoggedInUserRelationship(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities, user)
+      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
 
       log.info("Adding group {} to userId {}", groupFormatted, userId)
       groupRepository.save(group)
