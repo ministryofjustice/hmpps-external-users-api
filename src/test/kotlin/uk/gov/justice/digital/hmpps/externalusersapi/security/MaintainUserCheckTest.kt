@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -39,7 +38,7 @@ class MaintainUserCheckTest {
       }
     }.doesNotThrowAnyException()
 
-    verify(groupRepository).findGroupsByUsername(eq("groupManager"))
+    verify(groupRepository).findGroupsByUsername("groupManager")
   }
 
   @Test
@@ -55,6 +54,6 @@ class MaintainUserCheckTest {
     }.isInstanceOf(GroupRelationshipException::class.java)
       .hasMessage("Unable to maintain group: group3 with reason: Group not with your groups")
 
-    verify(groupRepository).findGroupsByUsername(eq("groupManager"))
+    verify(groupRepository).findGroupsByUsername("groupManager")
   }
 }
