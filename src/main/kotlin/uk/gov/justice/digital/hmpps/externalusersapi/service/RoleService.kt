@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
@@ -164,4 +164,11 @@ class RoleService(
 
   class RoleExistsException(role: String, errorCode: String) :
     Exception("Unable to create role: $role with reason: $errorCode")
+}
+
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+enum class AdminType(val adminTypeCode: String, val adminTypeName: String) {
+  DPS_LSA("DPS_LSA", "DPS Local System Administrator"),
+  DPS_ADM("DPS_ADM", "DPS Central Administrator"),
+  EXT_ADM("EXT_ADM", "External Administrator"),
 }

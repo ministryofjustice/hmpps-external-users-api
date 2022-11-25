@@ -1,16 +1,18 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.model.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
@@ -24,65 +26,72 @@ class UserGroupControllerTest {
 
     @Test
     fun `groups userNotFound`(): Unit = runBlocking {
-      whenever(userGroupService.getGroups(any())).thenReturn(null)
-      Assertions.assertThatThrownBy {
+      whenever(userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(any())).doThrow(UsernameNotFoundException("test"))
+      assertThatThrownBy {
         runBlocking {
           userGroupController.groupsByUserId(UUID.randomUUID())
         }
       }
         .isInstanceOf(UsernameNotFoundException::class.java)
+        .withFailMessage("test")
     }
 
     @Test
     fun `groups no children`(): Unit = runBlocking {
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
-      whenever(userGroupService.getGroups(any())).thenReturn(
+
+      val userId = UUID.randomUUID()
+      whenever(userGroupService.getParentGroups(userId)).thenReturn(
         mutableListOf(
           group1,
           group2
         )
       )
+
       val responseEntity =
-        userGroupController.groupsByUserId(UUID.randomUUID(), false)
-      Assertions.assertThat(responseEntity).containsOnly(UserGroup(group1), UserGroup(group2))
+        userGroupController.groupsByUserId(userId, false)
+
+      assertThat(responseEntity).containsOnly(UserGroup(group1), UserGroup(group2))
     }
 
     @Test
     fun `groups default children`(): Unit = runBlocking {
+      val userId = UUID.randomUUID()
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
-      group2.children.add(childGroup)
-      whenever(userGroupService.getGroups(any())).thenReturn(
-        mutableListOf(
-          group1,
-          group2
-        )
+
+      whenever(userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)).thenReturn(
+        mutableListOf(group1, group2, childGroup)
       )
-      val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      Assertions.assertThat(responseEntity).containsOnly(
-        UserGroup("FRED", "desc"),
-        UserGroup("CHILD_1", "child 1")
+
+      val responseEntity = userGroupController.groupsByUserId(userId)
+
+      assertThat(responseEntity).containsOnly(
+        UserGroup(group1),
+        UserGroup(group2),
+        UserGroup(childGroup)
       )
     }
 
     @Test
     fun `groups with children requested`(): Unit = runBlocking {
+      val userId = UUID.randomUUID()
       val group1 = Group("FRED", "desc")
       val group2 = Group("GLOBAL_SEARCH", "desc2")
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
-      group2.children.add(childGroup)
-      whenever(userGroupService.getGroups(any())).thenReturn(
-        mutableListOf(
-          group1,
-          group2
-        )
+
+      whenever(userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)).thenReturn(
+        mutableListOf(group1, group2, childGroup)
       )
-      val responseEntity = userGroupController.groupsByUserId(UUID.randomUUID())
-      Assertions.assertThat(responseEntity).containsOnly(
-        UserGroup("FRED", "desc"),
-        UserGroup("CHILD_1", "child 1")
+
+      val responseEntity = userGroupController.groupsByUserId(userId, true)
+
+      assertThat(responseEntity).containsOnly(
+        UserGroup(group1),
+        UserGroup(group2),
+        UserGroup(childGroup)
       )
     }
   }

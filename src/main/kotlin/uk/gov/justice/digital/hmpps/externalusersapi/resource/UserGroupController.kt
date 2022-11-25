@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -73,13 +72,12 @@ class UserGroupController(
     @PathVariable userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true") children: Boolean = true
-  ): List<UserGroup> =
-    userGroupService.getGroups(userId)
-      ?.flatMap { g ->
-        if (children && g.children.isNotEmpty()) g.children.map { UserGroup(it) }
-        else listOf(UserGroup(g))
-      }
-      ?: throw UsernameNotFoundException("User $userId not found")
+  ): List<UserGroup> {
+    if (children) {
+      return userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId).map { UserGroup(it) }
+    }
+    return userGroupService.getParentGroups(userId).map { UserGroup(it) }
+  }
 
   @DeleteMapping("/users/{userId}/groups/{group}")
   @ResponseStatus(HttpStatus.NO_CONTENT)

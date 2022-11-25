@@ -18,9 +18,6 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.Pageable
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_ADM
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.DPS_LSA
-import uk.gov.justice.digital.hmpps.externalusersapi.model.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
@@ -30,6 +27,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmend
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.DPS_ADM
+import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.DPS_LSA
+import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import java.util.UUID
