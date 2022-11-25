@@ -11,7 +11,7 @@ data class UserGroup(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   val groupName: String,
 ) {
+  constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupIdentity) : this(g.groupCode, g.groupName)
   constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group) : this(g.groupCode, g.groupName)
-  constructor(g: uk.gov.justice.digital.hmpps.externalusersapi.model.Group) : this(g.groupCode, g.groupName)
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }

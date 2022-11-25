@@ -9,13 +9,13 @@ import java.util.UUID
 data class Group(
 
   @Column(value = "group_code")
-  val groupCode: String,
+  override val groupCode: String,
   @Column(value = "group_name")
-  var groupName: String,
+  override var groupName: String,
   @Id
   @Column(value = "group_id")
   var groupId: UUID? = null,
-) {
+) : GroupIdentity {
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

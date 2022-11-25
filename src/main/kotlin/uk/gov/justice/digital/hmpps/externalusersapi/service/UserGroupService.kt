@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
@@ -13,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupIdentity
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
@@ -35,23 +37,32 @@ class UserGroupService(
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 
-  suspend fun getGroups(userId: UUID): MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group>? =
+  suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
+    userSecurityCheck(userId)
+    return groupRepository.findGroupsByUserId(userId).toList()
+  }
 
+  suspend fun getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId: UUID): List<GroupIdentity> {
+    userSecurityCheck(userId)
+    val groups = groupRepository.findGroupsByUserId(userId).toList()
+    val allGroups: MutableList<GroupIdentity> = mutableListOf()
+
+    groups.forEach { group ->
+      val childGroups = childGroupRepository.findAllByGroup(group.groupId).toList()
+      if (childGroups.isNotEmpty()) {
+        childGroups.forEach { childGroup -> allGroups.add(childGroup) }
+      } else {
+        allGroups.add(group)
+      }
+    }
+    return allGroups
+  }
+
+  private suspend fun userSecurityCheck(userId: UUID) {
     userRepository.findById(userId)?.let { u: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
-
-      val groups = groupRepository.findGroupsByUserId(userId).toList().toSet()
-      val groupWithChildren: MutableList<uk.gov.justice.digital.hmpps.externalusersapi.model.Group> = mutableListOf()
-      groups.forEach { group ->
-        groupWithChildren.add(
-          uk.gov.justice.digital.hmpps.externalusersapi.model.Group(
-            group,
-            childGroupRepository.findAllByGroup(group.groupId).toList().toMutableSet()
-          )
-        )
-      }
-      return groupWithChildren
-    }
+    } ?: throw UsernameNotFoundException("User $userId not found")
+  }
 
   @Transactional
   @Throws(

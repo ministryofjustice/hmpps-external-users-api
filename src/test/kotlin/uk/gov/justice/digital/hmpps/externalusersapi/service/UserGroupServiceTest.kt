@@ -20,6 +20,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
@@ -30,6 +31,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -45,7 +47,118 @@ class UserGroupServiceTest {
   private val roleRepository: RoleRepository = mock()
   private val childGroupRepository: ChildGroupRepository = mock()
   private val userGroupRepository: UserGroupRepository = mock()
+
+  private val userId = UUID.randomUUID()
+  private val user = User("testy", AuthSource.auth)
   private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient, authenticationFacade, roleRepository, childGroupRepository, userGroupRepository)
+
+  @Nested
+  inner class GetParentGroups {
+
+    @Test
+    fun shouldFailWhenUserNotFound(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(null)
+
+      assertThatThrownBy {
+        runBlocking {
+          service.getParentGroups(userId)
+        }
+      }.isInstanceOf(UsernameNotFoundException::class.java)
+        .hasMessage("User $userId not found")
+    }
+
+    @Test
+    fun shouldFailWhenUserFailsSecurityCheck(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)).doThrow(UserGroupRelationshipException(user.name, "User not with your groups"))
+
+      assertThatThrownBy {
+        runBlocking {
+          service.getParentGroups(userId)
+        }
+      }.isInstanceOf(UserGroupRelationshipException::class.java)
+        .hasMessage("Unable to maintain user: ${user.name} with reason: User not with your groups")
+    }
+
+    @Test
+    fun shouldReturnParentGroups(): Unit = runBlocking {
+      val group1 = Group("GROUP_1", "First Group")
+      val group2 = Group("GROUP_2", "Second Group")
+
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(group1, group2))
+
+      val actualGroups = service.getParentGroups(userId)
+
+      assertThat(actualGroups).containsOnly(group1, group2)
+      verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
+    }
+  }
+
+  @Nested
+  inner class GetAllGroupsUsingChildGroupsInLieuOfParentGroup {
+
+    @Test
+    fun shouldFailWhenUserNotFound(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(null)
+
+      assertThatThrownBy {
+        runBlocking {
+          service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+        }
+      }.isInstanceOf(UsernameNotFoundException::class.java)
+        .hasMessage("User $userId not found")
+    }
+
+    @Test
+    fun shouldFailWhenUserFailsSecurityCheck(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)).doThrow(UserGroupRelationshipException(user.name, "User not with your groups"))
+
+      assertThatThrownBy {
+        runBlocking {
+          service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+        }
+      }.isInstanceOf(UserGroupRelationshipException::class.java)
+        .hasMessage("Unable to maintain user: ${user.name} with reason: User not with your groups")
+    }
+
+    @Test
+    fun shouldReturnEmptyCollectionWhenNoParentGroups(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf())
+
+      val actualGroups = service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+
+      assertThat(actualGroups).isEmpty()
+      verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
+    }
+
+    @Test
+    fun shouldReturnParentGroupWhenNoChildGroups(): Unit = runBlocking {
+      val group1 = Group("GROUP_1", "First Group")
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(group1))
+      whenever(childGroupRepository.findAllByGroup(group1.groupId)).thenReturn(flowOf())
+
+      val actualGroups = service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+      assertThat(actualGroups).containsOnly(group1)
+    }
+
+    @Test
+    fun shouldReturnChildGroupsWhenPresentInLieuOfParentGroup(): Unit = runBlocking {
+      val group1 = Group("GROUP_1", "First Group")
+      val childGroup1 = ChildGroup(groupCode = "CHILD_GROUP_1", groupName = "First Child Group", group = UUID.randomUUID())
+      val childGroup2 = ChildGroup(groupCode = "CHILD_GROUP_2", groupName = "Second Child Group", group = UUID.randomUUID())
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(group1))
+      whenever(childGroupRepository.findAllByGroup(group1.groupId)).thenReturn(flowOf(childGroup1, childGroup2))
+
+      val actualGroups = service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+
+      assertThat(actualGroups).containsOnly(childGroup1, childGroup2)
+    }
+  }
 
   @Nested
   inner class RemoveGroup {
@@ -164,64 +277,6 @@ class UserGroupServiceTest {
       )
       val groups = service.getAssignableGroups(" BOB ", setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
-    }
-  }
-
-  @Nested
-  inner class GetGroups {
-    @Test
-    fun groups_success(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("admin")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
-      val id = UUID.randomUUID()
-      val user =
-        createSampleUser(username = "user")
-
-      whenever(userRepository.findById(id)).thenReturn(user)
-
-      val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
-      whenever(childGroupRepository.findAllByGroup(anyOrNull())).thenReturn(childGroup)
-      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2")
-        )
-      )
-
-      val groups = service.getGroups(id)
-      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "GROUP_LICENCE_VARY")
-    }
-
-    @Test
-    fun groups_user_notfound(): Unit = runBlocking {
-      val id = UUID.randomUUID()
-      whenever(userRepository.findById(id)).thenReturn(null)
-      val groups = service.getGroups(id)
-      assertThat(groups).isNull()
-    }
-
-    @Test
-    fun groups_by_username_success(): Unit = runBlocking {
-      val user = createSampleUser(username = "user")
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
-      whenever(groupRepository.findGroupsByUsername(anyString())).thenReturn(
-        flowOf(
-          Group("JOE", "desc"),
-          Group("LICENCE_VARY", "desc2")
-        )
-      )
-
-      val groups = service.getGroupsByUserName(" BOB ")
-      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
-    }
-
-    @Test
-    fun groups_by_username_notfound(): Unit = runBlocking {
-      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
-
-      val groups = service.getGroupsByUserName(" BOB ")
-      assertThat(groups).isNull()
     }
   }
 
