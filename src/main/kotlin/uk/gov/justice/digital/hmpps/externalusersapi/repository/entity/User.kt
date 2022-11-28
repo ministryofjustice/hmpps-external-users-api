@@ -53,7 +53,7 @@ class User(
     password = null
   }
 
-  fun getUsername(): String = username
+  fun getUsername() = username
 
   fun isEnabled(): Boolean = enabled
 
@@ -61,5 +61,5 @@ class User(
     this.enabled = enabled
   }
   override fun toString(): String =
-    "User(username='$username',  source=$source, id=$id, enabled='$enabled')"
+    "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
 }
