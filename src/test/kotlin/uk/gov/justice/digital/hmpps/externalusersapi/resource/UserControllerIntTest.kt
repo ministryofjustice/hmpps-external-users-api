@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
@@ -64,5 +67,96 @@ class UserControllerIntTest : IntegrationTestBase() {
       .expectHeader().contentType(MediaType.APPLICATION_JSON)
       .expectBody()
       .json("user_search_groups_roles.json".readFile())
+  }
+
+  @Nested
+  inner class EnableUserByUserId {
+
+    @Test
+    fun `Auth User Enable endpoint enables user`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75255/enable")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `Group manager Enable endpoint enables user`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/site_1_group_2")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `Group manager Enable endpoint fails user not in group manager group forbidden`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "userMessage" to "User group relationship exception: Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
+              "developerMessage" to "Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
+              "moreInfo" to null,
+              "errorCode" to null
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Auth User Enable endpoint fails is not an admin user`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Auth User Enable by userId endpoint fails is not an admin user`() {
+      webTestClient
+        .put().uri("/users/FC494152-F9AD-48A0-A87C-9ADC8BD75255/enable")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          Assertions.assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.FORBIDDEN.value(),
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied",
+              "errorCode" to null,
+              "moreInfo" to null
+            )
+          )
+        }
+    }
   }
 }

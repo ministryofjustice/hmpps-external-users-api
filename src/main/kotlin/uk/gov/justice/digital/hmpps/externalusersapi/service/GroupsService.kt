@@ -115,7 +115,7 @@ class GroupsService(
 
   private suspend fun removeUsersFromGroup(groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val usersWithGroup = userRepository.findAllByGroupCode(groupCode).toList()
-    usersWithGroup.forEach { userGroupService.removeUserGroup(it.getUserName(), groupCode, modifier, authorities) }
+    usersWithGroup.forEach { userGroupService.removeUserGroup(it.name, groupCode, modifier, authorities) }
   }
 }
 

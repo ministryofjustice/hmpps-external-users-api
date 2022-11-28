@@ -10,4 +10,5 @@ api:
   base:
     url:
       oauth: http://localhost:9090/auth
+      manage-users: http://localhost:9091
 
