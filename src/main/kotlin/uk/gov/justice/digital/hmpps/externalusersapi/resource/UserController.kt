@@ -11,23 +11,28 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
 
 @Validated
 @RestController
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
-class UserController(private val userSearchService: UserSearchService) {
+class UserController(private val userSearchService: UserSearchService, private val userService: UserService) {
 
   @GetMapping("/search")
   @Operation(
@@ -82,6 +87,64 @@ class UserController(private val userSearchService: UserSearchService) {
       status
     )
 
+  @PutMapping("/{userId}/enable")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Enable a user.",
+    description = "Enable a user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = EmailNotificationDto::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to enable user, the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun enableUserByUserId(
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: String
+  ) = userService.enableUserByUserId(
+    userId
+  )
+
   data class UserDto(
     @Schema(
       required = true,
@@ -126,3 +189,18 @@ class UserController(private val userSearchService: UserSearchService) {
     val inactiveReason: String? = null
   )
 }
+
+data class EmailNotificationDto(
+  @Schema(description = "Username", example = "TEST_USER")
+  val username: String,
+
+  @Schema(description = "First name of the user", example = "John")
+  val firstName: String,
+
+  @Schema(description = "email of the user", example = "Smith@gov.uk")
+  val email: String?,
+
+  @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
+  val admin: String
+
+)
