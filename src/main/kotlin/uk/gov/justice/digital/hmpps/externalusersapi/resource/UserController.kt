@@ -45,7 +45,7 @@ class UserController(private val userSearchService: UserSearchService) {
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = User::class)
+            schema = Schema(implementation = UserDto::class)
             // NOT SURE ABOUT THIS responseContainer = "List"
           )
         ]
@@ -75,7 +75,7 @@ class UserController(private val userSearchService: UserSearchService) {
   suspend fun searchForUser(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
-  ): Flow<User> {
+  ): Flow<UserDto> {
     val users = userSearchService.findAuthUsersByEmail(email).map { }
 
     // val users = userSearchService.findAuthUsersByEmail(email).map { AuthUser.fromUser(it) }
