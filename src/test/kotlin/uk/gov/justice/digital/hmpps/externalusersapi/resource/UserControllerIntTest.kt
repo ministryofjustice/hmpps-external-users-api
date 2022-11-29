@@ -93,7 +93,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
-              "userMessage" to "User group relationship exception: Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
+              "userMessage" to "User not within your groups: Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
               "developerMessage" to "Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
               "moreInfo" to null,
               "errorCode" to null
