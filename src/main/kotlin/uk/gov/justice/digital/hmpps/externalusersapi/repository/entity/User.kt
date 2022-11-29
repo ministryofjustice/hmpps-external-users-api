@@ -27,6 +27,9 @@ class User(
   @Column(value = "password")
   private var password: String? = null
 
+  @Column(value = "email")
+  private var email: String? = null
+
   val name: String
     get() = username
 

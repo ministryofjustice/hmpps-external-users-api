@@ -10,6 +10,7 @@ import java.util.UUID
 interface UserRepository : CoroutineCrudRepository<User, UUID> {
 
   suspend fun findByUsernameAndSource(username: String, source: AuthSource = AuthSource.auth): User?
+
   @Query(
     """
       select u.* from USERS u 
@@ -21,4 +22,6 @@ interface UserRepository : CoroutineCrudRepository<User, UUID> {
           g.group_code = :groupCode """
   )
   fun findAllByGroupCode(groupCode: String, source: AuthSource = AuthSource.auth): Flow<User>
+
+  fun findByEmailOrderByUserName(email: String?): Flow<User>
 }

@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -28,6 +31,57 @@ import java.time.LocalDateTime
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
 class UserController(private val userSearchService: UserSearchService) {
+
+  @GetMapping
+  @Operation(
+    summary = "Search for a user.",
+    description = "Search for a user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = User::class)
+            // NOT SURE ABOUT THIS responseContainer = "List"
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "No users found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun searchForUser(
+    @Parameter(description = "The email address of the user.", required = true) @RequestParam
+    email: String?
+  ): Flow<User> {
+    val users = userSearchService.findAuthUsersByEmail(email).map { }
+
+    // val users = userSearchService.findAuthUsersByEmail(email).map { AuthUser.fromUser(it) }
+    // return if (users.isEmpty()) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
+    return flowOf()
+  }
 
   @GetMapping("/search")
   @Operation(
@@ -125,4 +179,22 @@ class UserController(private val userSearchService: UserSearchService) {
     @Schema(required = true, description = "Inactive reason", example = "Left department")
     val inactiveReason: String? = null
   )
+  // {
+  //   companion object {
+  //     fun fromUser(user: User): User {
+  //       return User(
+  //         userId = user.id.toString(),
+  //         username = user.username,
+  //         email = user.email,
+  //         firstName = user.firstName,
+  //         lastName = user.person?.lastName,
+  //         locked = user.locked,
+  //         enabled = user.isEnabled,
+  //         verified = user.verified,
+  //         lastLoggedIn = user.lastLoggedIn,
+  //         inactiveReason = user.inactiveReason
+  //       )
+  //     }
+  //   }
+  // }
 }
