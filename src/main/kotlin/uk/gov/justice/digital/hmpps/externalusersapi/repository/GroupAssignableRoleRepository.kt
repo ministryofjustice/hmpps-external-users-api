@@ -5,10 +5,10 @@ import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.lang.NonNull
 import org.springframework.stereotype.Repository
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 
 @Repository
-interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssignableRole, String> {
+interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssignableRoleDto, String> {
 
   @NonNull
   @Query(
@@ -21,5 +21,5 @@ interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssigna
            on r.role_id=gs.role_id 
           where g.group_code = :groupCode """
   )
-  fun findGroupAssignableRoleByGroupCode(groupCode: String): Flow<UserAssignableRole>
+  fun findGroupAssignableRoleByGroupCode(groupCode: String): Flow<UserAssignableRoleDto>
 }

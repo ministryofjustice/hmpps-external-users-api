@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 
 @Schema(description = "User Role")
-data class UserRole(
+data class UserRoleDto(
   @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 

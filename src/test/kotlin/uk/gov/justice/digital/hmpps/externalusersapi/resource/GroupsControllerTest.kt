@@ -17,7 +17,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
@@ -32,8 +32,8 @@ class GroupsControllerTest {
     fun allGroups(): Unit = runBlocking {
       val group1 = Group("GROUP_1", "first group")
       val group2 = Group("GLOBAL_SEARCH", "global search")
-      val userGroup1 = UserGroup(group1)
-      val userGroup2 = UserGroup(group2)
+      val userGroup1 = UserGroupDto(group1)
+      val userGroup2 = UserGroupDto(group2)
       val allGroups = flowOf(group1, group2)
       val allUserGroups = flowOf(userGroup1, userGroup2)
 
@@ -48,7 +48,7 @@ class GroupsControllerTest {
   inner class `parent group` {
     @Test
     fun create(): Unit = runBlocking {
-      val childGroup = CreateGroup("CG", "Group")
+      val childGroup = CreateGroupDto("CG", "Group")
       groupsController.createGroup(childGroup)
       verify(groupsService).createGroup(childGroup)
     }
@@ -59,7 +59,7 @@ class GroupsControllerTest {
           any()
         )
 
-      assertThatThrownBy { runBlocking { groupsController.createGroup(CreateGroup(groupCode = "g", groupName = "name")) } }
+      assertThatThrownBy { runBlocking { groupsController.createGroup(CreateGroupDto(groupCode = "g", groupName = "name")) } }
         .isInstanceOf(GroupExistsException::class.java)
         .withFailMessage("Unable to maintain group: code with reason: group code already exists")
     }
@@ -67,8 +67,8 @@ class GroupsControllerTest {
     @Test
     fun `get group details`(): Unit = runBlocking {
 
-      val assignableRole = listOf(UserAssignableRole(roleName = "Role1", roleCode = "RO1", automatic = true))
-      val childGroup = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
+      val assignableRole = listOf(UserAssignableRoleDto(roleName = "Role1", roleCode = "RO1", automatic = true))
+      val childGroup = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
       val groupDetail = GroupDetails(groupCode = "FRED", groupName = "desc", assignableRoles = assignableRole, children = childGroup)
       whenever(
         groupsService.getGroupDetail(
@@ -82,13 +82,13 @@ class GroupsControllerTest {
           groupCode = "FRED",
           groupName = "desc",
           assignableRoles = listOf(
-            UserAssignableRole(
+            UserAssignableRoleDto(
               roleCode = "RO1",
               roleName = "Role1",
               automatic = true
             )
           ),
-          children = listOf(UserGroup(groupCode = "BOB", groupName = "desc"))
+          children = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
         )
       )
     }
@@ -108,7 +108,7 @@ class GroupsControllerTest {
 
     @Test
     fun `amend group name`(): Unit = runBlocking {
-      val groupAmendment = GroupAmendment("groupie")
+      val groupAmendment = GroupAmendmentDto("groupie")
       groupsController.amendGroupName("group1", groupAmendment)
       verify(groupsService).updateGroup("group1", groupAmendment)
     }

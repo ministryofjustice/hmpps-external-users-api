@@ -44,7 +44,7 @@ class ChildGroupsControllerTest {
 
     @Test
     fun `amend child group name`(): Unit = runBlocking {
-      val groupAmendment = GroupAmendment("groupie")
+      val groupAmendment = GroupAmendmentDto("groupie")
       childGroupsController.amendChildGroupName("group1", groupAmendment)
       verify(childGroupsService).updateChildGroup("group1", groupAmendment)
     }
@@ -60,7 +60,7 @@ class ChildGroupsControllerTest {
   inner class CreateChildGroup {
     @Test
     fun create(): Unit = runBlocking {
-      val childGroup = CreateChildGroup("PG", "CG", "Group")
+      val childGroup = CreateChildGroupDto("PG", "CG", "Group")
       childGroupsController.createChildGroup(childGroup)
       verify(childGroupsService).createChildGroup(childGroup)
     }
@@ -72,7 +72,7 @@ class ChildGroupsControllerTest {
           any()
         )
 
-      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
+      val childGroup = CreateChildGroupDto("parent_code", "child_code", "Child group")
       org.assertj.core.api.Assertions.assertThatThrownBy { runBlocking { childGroupsController.createChildGroup(childGroup) } }
         .isInstanceOf(ChildGroupExistsException::class.java)
         .withFailMessage("Unable to maintain group: code with reason: group code already exists")
@@ -85,7 +85,7 @@ class ChildGroupsControllerTest {
           any()
         )
 
-      val childGroup = CreateChildGroup("parent_code", "child_code", "Child group")
+      val childGroup = CreateChildGroupDto("parent_code", "child_code", "Child group")
 
       org.assertj.core.api.Assertions.assertThatThrownBy { runBlocking { childGroupsController.createChildGroup(childGroup) } }
         .isInstanceOf(GroupNotFoundException::class.java)

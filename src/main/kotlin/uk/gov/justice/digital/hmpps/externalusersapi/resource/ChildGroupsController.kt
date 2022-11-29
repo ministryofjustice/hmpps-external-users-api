@@ -69,10 +69,10 @@ class ChildGroupsController(
     @Parameter(description = "The group code of the child group.", required = true)
     @PathVariable
     group: String,
-  ): ChildGroupDetails {
+  ): ChildGroupDetailsDto {
     val returnedGroup: ChildGroup =
       childGroupsService.getChildGroupDetail(group)
-    return ChildGroupDetails(returnedGroup)
+    return ChildGroupDetailsDto(returnedGroup)
   }
 
   @PutMapping("/groups/child/{group}")
@@ -117,7 +117,7 @@ class ChildGroupsController(
       description = "Details of the child group to be updated.",
       required = true
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendment
+    groupAmendment: GroupAmendmentDto
 
   ) = childGroupsService.updateChildGroup(group, groupAmendment)
 
@@ -201,14 +201,14 @@ class ChildGroupsController(
   suspend fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
     @Valid @RequestBody
-    createChildGroup: CreateChildGroup
+    createChildGroup: CreateChildGroupDto
   ) {
     childGroupsService.createChildGroup(createChildGroup)
   }
 }
 
 @Schema(description = "Group Details")
-data class ChildGroupDetails(
+data class ChildGroupDetailsDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 
@@ -218,7 +218,7 @@ data class ChildGroupDetails(
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }
 
-data class CreateChildGroup(
+data class CreateChildGroupDto(
   @Schema(required = true, description = "Parent Group Code", example = "HNC_NPS")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 2, max = 30)

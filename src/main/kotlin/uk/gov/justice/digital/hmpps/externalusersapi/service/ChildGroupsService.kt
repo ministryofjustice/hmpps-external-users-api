@@ -7,8 +7,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateChildGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
 
 @Service
 @Transactional(readOnly = true)
@@ -28,7 +28,7 @@ class ChildGroupsService(
 
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
-  suspend fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendment) {
+  suspend fun updateChildGroup(groupCode: String, groupAmendment: GroupAmendmentDto) {
     val groupToUpdate =
       childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
 
@@ -61,7 +61,7 @@ class ChildGroupsService(
 
   @Transactional
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
-  suspend fun createChildGroup(createChildGroup: CreateChildGroup) {
+  suspend fun createChildGroup(createChildGroup: CreateChildGroupDto) {
     val groupCode = createChildGroup.groupCode.trim().uppercase()
     val childGroupFromDB = childGroupRepository.findByGroupCode(groupCode)
     if (childGroupFromDB != null) {

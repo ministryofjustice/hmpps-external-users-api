@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.resource.data
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 
 @Schema(description = "Group Details")
 data class GroupDetails(
@@ -14,15 +14,15 @@ data class GroupDetails(
   val groupName: String,
 
   @Schema(required = true, description = "Assignable Roles")
-  val assignableRoles: List<UserAssignableRole>,
+  val assignableRoles: List<UserAssignableRoleDto>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroup>
+  val children: List<UserGroupDto>
 ) {
-  constructor(g: Group, children: List<ChildGroup>, assignableRoles: List<UserAssignableRole>,) : this(
+  constructor(g: Group, children: List<ChildGroup>, assignableRoles: List<UserAssignableRoleDto>,) : this(
     g.groupCode,
     g.groupName,
     assignableRoles,
-    children.map { UserGroup(it) }.sortedBy { it.groupName }
+    children.map { UserGroupDto(it) }.sortedBy { it.groupName }
   )
 }

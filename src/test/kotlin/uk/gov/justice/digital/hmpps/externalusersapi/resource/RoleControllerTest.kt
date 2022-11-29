@@ -31,7 +31,7 @@ class RoleControllerTest {
   inner class CreateRole {
     @Test
     fun create(): Unit = runBlocking {
-      val newRole = CreateRole("CG", "Role", "Desc", mutableSetOf(AdminType.EXT_ADM))
+      val newRole = CreateRoleDto("CG", "Role", "Desc", mutableSetOf(AdminType.EXT_ADM))
 
       roleController.createRole(newRole)
 
@@ -40,7 +40,7 @@ class RoleControllerTest {
 
     @Test
     fun `create - role can be created when description not present `(): Unit = runBlocking {
-      val newRole = CreateRole(roleCode = "CG", roleName = "Role", adminType = mutableSetOf(AdminType.EXT_ADM, AdminType.EXT_ADM))
+      val newRole = CreateRoleDto(roleCode = "CG", roleName = "Role", adminType = mutableSetOf(AdminType.EXT_ADM, AdminType.EXT_ADM))
 
       roleController.createRole(newRole)
 
@@ -54,7 +54,7 @@ class RoleControllerTest {
       }
 
       @Suppress("ClassName")
-      val role = CreateRole("_code", " Role", "Description", mutableSetOf(DPS_ADM))
+      val role = CreateRoleDto("_code", " Role", "Description", mutableSetOf(DPS_ADM))
       assertThatThrownBy { runBlocking { roleController.createRole(role) } }
         .isInstanceOf(RoleService.RoleExistsException::class.java)
         .withFailMessage("Unable to maintain role: code with reason: role code already exists")
@@ -129,11 +129,11 @@ class RoleControllerTest {
         adminType = "DPS_ADM"
       )
 
-      whenever(roleService.getRoleDetails(any())).thenReturn(RoleDetails(role))
+      whenever(roleService.getRoleDetails(any())).thenReturn(RoleDetailsDto(role))
 
       val roleDetails = roleController.getRoleDetails("RO1")
       assertThat(roleDetails).isEqualTo(
-        RoleDetails(
+        RoleDetailsDto(
           roleCode = "RO1",
           roleName = "Role1",
           roleDescription = "First Role",
@@ -164,7 +164,7 @@ class RoleControllerTest {
   inner class AmendRoleName {
     @Test
     fun `amend role name`(): Unit = runBlocking {
-      val roleAmendment = RoleNameAmendment("role")
+      val roleAmendment = RoleNameAmendmentDto("role")
       roleController.amendRoleName("role1", roleAmendment)
       verify(roleService).updateRoleName("role1", roleAmendment)
     }
@@ -180,7 +180,7 @@ class RoleControllerTest {
           )
         )
       }
-      val roleAmendment = RoleNameAmendment("role")
+      val roleAmendment = RoleNameAmendmentDto("role")
 
       assertThatThrownBy { runBlocking { roleController.amendRoleName("NoRole", roleAmendment) } }
         .isInstanceOf(RoleNotFoundException::class.java)
@@ -192,14 +192,14 @@ class RoleControllerTest {
   inner class AmendRoleDescription {
     @Test
     fun `amend role description`(): Unit = runBlocking {
-      val roleAmendment = RoleDescriptionAmendment("roleDesc")
+      val roleAmendment = RoleDescriptionAmendmentDto("roleDesc")
       roleController.amendRoleDescription("role1", roleAmendment)
       verify(roleService).updateRoleDescription("role1", roleAmendment)
     }
 
     @Test
     fun `amend role description if no description set`(): Unit = runBlocking {
-      val roleAmendment = RoleDescriptionAmendment(null)
+      val roleAmendment = RoleDescriptionAmendmentDto(null)
       roleController.amendRoleDescription("role1", roleAmendment)
       verify(roleService).updateRoleDescription("role1", roleAmendment)
     }
@@ -209,7 +209,7 @@ class RoleControllerTest {
       runBlocking {
         whenever(roleService.updateRoleDescription(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
       }
-      val roleAmendment = RoleDescriptionAmendment("role description")
+      val roleAmendment = RoleDescriptionAmendmentDto("role description")
 
       assertThatThrownBy { runBlocking { roleController.amendRoleDescription("NoRole", roleAmendment) } }
         .isInstanceOf(RoleNotFoundException::class.java)
@@ -221,7 +221,7 @@ class RoleControllerTest {
   inner class AmendRoleAdminType {
     @Test
     fun `amend role admin type`(): Unit = runBlocking {
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(DPS_ADM))
       roleController.amendRoleAdminType("role1", roleAmendment)
       verify(roleService).updateRoleAdminType("role1", roleAmendment)
     }
@@ -231,7 +231,7 @@ class RoleControllerTest {
       runBlocking {
         whenever(roleService.updateRoleAdminType(anyString(), any())).thenThrow(RoleNotFoundException("find", "NoRole", "not found"))
       }
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(DPS_ADM))
 
       assertThatThrownBy { runBlocking { roleController.amendRoleAdminType("NoRole", roleAmendment) } }
         .isInstanceOf(RoleNotFoundException::class.java)

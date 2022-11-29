@@ -22,11 +22,11 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRoleDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendmentDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendmentDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetailsDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendmentDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.DPS_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.DPS_LSA
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
@@ -45,7 +45,7 @@ class RoleServiceTest {
   inner class CreateRoles {
     @Test
     fun `create role`(): Unit = runBlocking {
-      val createRole = CreateRole(
+      val createRole = CreateRoleDto(
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
@@ -73,7 +73,7 @@ class RoleServiceTest {
 
     @Test
     fun `create role - having adminType DPS_LSA will auto add DPS_ADM`(): Unit = runBlocking {
-      val createRole = CreateRole(
+      val createRole = CreateRoleDto(
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
@@ -102,7 +102,7 @@ class RoleServiceTest {
 
     @Test
     fun `Create role exists`(): Unit = runBlocking {
-      val createRole = CreateRole(
+      val createRole = CreateRoleDto(
         roleCode = "NEW_ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
@@ -215,7 +215,7 @@ class RoleServiceTest {
     fun `get role details`(): Unit = runBlocking {
       val dbRole = Authority(UUID.randomUUID(), roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role", "DPS_ADM")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
-      val dbRoleDetails = RoleDetails("RO1", "Role Name", "A Role", listOf(DPS_ADM))
+      val dbRoleDetails = RoleDetailsDto("RO1", "Role Name", "A Role", listOf(DPS_ADM))
 
       val role = roleService.getRoleDetails("RO1")
       assertThat(role).isEqualTo(dbRoleDetails)
@@ -241,7 +241,7 @@ class RoleServiceTest {
   inner class AmendRoleName {
     @Test
     fun `update role name when no role matches`(): Unit = runBlocking {
-      val roleAmendment = RoleNameAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendmentDto("UpdatedName")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
       assertThatThrownBy {
@@ -253,7 +253,7 @@ class RoleServiceTest {
     @Test
     fun `update role name successfully`(): Unit = runBlocking {
       val dbRole = Authority(id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role Name", roleDescription = "A Role", adminType = "DPS_ADM")
-      val roleAmendment = RoleNameAmendment("UpdatedName")
+      val roleAmendment = RoleNameAmendmentDto("UpdatedName")
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
@@ -273,7 +273,7 @@ class RoleServiceTest {
 
     @Test
     fun `update role description when no role matches`(): Unit = runBlocking {
-      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
       assertThatThrownBy {
@@ -290,7 +290,7 @@ class RoleServiceTest {
         id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role Name",
         roleDescription = "Role Desc", adminType = "DPS_ADM"
       )
-      val roleAmendment = RoleDescriptionAmendment("UpdatedDescription")
+      val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
@@ -310,7 +310,7 @@ class RoleServiceTest {
 
     @Test
     fun `update role admin type when no role matches`(): Unit = runBlocking {
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
 
       assertThatThrownBy {
@@ -329,7 +329,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM, DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)
@@ -350,7 +350,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM, DPS_LSA))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_LSA))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)
@@ -372,7 +372,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM, DPS_LSA))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_LSA))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)
@@ -393,7 +393,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)
@@ -414,7 +414,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)
@@ -435,7 +435,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM, DPS_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
       roleService.updateRoleAdminType("RO1", roleAmendment)
 
@@ -456,7 +456,7 @@ class RoleServiceTest {
         roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
         adminType = "EXT_ADM,DPS_ADM,DPS_LSA"
       )
-      val roleAmendment = RoleAdminTypeAmendment(mutableSetOf(EXT_ADM))
+      val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
 
       roleService.updateRoleAdminType("RO1", roleAmendment)

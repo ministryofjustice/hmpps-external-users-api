@@ -15,11 +15,11 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRole
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateRoleDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmendmentDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendmentDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetailsDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendmentDto
 
 @Service
 @Transactional(readOnly = true)
@@ -31,7 +31,7 @@ class RoleService(
 ) {
   @Transactional
   @Throws(RoleExistsException::class)
-  suspend fun createRole(createRole: CreateRole) {
+  suspend fun createRole(createRole: CreateRoleDto) {
     val roleCode = createRole.roleCode.trim().uppercase()
     val roleFromDb = roleRepository.findByRoleCode(roleCode)
     roleFromDb?.let { throw RoleExistsException(roleCode, "role code already exists") }
@@ -89,15 +89,15 @@ class RoleService(
     }
 
   @Throws(RoleNotFoundException::class)
-  suspend fun getRoleDetails(roleCode: String): RoleDetails =
+  suspend fun getRoleDetails(roleCode: String): RoleDetailsDto =
     roleRepository.findByRoleCode(roleCode)
       ?.let {
-        RoleDetails(it)
+        RoleDetailsDto(it)
       } ?: throw RoleNotFoundException("get", roleCode, "notfound")
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  suspend fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendment) {
+  suspend fun updateRoleName(roleCode: String, roleAmendment: RoleNameAmendmentDto) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
     roleToUpdate.roleName = roleAmendment.roleName
@@ -112,7 +112,7 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  suspend fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendment) {
+  suspend fun updateRoleDescription(roleCode: String, roleAmendment: RoleDescriptionAmendmentDto) {
     val roleToUpdate = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
     roleToUpdate.roleDescription = roleAmendment.roleDescription
@@ -127,7 +127,7 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendment) =
+  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) =
     roleRepository.findByRoleCode(roleCode)
       ?.let { role ->
         val immutableAdminTypesInDb = immutableTypes(role.adminType)

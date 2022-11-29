@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
 import java.util.UUID
 
@@ -68,8 +67,8 @@ class UserRoleController(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
     userId: UUID
-  ): Set<UserRole> =
+  ): Set<UserRoleDto> =
     userRoleService.getUserRoles(userId)
-      ?.map { role -> UserRole(role) }?.toSet()
+      ?.map { role -> UserRoleDto(role) }?.toSet()
       ?: throw UsernameNotFoundException("User $userId not found")
 }
