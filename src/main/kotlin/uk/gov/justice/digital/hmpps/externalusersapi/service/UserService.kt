@@ -25,8 +25,8 @@ class UserService(
 
   @Transactional
   @Throws(UserGroupRelationshipException::class)
-  suspend fun enableUserByUserId(userId: String): EmailNotificationDto {
-    userRepository.findById(UUID.fromString(userId))?.let { user ->
+  suspend fun enableUserByUserId(userId: UUID): EmailNotificationDto {
+    userRepository.findById(userId)?.let { user ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       user.setEnabled(true)
       user.inactiveReason = null
@@ -37,7 +37,7 @@ class UserService(
       userRepository.save(user)
       log.debug("User {} enabled and saved", user)
       return EmailNotificationDto(
-        firstName = user.firstName, username = user.getUserName(),
+        firstName = user.getFirstName(), username = user.getUserName(),
         email = user.email, admin = authenticationFacade.getUsername()
       )
     } ?: throw UsernameNotFoundException("User $userId not found")

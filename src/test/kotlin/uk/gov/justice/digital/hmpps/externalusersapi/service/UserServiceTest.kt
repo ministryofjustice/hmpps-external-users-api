@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.time.LocalDateTime
+import java.util.UUID.fromString
 
 class UserServiceTest {
   private val userRepository: UserRepository = mock()
@@ -39,7 +40,7 @@ class UserServiceTest {
     fun enableUserByUserId_superUser(): Unit = runBlocking {
 
       whenever(userRepository.findById(any())).thenReturn(user)
-      service.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      service.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       assertThat(user).extracting { it.isEnabled() }.isEqualTo(true)
       verify(userRepository).save(user)
     }
@@ -52,7 +53,7 @@ class UserServiceTest {
       assertThatThrownBy {
         runBlocking {
           service.enableUserByUserId(
-            "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"
+            fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
           )
         }
       }.isInstanceOf(
@@ -65,7 +66,7 @@ class UserServiceTest {
       val user = User("testy", AuthSource.auth)
       whenever(userRepository.findById(any()))
         .thenReturn(user)
-      service.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      service.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       assertThat(user).extracting { it.isEnabled() }.isEqualTo(true)
       verify(userRepository).save(user)
     }
@@ -75,7 +76,7 @@ class UserServiceTest {
       assertThatThrownBy {
         runBlocking {
           service.enableUserByUserId(
-            "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"
+            fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
           )
         }
       }.isInstanceOf(UsernameNotFoundException::class.java)
@@ -88,7 +89,7 @@ class UserServiceTest {
       val tooLongAgo = LocalDateTime.now().minusDays(95)
       userToCheck.lastLoggedIn = tooLongAgo
       whenever(userRepository.findById(any())).thenReturn(user)
-      service.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      service.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       assertThat(userToCheck.lastLoggedIn).isBetween(LocalDateTime.now().minusDays(84), LocalDateTime.now().minusDays(82))
     }
 
@@ -99,7 +100,7 @@ class UserServiceTest {
       val fiveDaysAgo = LocalDateTime.now().minusDays(5)
       userToCheck.lastLoggedIn = fiveDaysAgo
       whenever(userRepository.findById(any())).thenReturn(user)
-      service.enableUserByUserId("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      service.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
       assertThat(userToCheck.lastLoggedIn).isEqualTo(fiveDaysAgo)
     }
   }

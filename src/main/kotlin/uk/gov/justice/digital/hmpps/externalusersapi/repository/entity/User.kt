@@ -38,7 +38,7 @@ class User(
   var email: String? = null
 
   @Column(value = "first_name")
-  var first_Name: String? = null
+  private var firstName: String? = null
 
   @Column(value = "last_logged_in")
   var lastLoggedIn: LocalDateTime = LocalDateTime.now()
@@ -46,14 +46,13 @@ class User(
   val name: String
     get() = username
 
-  val firstName: String
-    get() = first_Name ?: username
-
   override fun eraseCredentials() {
     password = null
   }
 
   fun getUserName() = username
+
+  fun getFirstName() = firstName ?: username
 
   fun isEnabled(): Boolean = enabled
 

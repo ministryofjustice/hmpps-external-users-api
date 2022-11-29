@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Statu
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Validated
 @RestController
@@ -140,7 +141,7 @@ class UserController(private val userSearchService: UserSearchService, private v
   )
   suspend fun enableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: String
+    userId: UUID
   ) = userService.enableUserByUserId(
     userId
   )
