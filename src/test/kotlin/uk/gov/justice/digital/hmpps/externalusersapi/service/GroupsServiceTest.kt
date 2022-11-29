@@ -24,9 +24,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import java.util.UUID
 
@@ -76,7 +76,7 @@ class GroupsServiceTest {
 
     @Test
     fun `Create group`(): Unit = runBlocking {
-      val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
+      val createGroup = CreateGroupDto(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(null)
 
       groupsService.createGroup(createGroup)
@@ -93,7 +93,7 @@ class GroupsServiceTest {
     @Test
     fun `Create group exists`(): Unit = runBlocking {
 
-      val createGroup = CreateGroup(groupCode = "CG", groupName = "Group")
+      val createGroup = CreateGroupDto(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(Group("code", "name"))
 
       Assertions.assertThatThrownBy {
@@ -107,7 +107,7 @@ class GroupsServiceTest {
     @Test
     fun `update group details`(): Unit = runBlocking {
       val dbGroup = Group("bob", "disc")
-      val groupAmendment = GroupAmendment("Joe")
+      val groupAmendment = GroupAmendmentDto("Joe")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
 
       groupsService.updateGroup("bob", groupAmendment)
@@ -127,7 +127,7 @@ class GroupsServiceTest {
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(dbGroup)
       val childGroup = flowOf(ChildGroup("CG", "disc", UUID.randomUUID()))
       whenever(childGroupRepository.findAllByGroup(any())).thenReturn(childGroup)
-      val userAssignableRole = flowOf(UserAssignableRole("RC", "Role name", true))
+      val userAssignableRole = flowOf(UserAssignableRoleDto("RC", "Role name", true))
       whenever(groupAssignableRoleRepository.findGroupAssignableRoleByGroupCode(any())).thenReturn(userAssignableRole)
 
       val group = groupsService.getGroupDetail("bob")

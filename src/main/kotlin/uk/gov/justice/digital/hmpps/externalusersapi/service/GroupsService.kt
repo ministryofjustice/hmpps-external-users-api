@@ -13,8 +13,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableR
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 
@@ -47,7 +47,7 @@ class GroupsService(
 
   @Transactional
   @Throws(GroupNotFoundException::class)
-  suspend fun updateGroup(groupCode: String, groupAmendment: GroupAmendment) {
+  suspend fun updateGroup(groupCode: String, groupAmendment: GroupAmendmentDto) {
     val groupToUpdate =
       groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("maintain", groupCode, "notfound")
 
@@ -67,7 +67,7 @@ class GroupsService(
 
   @Transactional
   @Throws(GroupExistsException::class)
-  suspend fun createGroup(createGroup: CreateGroup) {
+  suspend fun createGroup(createGroup: CreateGroupDto) {
     val groupCode = createGroup.groupCode.trim().uppercase()
     val groupFromDb = groupRepository.findByGroupCode(groupCode)
     groupFromDb?.let { throw GroupExistsException(groupCode, "group code already exists") }

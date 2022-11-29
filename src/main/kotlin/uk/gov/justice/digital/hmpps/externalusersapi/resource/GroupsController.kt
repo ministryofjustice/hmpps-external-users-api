@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
@@ -58,7 +58,7 @@ class GroupsController(
       )
     ]
   )
-  suspend fun allGroups() = groupsService.getAllGroups().map { UserGroup(it) }
+  suspend fun allGroups() = groupsService.getAllGroups().map { UserGroupDto(it) }
 
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -142,7 +142,7 @@ class GroupsController(
       description = "Details of the group to be updated.",
       required = true
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendment
+    groupAmendment: GroupAmendmentDto
 
   ) = groupsService.updateGroup(group, groupAmendment)
 
@@ -184,7 +184,7 @@ class GroupsController(
   suspend fun createGroup(
     @Parameter(description = "Details of the group to be created.", required = true)
     @Valid @RequestBody
-    createGroup: CreateGroup
+    createGroup: CreateGroupDto
   ) = groupsService.createGroup(createGroup)
 
   @DeleteMapping("/groups/{group}")
@@ -230,7 +230,7 @@ class GroupsController(
 }
 
 @Schema(description = "Group Name")
-data class GroupAmendment(
+data class GroupAmendmentDto(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 4, max = 100)
@@ -238,7 +238,7 @@ data class GroupAmendment(
 )
 
 @Schema(description = "User Role")
-data class UserAssignableRole(
+data class UserAssignableRoleDto(
   @Schema(required = true, description = "Role Code", example = "LICENCE_RO")
   val roleCode: String,
 
@@ -249,7 +249,7 @@ data class UserAssignableRole(
   val automatic: Boolean
 )
 
-data class CreateGroup(
+data class CreateGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   @field:NotBlank(message = "group code must be supplied")
   @field:Size(min = 2, max = 30)

@@ -7,7 +7,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.stereotype.Repository
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserController.User
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserController.UserDto
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -15,7 +15,7 @@ import java.util.UUID
 class UserSearchRepository(private val databaseClient: DatabaseClient) {
 
   private val userMapper = { row: Row, _: RowMetadata ->
-    User(
+    UserDto(
       userId = row.get("user_id", UUID::class.java)?.toString(),
       username = row.get("username", String::class.java),
       email = row.get("email", String::class.java),
@@ -31,7 +31,7 @@ class UserSearchRepository(private val databaseClient: DatabaseClient) {
 
   private val countMapper = { row: Row, _: RowMetadata -> row.get("userCount") as Long }
 
-  fun searchForUsers(userFilter: UserFilter): Flow<User> {
+  fun searchForUsers(userFilter: UserFilter): Flow<UserDto> {
     val query = databaseClient.sql(userFilter.sql)
     return query.map(userMapper).all().asFlow()
   }

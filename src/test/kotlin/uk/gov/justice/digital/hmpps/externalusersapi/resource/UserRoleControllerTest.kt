@@ -10,7 +10,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRole
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
 import java.util.UUID
 
@@ -43,8 +43,8 @@ class UserRoleControllerTest {
       )
       val responseEntity = userRoleController.rolesByUserId(UUID.randomUUID())
       assertThat(responseEntity).containsOnly(
-        UserRole(role1),
-        UserRole(role2)
+        UserRoleDto(role1),
+        UserRoleDto(role2)
 
       )
     }
