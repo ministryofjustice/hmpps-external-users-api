@@ -74,7 +74,7 @@ class RoleController(
   suspend fun createRole(
     @Parameter(description = "Details of the role to be created.", required = true)
     @Valid @RequestBody
-    createRole: CreateRole
+    createRole: CreateRoleDto
   ) = roleService.createRole(createRole)
 
   @GetMapping("/roles")
@@ -105,7 +105,7 @@ class RoleController(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(required = false)
     adminTypes: List<AdminType>?
-  ) = roleService.getRoles(adminTypes).map { RoleDetails(it) }
+  ) = roleService.getRoles(adminTypes).map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -152,14 +152,14 @@ class RoleController(
     @RequestParam(required = false)
     adminTypes: List<AdminType>?,
     @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable
-  ): Page<RoleDetails> =
+  ): Page<RoleDetailsDto> =
     roleService.getRoles(
       roleName,
       roleCode,
       adminTypes,
       pageable
     )
-      .map { RoleDetails(it) }
+      .map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -199,7 +199,7 @@ class RoleController(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
     role: String
-  ): RoleDetails = roleService.getRoleDetails(role)
+  ): RoleDetailsDto = roleService.getRoleDetails(role)
 
   @PutMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
@@ -243,7 +243,7 @@ class RoleController(
       description = "Details of the role to be updated.",
       required = true
     ) @Valid @RequestBody
-    roleAmendment: RoleNameAmendment
+    roleAmendment: RoleNameAmendmentDto
   ) = roleService.updateRoleName(role, roleAmendment)
 
   @PutMapping("/roles/{role}/description")
@@ -288,7 +288,7 @@ class RoleController(
       description = "Details of the role to be updated.",
       required = true
     ) @Valid @RequestBody
-    roleAmendment: RoleDescriptionAmendment
+    roleAmendment: RoleDescriptionAmendmentDto
   ) = roleService.updateRoleDescription(role, roleAmendment)
 
   @PutMapping("/roles/{roleCode}/admintype")
@@ -333,12 +333,12 @@ class RoleController(
       description = "Details of the role to be updated.",
       required = true
     )
-    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendment
+    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendmentDto
   ) = roleService.updateRoleAdminType(roleCode, roleAmendment)
 }
 
 @Schema(description = "Role Details")
-data class RoleDetails(
+data class RoleDetailsDto(
   @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   val roleCode: String,
 
@@ -370,7 +370,7 @@ data class RoleDetails(
   )
 }
 
-data class CreateRole(
+data class CreateRoleDto(
   @Schema(required = true, description = "Role Code", example = "AUTH_GROUP_MANAGER")
   @field:NotBlank(message = "role code must be supplied")
   @field:Size(min = 2, max = 30)
@@ -402,7 +402,7 @@ data class CreateRole(
 )
 
 @Schema(description = "Role Name")
-data class RoleNameAmendment(
+data class RoleNameAmendmentDto(
   @Schema(required = true, description = "Role Name", example = "Central admin")
   @field:NotBlank(message = "Role name must be supplied")
   @field:Size(min = 4, max = 100)
@@ -411,7 +411,7 @@ data class RoleNameAmendment(
 )
 
 @Schema(description = "Role Description")
-data class RoleDescriptionAmendment(
+data class RoleDescriptionAmendmentDto(
   @Schema(required = true, description = "Role Description", example = "Maintaining admin users")
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
@@ -419,7 +419,7 @@ data class RoleDescriptionAmendment(
 )
 
 @Schema(description = "Role Administration Types")
-data class RoleAdminTypeAmendment(
+data class RoleAdminTypeAmendmentDto(
   @Schema(required = true, description = "Role Administration Types", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
   val adminType: Set<AdminType>

@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendment
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
 import java.util.UUID
 
 class ChildGroupsServiceTest {
@@ -63,7 +63,7 @@ class ChildGroupsServiceTest {
     @Test
     fun `Update child group details`(): Unit = runBlocking {
       val dbGroup = ChildGroup("bob", "disc", UUID.randomUUID())
-      val groupAmendment = GroupAmendment("Joe")
+      val groupAmendment = GroupAmendmentDto("Joe")
       whenever(childGroupRepository.findByGroupCode(ArgumentMatchers.anyString())).thenReturn(dbGroup)
 
       childGroupsService.updateChildGroup("bob", groupAmendment)

@@ -38,7 +38,7 @@ class UserSearchService(
     authorities: Collection<GrantedAuthority>,
     status: Status,
     authSources: List<AuthSource> = listOf(AuthSource.auth),
-  ): Page<UserController.User> = coroutineScope {
+  ): Page<UserController.UserDto> = coroutineScope {
     val groupSearchCodes = if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {

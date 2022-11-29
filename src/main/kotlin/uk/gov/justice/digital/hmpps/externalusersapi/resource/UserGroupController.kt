@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
 
@@ -72,11 +72,11 @@ class UserGroupController(
     @PathVariable userId: UUID,
     @Parameter(description = "Whether groups are expanded into their children.", required = false)
     @RequestParam(defaultValue = "true") children: Boolean = true
-  ): List<UserGroup> {
+  ): List<UserGroupDto> {
     if (children) {
-      return userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId).map { UserGroup(it) }
+      return userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId).map { UserGroupDto(it) }
     }
-    return userGroupService.getParentGroups(userId).map { UserGroup(it) }
+    return userGroupService.getParentGroups(userId).map { UserGroupDto(it) }
   }
 
   @DeleteMapping("/users/{userId}/groups/{group}")

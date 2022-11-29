@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 
 @Schema(description = "User Group")
-data class UserGroup(
+data class UserGroupDto(
   @Schema(required = true, description = "Group Code", example = "HDC_NPS_NE")
   val groupCode: String,
 

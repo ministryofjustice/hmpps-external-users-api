@@ -13,7 +13,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroup
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import java.util.UUID
 
@@ -52,7 +52,7 @@ class UserGroupControllerTest {
       val responseEntity =
         userGroupController.groupsByUserId(userId, false)
 
-      assertThat(responseEntity).containsOnly(UserGroup(group1), UserGroup(group2))
+      assertThat(responseEntity).containsOnly(UserGroupDto(group1), UserGroupDto(group2))
     }
 
     @Test
@@ -69,9 +69,9 @@ class UserGroupControllerTest {
       val responseEntity = userGroupController.groupsByUserId(userId)
 
       assertThat(responseEntity).containsOnly(
-        UserGroup(group1),
-        UserGroup(group2),
-        UserGroup(childGroup)
+        UserGroupDto(group1),
+        UserGroupDto(group2),
+        UserGroupDto(childGroup)
       )
     }
 
@@ -89,9 +89,9 @@ class UserGroupControllerTest {
       val responseEntity = userGroupController.groupsByUserId(userId, true)
 
       assertThat(responseEntity).containsOnly(
-        UserGroup(group1),
-        UserGroup(group2),
-        UserGroup(childGroup)
+        UserGroupDto(group1),
+        UserGroupDto(group2),
+        UserGroupDto(childGroup)
       )
     }
   }
