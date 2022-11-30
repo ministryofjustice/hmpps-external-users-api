@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
@@ -34,7 +35,13 @@ class UserRoleControllerTest {
     @Test
     fun rolesByUserId_success(): Unit = runBlocking {
       val role1 = Authority(UUID.randomUUID(), "FRED", "desc", adminType = "DPS_ADM")
-      val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "DPS_ADM")
+      val role2 = Authority(
+        UUID.randomUUID(),
+        "GLOBAL_SEARCH",
+        "Global Search",
+        "Allow user to search globally for a user",
+        adminType = "DPS_ADM"
+      )
       whenever(userRoleService.getUserRoles(any())).thenReturn(
         mutableListOf(
           role1,
@@ -47,6 +54,16 @@ class UserRoleControllerTest {
         UserRoleDto(role2)
 
       )
+    }
+  }
+
+  @Nested
+  inner class RemoveRoleByUserId {
+    @Test
+    fun removeRoleByUserId_success(): Unit = runBlocking {
+      val roleId = UUID.randomUUID()
+      userRoleController.removeRoleByUserId(roleId, "roleCode")
+      verify(userRoleService).removeRoleByUserId(roleId, "roleCode")
     }
   }
 }
