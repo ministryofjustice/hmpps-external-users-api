@@ -216,7 +216,7 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "User group relationship exception: ${e.message}",
+          userMessage = "User not within your groups: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
@@ -244,7 +244,7 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = FORBIDDEN,
-          userMessage = "Maintain group relationship exception: ${e.message}",
+          userMessage = "Group not within your groups: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )

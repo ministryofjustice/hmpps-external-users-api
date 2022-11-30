@@ -62,7 +62,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         .json(
           """
               {
-              "userMessage":"User group relationship exception: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups",
+              "userMessage":"User not within your groups: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups",
               "developerMessage":"Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups"
               }
           """

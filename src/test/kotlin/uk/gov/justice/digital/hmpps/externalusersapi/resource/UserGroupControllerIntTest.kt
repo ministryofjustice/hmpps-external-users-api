@@ -112,7 +112,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .json(
           """
               {
-              "userMessage":"User group relationship exception: Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups",
+              "userMessage":"User not within your groups: Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups",
               "developerMessage":"Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups"
               }
         """
@@ -292,7 +292,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups",
-              "userMessage" to "User group relationship exception: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups"
+              "userMessage" to "User not within your groups: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups"
             )
           )
         }
