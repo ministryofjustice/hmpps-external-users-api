@@ -79,7 +79,7 @@ class UserRoleService(
       userRoleRepository.deleteUserRole(userId, userRoleToDelete.id!!)
 
       telemetryClient.trackEvent(
-        "AuthUserRoleRemoveSuccess",
+        "ExternalUserRoleRemoveSuccess",
         mapOf("userId" to userId.toString(), "role" to roleFormatted, "admin" to authenticationFacade.getUsername()),
         null
       )
