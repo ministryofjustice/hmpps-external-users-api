@@ -11,8 +11,8 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
 @Table(name = "USERS")
-data class User(
-  var username: String,
+class User(
+  private var username: String,
 
   /**
    * Source of last login information
@@ -32,16 +32,13 @@ data class User(
   var email: String? = null
 
   @Column(value = "first_name")
-  var firstName: String? = null
+  private var firstName: String? = null
 
   @Column(value = "last_name")
   var lastName: String? = null
 
-  val name: String
-    get() = username
-
   @Column(value = "enabled")
-  var enabled: Boolean = false
+  private var enabled: Boolean = false
 
   @Column(value = "locked")
   var locked = false
@@ -59,8 +56,18 @@ data class User(
     password = null
   }
 
+  val name: String
+    get() = username
+
   fun getUserName() = username
 
+  fun getFirstName() = firstName ?: username
+
+  fun isEnabled(): Boolean = enabled
+
+  fun setEnabled(enabled: Boolean) {
+    this.enabled = enabled
+  }
   override fun toString(): String =
-    "User(username='$username',  source=$source, id=$id)"
+    "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
 }

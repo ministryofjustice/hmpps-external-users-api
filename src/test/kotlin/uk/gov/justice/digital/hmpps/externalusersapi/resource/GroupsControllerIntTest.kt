@@ -98,7 +98,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to FORBIDDEN.value(),
               "developerMessage" to "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
-              "userMessage" to "Maintain group relationship exception: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
+              "userMessage" to "Group not within your groups: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
               "errorCode" to null,
               "moreInfo" to null
             )
@@ -185,7 +185,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to FORBIDDEN.value(),
               "developerMessage" to "Unable to maintain group: bob with reason: Group not with your groups",
-              "userMessage" to "Maintain group relationship exception: Unable to maintain group: bob with reason: Group not with your groups",
+              "userMessage" to "Group not within your groups: Unable to maintain group: bob with reason: Group not with your groups",
               "errorCode" to null,
               "moreInfo" to null
             )

@@ -51,7 +51,7 @@ class UserRepositoryTest {
     val users = repository.findByEmailAndSourceOrderByUsername("auth_test2@digital.justice.gov.uk").toList()
 
     assertThat(users)
-      .extracting<String> { it.username }
+      .extracting<String> { it.getUserName() }
       .contains("AUTH_ADM", "AUTH_EXPIRED")
   }
 }
