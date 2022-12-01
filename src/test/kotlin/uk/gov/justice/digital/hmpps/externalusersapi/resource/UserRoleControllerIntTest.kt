@@ -213,4 +213,75 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         }
     }
   }
+
+  @Nested
+  inner class AssignableRoles {
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient
+        .get().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/assignable-roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access allowed without role`() {
+      webTestClient
+        .get().uri("/users/5105A589-75B3-4CA0-9433-B96228C1C8F3/assignable-roles")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].roleCode").isEmpty
+    }
+
+    @Test
+    fun `Assignable User Roles by userId user not found`() {
+      webTestClient
+        .get().uri("/users/12345678-1234-1234-1234-123456789ABC/assignable-roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not found: User 12345678-1234-1234-1234-123456789abc not found",
+               "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
+             }
+            """
+            .trimIndent()
+        )
+    }
+
+    @Test
+    fun `Assignable User Roles by userId endpoint returns all assignable user roles for a group for admin maintainer`() {
+      webTestClient
+        .get().uri("/users/5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8/assignable-roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).hasSizeGreaterThan(5)
+          assertThat(it).contains("PECS_COURT")
+        }
+    }
+
+    @Test
+    fun `Assignable User Roles by userId endpoint returns all assignable user roles for a group for group manager`() {
+      webTestClient
+        .get().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02B/assignable-roles")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrder("LICENCE_RO", "LICENCE_VARY")
+        }
+    }
+  }
 }
