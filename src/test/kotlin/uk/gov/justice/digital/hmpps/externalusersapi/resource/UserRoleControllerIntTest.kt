@@ -89,14 +89,47 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
   inner class RemoveUserRoleByUserId {
 
     @Test
-    fun ` User Roles remove by userId role endpoint removes a role from a user`() {
+    fun `access forbidden without valid token`() {
+      webTestClient.delete().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/roles/ANY_ROLE")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden without correct role`() {
+      webTestClient.delete().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA44B/roles/ANY_ROLE")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"Denied",
+               "developerMessage":"Denied"
+             }
+            """
+            .trimIndent()
+        )
+    }
+
+    @Test
+    fun `User Roles remove role by userId user not found`() {
       webTestClient
-        .delete().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02F/roles/licence_ro")
+        .delete().uri("/users/12345678-1234-1234-1234-123456789ABC/roles/ANY_ROLE")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
-        .expectStatus().isNoContent
-
-      checkRolesForUserId("90F930E1-2195-4AFD-92CE-0EB5672DA02F", listOf("GLOBAL_SEARCH"))
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not found: User 12345678-1234-1234-1234-123456789abc not found",
+               "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
+             }
+            """
+            .trimIndent()
+        )
     }
 
     @Test
@@ -157,22 +190,14 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `User Roles remove role by userId endpoint requires role`() {
+    fun `User Roles remove by userId role endpoint successfully removes a role from a user`() {
       webTestClient
-        .delete().uri("/users/5105A589-75B3-4CA0-9433-B96228C1C8F3/roles/licence_ro")
-        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_GLOBAL_SEARCH")))
+        .delete().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02F/roles/licence_ro")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
-        .expectStatus().isForbidden
-        .expectBody()
-        .json(
-          """
-             {
-               "userMessage":"Denied",
-               "developerMessage":"Denied"
-             }
-            """
-            .trimIndent()
-        )
+        .expectStatus().isNoContent
+
+      checkRolesForUserId("90F930E1-2195-4AFD-92CE-0EB5672DA02F", listOf("GLOBAL_SEARCH"))
     }
 
     private fun checkRolesForUserId(userId: String, roles: List<String>) {
