@@ -5,13 +5,14 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.security.core.CredentialsContainer
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
+import java.time.LocalDateTime
 import java.util.UUID
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
 @Table(name = "USERS")
-class User(
-  private var username: String,
+data class User(
+  var username: String,
 
   /**
    * Source of last login information
@@ -28,10 +29,31 @@ class User(
   private var password: String? = null
 
   @Column(value = "email")
-  private var email: String? = null
+  var email: String? = null
+
+  @Column(value = "first_name")
+  var firstName: String? = null
+
+  @Column(value = "last_name")
+  var lastName: String? = null
 
   val name: String
     get() = username
+
+  @Column(value = "enabled")
+  var enabled: Boolean = false
+
+  @Column(value = "locked")
+  var locked = false
+
+  @Column(value = "verified")
+  var verified: Boolean = false
+
+  @Column(value = "last_logged_in")
+  var lastLoggedIn: LocalDateTime = LocalDateTime.now()
+
+  @Column(value = "inactive_reason")
+  var inactiveReason: String? = null
 
   override fun eraseCredentials() {
     password = null

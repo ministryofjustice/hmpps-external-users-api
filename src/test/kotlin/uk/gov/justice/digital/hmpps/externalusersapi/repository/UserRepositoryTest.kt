@@ -35,4 +35,23 @@ class UserRepositoryTest {
   fun findAllByGroupCode(): Unit = runBlocking {
     assertThat(repository.findAllByGroupCode("SITE_1_GROUP_1").toList()).isNotEmpty
   }
+
+  @Test
+  fun findByEmailAndSourceEmailNull(): Unit = runBlocking {
+    assertThat(repository.findByEmailAndSourceOrderByUsername(null).toList()).hasSize(12)
+  }
+
+  @Test
+  fun findByEmailAndSourceEmailEmpty(): Unit = runBlocking {
+    assertThat(repository.findByEmailAndSourceOrderByUsername("").toList()).isEmpty()
+  }
+
+  @Test
+  fun findByEmailAndSource(): Unit = runBlocking {
+    val users = repository.findByEmailAndSourceOrderByUsername("auth_test2@digital.justice.gov.uk").toList()
+
+    assertThat(users)
+      .extracting<String> { it.username }
+      .contains("AUTH_ADM", "AUTH_EXPIRED")
+  }
 }

@@ -7,26 +7,25 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import java.time.LocalDateTime
 
-@Validated
 @RestController
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
@@ -46,7 +45,6 @@ class UserController(private val userSearchService: UserSearchService) {
           Content(
             mediaType = "application/json",
             schema = Schema(implementation = UserDto::class)
-            // NOT SURE ABOUT THIS responseContainer = "List"
           )
         ]
       ),
@@ -75,12 +73,9 @@ class UserController(private val userSearchService: UserSearchService) {
   suspend fun searchForUser(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
-  ): Flow<UserDto> {
-    val users = userSearchService.findAuthUsersByEmail(email).map { }
-
-    // val users = userSearchService.findAuthUsersByEmail(email).map { AuthUser.fromUser(it) }
-    // return if (users.isEmpty()) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
-    return flowOf()
+  ): ResponseEntity<Any> {
+    val users = userSearchService.findAuthUsersByEmail(email).map { UserDto.fromUser(it) }
+    return if (users.count() == 0) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
   @GetMapping("/search")
@@ -178,23 +173,22 @@ class UserController(private val userSearchService: UserSearchService) {
 
     @Schema(required = true, description = "Inactive reason", example = "Left department")
     val inactiveReason: String? = null
-  )
-  // {
-  //   companion object {
-  //     fun fromUser(user: User): User {
-  //       return User(
-  //         userId = user.id.toString(),
-  //         username = user.username,
-  //         email = user.email,
-  //         firstName = user.firstName,
-  //         lastName = user.person?.lastName,
-  //         locked = user.locked,
-  //         enabled = user.isEnabled,
-  //         verified = user.verified,
-  //         lastLoggedIn = user.lastLoggedIn,
-  //         inactiveReason = user.inactiveReason
-  //       )
-  //     }
-  //   }
-  // }
+  ) {
+    companion object {
+      fun fromUser(user: User): UserDto {
+        return UserDto(
+          userId = user.id.toString(),
+          username = user.name,
+          email = user.email,
+          firstName = user.firstName,
+          lastName = user.lastName,
+          locked = user.locked,
+          enabled = user.enabled,
+          verified = user.verified,
+          lastLoggedIn = user.lastLoggedIn,
+          inactiveReason = user.inactiveReason
+        )
+      }
+    }
+  }
 }

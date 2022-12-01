@@ -1,11 +1,10 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
-import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.StringUtils.lowerCase
-import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.StringUtils.replaceChars
-import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.StringUtils.trim
+import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.StringUtils.isNotEmpty
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -20,6 +19,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserSearchReposi
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserController
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
+import uk.gov.justice.digital.hmpps.externalusersapi.util.EmailHelper
 
 @Service
 @Transactional(readOnly = true)
@@ -65,12 +65,11 @@ class UserSearchService(
     )
   }
 
-  suspend fun findAuthUsersByEmail(email: String?): Flow<User> =
-    userRepository.findByEmailOrderByUserName(EmailHelper.format(email))
-}
-
-object EmailHelper {
-
-  fun format(emailInput: String?): String? =
-    replaceChars(lowerCase(trim(emailInput)), '’', '\'')
+  suspend fun findAuthUsersByEmail(email: String?): Flow<User> {
+    val cleanEmail = EmailHelper.format(email)
+    if (isNotEmpty(cleanEmail)) {
+      return userRepository.findByEmailAndSourceOrderByUsername(cleanEmail)
+    }
+    return flowOf()
+  }
 }
