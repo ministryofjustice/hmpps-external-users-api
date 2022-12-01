@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -22,7 +21,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
 import java.util.UUID
 
-@Validated
 @RestController
 @Tag(name = "/users/{userId}/roles", description = "User Roles Controller")
 class UserRoleController(
@@ -140,5 +138,47 @@ class UserRoleController(
   ) {
     userRoleService.removeRoleByUserId(userId, role)
     log.info("Remove role succeeded for userId {} and role {}", userId, role)
+  }
+
+  @GetMapping("/users/{userId}/assignable-roles")
+  @Operation(
+    summary = "Get list of assignable roles.",
+    description = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role"
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun assignableRoles(
+    @Parameter(description = "The userId of the user.", required = true)
+    @PathVariable
+    userId: UUID,
+  ): List<UserRoleDto> {
+    val roles = userRoleService.getAssignableRolesByUserId(userId)
+    return roles.map { UserRoleDto(it) }
   }
 }

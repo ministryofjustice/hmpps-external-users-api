@@ -11,6 +11,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -43,7 +44,7 @@ internal class UserRoleServiceTest {
   inner class GetAuthUserByUserId {
     @Test
     fun getRolesSuccess(): Unit = runBlocking {
-      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
       val id = UUID.randomUUID()
       val user = createSampleUser(username = "user")
 
@@ -104,7 +105,7 @@ internal class UserRoleServiceTest {
     @Test
     fun removeRole_invalid(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
 
       val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
       val role2 = Authority(UUID.randomUUID(), "BOB", "Bloggs", adminType = "EXT_ADM")
@@ -220,6 +221,74 @@ internal class UserRoleServiceTest {
       )
     }
   }
+
+  @Nested
+  inner class AssignableRolesByUserId {
+    @Test
+    fun `assignable roles for group manager`(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      val joe = Authority(UUID.randomUUID(), "JOE", "Role Joe", adminType = "EXT_ADM")
+
+      whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(flowOf(first, fred, second))
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser())
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(fred, joe))
+
+      assertThat(
+        service.getAssignableRolesByUserId(UUID.randomUUID())
+      ).containsExactly(first, second)
+    }
+
+    @Test
+    fun `assignable roles for super user`(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      val joe = Authority(UUID.randomUUID(), "JOE", "Role Joe", adminType = "EXT_ADM")
+
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(first, fred, second))
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser())
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(fred, joe))
+
+      assertThat(service.getAssignableRolesByUserId(UUID.randomUUID())).containsExactly(first, second)
+    }
+  }
+
+  @Nested
+  inner class AllAssignableRolesByUserId {
+    @Test
+    fun `all assignable roles for group manager`(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(flowOf(first, fred, second))
+
+      assertThat(service.getAllAssignableRolesByUserId(UUID.randomUUID())).containsOnly(first, fred, second)
+      verify(roleRepository, never()).findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)
+    }
+
+    @Test
+    fun `all assignable roles for Super User`(): Unit = runBlocking {
+      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      val joe = Authority(UUID.randomUUID(), "JOE", "Role Joe", adminType = "EXT_ADM")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(first, fred, second, joe))
+
+      assertThat(service.getAllAssignableRolesByUserId(UUID.randomUUID())).containsOnly(first, fred, second, joe)
+      verify(roleRepository, never()).findByGroupAssignableRolesForUserId(any())
+    }
+  }
+
   companion object {
     private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
