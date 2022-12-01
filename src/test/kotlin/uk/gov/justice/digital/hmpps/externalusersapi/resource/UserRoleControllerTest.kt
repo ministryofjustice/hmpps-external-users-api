@@ -66,4 +66,14 @@ class UserRoleControllerTest {
       verify(userRoleService).removeRoleByUserId(roleId, "roleCode")
     }
   }
+
+  @Test
+  suspend fun assignableRoles() {
+    val role1 = Authority(UUID.randomUUID(), "FRED", "FRED", adminType = "EXT_ADM")
+    val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "EXT_ADM")
+    whenever(userRoleService.getAssignableRolesByUserId(any())).thenReturn(listOf(role1, role2))
+
+    val response = userRoleController.assignableRoles(UUID.randomUUID())
+    assertThat(response).containsOnly(UserRoleDto(role1), UserRoleDto(role2))
+  }
 }

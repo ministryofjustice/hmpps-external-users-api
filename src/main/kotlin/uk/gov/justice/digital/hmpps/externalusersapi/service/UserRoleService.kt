@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import com.google.common.collect.Sets
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -46,6 +47,15 @@ class UserRoleService(
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       roleRepository.findRolesByUserId(userId).toList()
     }
+
+  suspend fun getAssignableRolesByUserId(userId: UUID) =
+    userRepository.findById(userId)?.let {
+      Sets.difference(
+        getAllAssignableRolesByUserId(userId).toSet(),
+        roleRepository.findRolesByUserId(userId).toSet()
+      )
+        .sortedBy { it.roleName }
+    } ?: throw UsernameNotFoundException("User $userId not found")
 
   suspend fun getAllAssignableRolesByUserId(userId: UUID) =
     if (canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
