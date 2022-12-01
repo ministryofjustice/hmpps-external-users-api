@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Statu
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserController
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.util.EmailHelper
 
@@ -38,7 +38,7 @@ class UserSearchService(
     authorities: Collection<GrantedAuthority>,
     status: Status,
     authSources: List<AuthSource> = listOf(AuthSource.auth),
-  ): Page<UserController.UserDto> = coroutineScope {
+  ): Page<UserDto> = coroutineScope {
     val groupSearchCodes = if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {

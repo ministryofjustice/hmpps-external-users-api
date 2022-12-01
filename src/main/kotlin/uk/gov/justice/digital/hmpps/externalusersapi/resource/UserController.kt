@@ -194,65 +194,65 @@ class UserController(private val userSearchService: UserSearchService, private v
   ) = userService.enableUserByUserId(
     userId
   )
+}
 
-  data class UserDto(
-    @Schema(
-      required = true,
-      description = "User ID",
-      example = "91229A16-B5F4-4784-942E-A484A97AC865"
-    )
-    val userId: String? = null,
+data class UserDto(
+  @Schema(
+    required = true,
+    description = "User ID",
+    example = "91229A16-B5F4-4784-942E-A484A97AC865"
+  )
+  val userId: String? = null,
 
-    @Schema(required = true, description = "Username", example = "externaluser")
-    val username: String? = null,
+  @Schema(required = true, description = "Username", example = "externaluser")
+  val username: String? = null,
 
-    @Schema(
-      required = true,
-      description = "Email address",
-      example = "external.user@someagency.justice.gov.uk"
-    )
-    val email: String? = null,
+  @Schema(
+    required = true,
+    description = "Email address",
+    example = "external.user@someagency.justice.gov.uk"
+  )
+  val email: String? = null,
 
-    @Schema(required = true, description = "First name", example = "External")
-    val firstName: String? = null,
+  @Schema(required = true, description = "First name", example = "External")
+  val firstName: String? = null,
 
-    @Schema(required = true, description = "Last name", example = "User")
-    val lastName: String? = null,
+  @Schema(required = true, description = "Last name", example = "User")
+  val lastName: String? = null,
 
-    @Schema(
-      required = true,
-      description = "Account is locked due to incorrect password attempts",
-      example = "true"
-    )
-    val locked: Boolean = false,
+  @Schema(
+    required = true,
+    description = "Account is locked due to incorrect password attempts",
+    example = "true"
+  )
+  val locked: Boolean = false,
 
-    @Schema(required = true, description = "Account is enabled", example = "false")
-    val enabled: Boolean = false,
+  @Schema(required = true, description = "Account is enabled", example = "false")
+  val enabled: Boolean = false,
 
-    @Schema(required = true, description = "Email address has been verified", example = "false")
-    val verified: Boolean = false,
+  @Schema(required = true, description = "Email address has been verified", example = "false")
+  val verified: Boolean = false,
 
-    @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
-    val lastLoggedIn: LocalDateTime? = null,
+  @Schema(required = true, description = "Last time user logged in", example = "01/01/2001")
+  val lastLoggedIn: LocalDateTime? = null,
 
-    @Schema(required = true, description = "Inactive reason", example = "Left department")
-    val inactiveReason: String? = null
-  ) {
-    companion object {
-      fun fromUser(user: User): UserDto {
-        return UserDto(
-          userId = user.id.toString(),
-          username = user.name,
-          email = user.email,
-          firstName = user.getFirstName(),
-          lastName = user.lastName,
-          locked = user.locked,
-          enabled = user.isEnabled(),
-          verified = user.verified,
-          lastLoggedIn = user.lastLoggedIn,
-          inactiveReason = user.inactiveReason
-        )
-      }
+  @Schema(required = true, description = "Inactive reason", example = "Left department")
+  val inactiveReason: String? = null
+) {
+  companion object {
+    fun fromUser(user: User): UserDto {
+      return UserDto(
+        userId = user.id.toString(),
+        username = user.name,
+        email = user.email,
+        firstName = user.getFirstName(),
+        lastName = user.lastName,
+        locked = user.locked,
+        enabled = user.isEnabled(),
+        verified = user.verified,
+        lastLoggedIn = user.lastLoggedIn,
+        inactiveReason = user.inactiveReason
+      )
     }
   }
 }
