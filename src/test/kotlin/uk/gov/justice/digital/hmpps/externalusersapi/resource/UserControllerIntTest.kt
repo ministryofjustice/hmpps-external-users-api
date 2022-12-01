@@ -86,7 +86,7 @@ class UserControllerIntTest : IntegrationTestBase() {
       webTestClient.get().uri("/users?email=testy@testing.co.uk")
         .headers(setAuthorisation("AUTH_ADM"))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isNoContent
     }
 
     @Test
