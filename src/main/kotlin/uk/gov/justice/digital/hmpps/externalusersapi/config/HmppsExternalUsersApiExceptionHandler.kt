@@ -31,6 +31,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNot
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
 import javax.validation.ValidationException
 
 @RestControllerAdvice
@@ -273,6 +274,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Unable to find role: ${e.message}",
+          developerMessage = e.message
+        )
+      )
+  }
+
+  @ExceptionHandler(UserRoleException::class)
+  fun handleUserRoleException(e: UserRoleException): ResponseEntity<ErrorResponse> {
+    log.debug("Auth user role exception caught: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = "User role error: ${e.message}",
           developerMessage = e.message
         )
       )
