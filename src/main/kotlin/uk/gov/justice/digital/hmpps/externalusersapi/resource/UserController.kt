@@ -65,7 +65,7 @@ class UserController(private val userSearchService: UserSearchService, private v
         ]
       ),
       ApiResponse(
-        responseCode = "404",
+        responseCode = "204",
         description = "No users found.",
         content = [
           Content(
