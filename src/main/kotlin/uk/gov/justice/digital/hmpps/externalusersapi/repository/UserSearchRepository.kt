@@ -7,7 +7,7 @@ import kotlinx.coroutines.reactive.asFlow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.awaitOne
 import org.springframework.stereotype.Repository
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserController.UserDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserDto
 import java.time.LocalDateTime
 import java.util.UUID
 

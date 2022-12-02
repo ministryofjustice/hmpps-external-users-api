@@ -28,27 +28,36 @@ class User(
   @Column(value = "password")
   private var password: String? = null
 
-  @Column(value = "enabled")
-  private var enabled: Boolean = false
-
-  @Column(value = "inactive_reason")
-  var inactiveReason: String? = null
-
   @Column(value = "email")
   var email: String? = null
 
   @Column(value = "first_name")
   private var firstName: String? = null
 
+  @Column(value = "last_name")
+  var lastName: String? = null
+
+  @Column(value = "enabled")
+  private var enabled: Boolean = false
+
+  @Column(value = "locked")
+  var locked = false
+
+  @Column(value = "verified")
+  var verified: Boolean = false
+
   @Column(value = "last_logged_in")
   var lastLoggedIn: LocalDateTime = LocalDateTime.now()
 
-  val name: String
-    get() = username
+  @Column(value = "inactive_reason")
+  var inactiveReason: String? = null
 
   override fun eraseCredentials() {
     password = null
   }
+
+  val name: String
+    get() = username
 
   fun getUserName() = username
 
