@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -83,6 +84,45 @@ class UserController(private val userSearchService: UserSearchService, private v
     val users = userSearchService.findAuthUsersByEmail(email).map { UserDto.fromUser(it) }
     return if (users.count() == 0) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
+
+  @GetMapping("/{username}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "User detail.",
+    description = "User detail."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun user(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
+  ) = UserDto.fromUser(userService.getAuthUserByUsername(username) ?: throw UsernameNotFoundException("Account for username $username not found"))
 
   @GetMapping("/search")
   @Operation(
