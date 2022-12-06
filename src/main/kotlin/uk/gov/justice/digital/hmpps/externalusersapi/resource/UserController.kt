@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -122,7 +121,7 @@ class UserController(private val userSearchService: UserSearchService, private v
   suspend fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ) = UserDto.fromUser(userService.getAuthUserByUsername(username) ?: throw UsernameNotFoundException("Account for username $username not found"))
+  ) = userSearchService.getUserByUsername(username)?.let { UserDto.fromUser(it) }
 
   @GetMapping("/search")
   @Operation(

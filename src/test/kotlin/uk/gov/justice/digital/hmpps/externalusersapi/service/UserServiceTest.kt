@@ -104,13 +104,4 @@ class UserServiceTest {
       assertThat(userToCheck.lastLoggedIn).isEqualTo(fiveDaysAgo)
     }
   }
-
-  @Nested
-  inner class FindExternalUsersByUserName {
-    @Test
-    fun externalUserByUsername(): Unit = runBlocking {
-      service.getAuthUserByUsername("   bob   ")
-      verify(userRepository).findByUsernameAndSource("BOB", AuthSource.auth)
-    }
-  }
 }

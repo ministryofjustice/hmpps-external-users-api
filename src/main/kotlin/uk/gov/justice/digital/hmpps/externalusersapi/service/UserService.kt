@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
-import org.apache.commons.lang3.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -44,9 +42,6 @@ class UserService(
       )
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
-
-  suspend fun getAuthUserByUsername(username: String): User? =
-    userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) // ?: throw UsernameNotFoundException("Account for username $username not found")
 
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
