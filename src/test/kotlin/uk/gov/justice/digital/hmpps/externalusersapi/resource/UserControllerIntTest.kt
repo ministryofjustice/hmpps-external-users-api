@@ -71,17 +71,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json("user_search_groups_roles.json".readFile())
     }
   }
-  @Test
-  fun `User search endpoint returns correct data when filtering by groups and roles`() {
-    webTestClient
-      .get().uri("/users/search?groups=SITE_1_GROUP_1&roles=LICENCE_RO")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-      .exchange()
-      .expectStatus().isOk
-      .expectHeader().contentType(MediaType.APPLICATION_JSON)
-      .expectBody()
-      .json("user_search_groups_roles.json".readFile())
-  }
 
   @Nested
   inner class EnableUserByUserId {
@@ -419,7 +408,7 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `Responds with no found when username not present`() {
+    fun `Responds with no content when username not present`() {
       webTestClient.get().uri("/users")
         .headers(setAuthorisation("AUTH_ADM"))
         .exchange()
@@ -443,6 +432,47 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.verified").isEqualTo(true)
         .jsonPath("$.lastLoggedIn").isNotEmpty
         .jsonPath("$.inactiveReason").isEmpty
+    }
+  }
+
+  @Nested
+  inner class MyAssignableGroups {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/me/assignable-groups")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Is accessible to authorised user without roles`() {
+      webTestClient.get().uri("/users/me/assignable-groups")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Should respond with authorised user groups`() {
+      webTestClient.get().uri("/users/me/assignable-groups")
+        .headers(setAuthorisation(user = "AUTH_GROUP_MANAGER"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it).hasSize(2) }
+        .jsonPath("$.[0].groupCode").isEqualTo("SITE_1_GROUP_1")
+        .jsonPath("$.[0].groupName").isEqualTo("Site 1 - Group 1")
+    }
+
+    @Test
+    fun `Should respond with all groups when authorised user holds maintain role`() {
+      webTestClient.get().uri("/users/me/assignable-groups")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
     }
   }
 }

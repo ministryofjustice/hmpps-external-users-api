@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupIdentity
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
@@ -187,14 +188,18 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  suspend fun getGroupsByUserName(username: String?): Set<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group>? =
+  suspend fun getGroupsByUserName(username: String?): Set<Group>? =
     username?.let {
       userRepository.findByUsernameAndSource(username.trim().uppercase())?.let {
         groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
       }
     }
 
-  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group> =
+  suspend fun getMyAssignableGroups(): List<Group> {
+    return getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
+  }
+
+  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
     if (canMaintainUsers(authorities)) groupRepository.findAllByOrderByGroupName().toList()
     else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
 }

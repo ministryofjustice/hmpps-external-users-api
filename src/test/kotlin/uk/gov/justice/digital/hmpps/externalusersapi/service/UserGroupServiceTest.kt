@@ -243,7 +243,10 @@ class UserGroupServiceTest {
 
       verifyNoInteractions(telemetryClient)
     }
+  }
 
+  @Nested
+  inner class GetAssignableGroups {
     @Test
     fun userAssignableGroups_notAdminAndNoUser(): Unit = runBlocking {
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
@@ -278,6 +281,46 @@ class UserGroupServiceTest {
       val groups = service.getAssignableGroups(" BOB ", setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
     }
+
+    @Test
+    fun myAssignableGroups_notAdminAndNoUser(): Unit = runBlocking {
+      givenRolesForUser("BOB", setOf())
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
+
+      val groups = service.getMyAssignableGroups()
+      assertThat(groups).isEmpty()
+    }
+
+    @Test
+    fun myAssignableGroups_normalUser(): Unit = runBlocking {
+      givenRolesForUser("BOB", setOf())
+
+      val user = createSampleUser(username = "BOB")
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(user)
+      whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
+        flowOf(
+          Group("JOE", "desc"),
+          Group("LICENCE_VARY", "desc2")
+        )
+      )
+
+      val groups = service.getMyAssignableGroups()
+      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
+    }
+
+    @Test
+    fun myAssignableGroups_superUser(): Unit = runBlocking {
+      givenSuperUserRoleForUser("BOB")
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
+        flowOf(
+          Group("JOE", "desc"),
+          Group("LICENCE_VARY", "desc2")
+        )
+      )
+
+      val groups = service.getMyAssignableGroups()
+      assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
+    }
   }
 
   @Nested
@@ -285,9 +328,8 @@ class UserGroupServiceTest {
 
     @Test
     fun groupNotOnUser(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("admin")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+      givenSuperUserRoleForUser("admin")
+
       val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
@@ -308,9 +350,8 @@ class UserGroupServiceTest {
 
     @Test
     fun success(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("admin")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      givenSuperUserRoleForUser("admin")
+
       whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(0)
       val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
@@ -329,9 +370,8 @@ class UserGroupServiceTest {
 
     @Test
     fun successAsGroupManager(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+      givenGroupManagerRoleForUser()
+
       val groupId2 = UUID.randomUUID()
       val groups = flowOf(
         Group("JOE", "desc", UUID.randomUUID()),
@@ -355,9 +395,7 @@ class UserGroupServiceTest {
 
     @Test
     fun failureAsGroupManagerLastGroup(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+      givenGroupManagerRoleForUser()
 
       val groups = flowOf(Group("GROUP_LICENCE_VARY", "desc2"))
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(groups)
@@ -416,10 +454,8 @@ class UserGroupServiceTest {
     }
 
     @Test
-    fun `Add Group By User Id success`(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+    fun  `Add Group By User Id success`(): Unit = runBlocking {
+      givenSuperUserRoleForUser("MANAGER")
 
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
       val user = createSampleUser(username = "user")
@@ -444,9 +480,7 @@ class UserGroupServiceTest {
 
     @Test
     fun successAsGroupManager(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+      givenGroupManagerRoleForUser()
 
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
       val user = createSampleUser(username = "user")
@@ -476,9 +510,7 @@ class UserGroupServiceTest {
 
     @Test
     fun failureWhenGroupManagerNotMemberOfGroup(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+      givenGroupManagerRoleForUser()
 
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
@@ -501,9 +533,7 @@ class UserGroupServiceTest {
 
     @Test
     fun failureWhenGroupManagerNotAllowedToMaintainUser(): Unit = runBlocking {
-      whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
-      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+      givenGroupManagerRoleForUser()
 
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))).thenReturn(user)
@@ -525,6 +555,20 @@ class UserGroupServiceTest {
       }.isInstanceOf(UserGroupRelationshipException::class.java)
         .hasMessage("Unable to maintain user: user with reason: User not with your groups")
     }
+  }
+
+  private fun givenSuperUserRoleForUser(username: String): Unit = runBlocking {
+    givenRolesForUser(username, SUPER_USER)
+  }
+
+  private fun givenGroupManagerRoleForUser(): Unit = runBlocking {
+    givenRolesForUser("MANAGER", GROUP_MANAGER_ROLE)
+  }
+
+  private fun givenRolesForUser(username: String, authorities: Set<GrantedAuthority>): Unit = runBlocking {
+    whenever(authenticationFacade.getUsername()).thenReturn(username)
+    whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+    whenever(authentication.authorities).thenReturn(authorities)
   }
 
   companion object {
