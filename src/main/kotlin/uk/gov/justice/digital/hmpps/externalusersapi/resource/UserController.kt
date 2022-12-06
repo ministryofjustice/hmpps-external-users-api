@@ -87,6 +87,45 @@ class UserController(private val userSearchService: UserSearchService, private v
     return if (users.count() == 0) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
+  @GetMapping("/{username}")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "User detail.",
+    description = "User detail."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun user(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
+  ) = UserDto.fromUser(userSearchService.getUserByUsername(username))
+
   @GetMapping("/search")
   @Operation(
     summary = "Search for an external user."
