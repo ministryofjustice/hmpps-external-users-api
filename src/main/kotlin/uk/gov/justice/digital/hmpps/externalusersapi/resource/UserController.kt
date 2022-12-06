@@ -121,7 +121,7 @@ class UserController(private val userSearchService: UserSearchService, private v
   suspend fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ) = userSearchService.getUserByUsername(username)?.let { UserDto.fromUser(it) }
+  ) = UserDto.fromUser(userSearchService.getUserByUsername(username))
 
   @GetMapping("/search")
   @Operation(
