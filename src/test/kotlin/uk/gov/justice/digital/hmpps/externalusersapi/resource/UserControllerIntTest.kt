@@ -231,4 +231,49 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].inactiveReason").isEmpty
     }
   }
+
+  @Nested
+  inner class UsersByUserName {
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/user_name")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Is accessible to authorised user without roles`() {
+      webTestClient.get().uri("/users/user_name")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Responds with no found when username not present`() {
+      webTestClient.get().uri("/users")
+        .headers(setAuthorisation("AUTH_ADM"))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `Responds with content when username matches`() {
+      webTestClient.get().uri("/users/AUTH_ADM")
+        .headers(setAuthorisation("AUTH_ADM"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isEqualTo("5105a589-75b3-4ca0-9433-b96228c1c8f3")
+        .jsonPath("$.username").isEqualTo("AUTH_ADM")
+        .jsonPath("$.email").isEqualTo("auth_test2@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Auth")
+        .jsonPath("$.lastName").isEqualTo("Adm")
+        .jsonPath("$.locked").isEqualTo(false)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.lastLoggedIn").isNotEmpty
+        .jsonPath("$.inactiveReason").isEmpty
+    }
+  }
 }
