@@ -454,7 +454,7 @@ class UserGroupServiceTest {
     }
 
     @Test
-    fun  `Add Group By User Id success`(): Unit = runBlocking {
+    fun `Add Group By User Id success`(): Unit = runBlocking {
       givenSuperUserRoleForUser("MANAGER")
 
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
