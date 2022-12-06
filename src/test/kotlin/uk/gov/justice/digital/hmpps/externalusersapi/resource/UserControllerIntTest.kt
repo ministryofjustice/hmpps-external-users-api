@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -72,17 +71,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .json("user_search_groups_roles.json".readFile())
     }
   }
-  @Test
-  fun `User search endpoint returns correct data when filtering by groups and roles`() {
-    webTestClient
-      .get().uri("/users/search?groups=SITE_1_GROUP_1&roles=LICENCE_RO")
-      .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-      .exchange()
-      .expectStatus().isOk
-      .expectHeader().contentType(MediaType.APPLICATION_JSON)
-      .expectBody()
-      .json("user_search_groups_roles.json".readFile())
-  }
 
   @Nested
   inner class EnableUserByUserId {
@@ -105,7 +93,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "userMessage" to "User not within your groups: Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
@@ -126,7 +114,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isNotFound
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "userMessage" to "User not found: User fc494152-f9ad-48a0-a87c-9adc8bd75333 not found",
@@ -147,7 +135,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
@@ -168,7 +156,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-          Assertions.assertThat(it).containsAllEntriesOf(
+          assertThat(it).containsAllEntriesOf(
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
