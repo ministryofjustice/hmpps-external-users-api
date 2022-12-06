@@ -27,6 +27,8 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
@@ -35,7 +37,11 @@ import java.util.UUID
 @RestController
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
-class UserController(private val userSearchService: UserSearchService, private val userService: UserService) {
+class UserController(
+  private val userSearchService: UserSearchService,
+  private val userService: UserService,
+  private val userGroupService: UserGroupService
+) {
 
   @GetMapping
   @Operation(
@@ -233,6 +239,34 @@ class UserController(private val userSearchService: UserSearchService, private v
   ) = userService.enableUserByUserId(
     userId
   )
+
+  @GetMapping("/me/assignable-groups")
+  @Operation(
+    summary = "Get list of assignable groups.",
+    description = "Get list of groups that can be assigned by the current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun assignableGroups(): List<UserGroupDto> {
+    val groups = userGroupService.getMyAssignableGroups()
+    return groups.map { UserGroupDto(it) }
+  }
 }
 
 data class UserDto(
@@ -308,5 +342,4 @@ data class EmailNotificationDto(
 
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
   val admin: String
-
 )
