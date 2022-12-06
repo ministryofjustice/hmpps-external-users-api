@@ -68,6 +68,11 @@ class User(
   fun setEnabled(enabled: Boolean) {
     this.enabled = enabled
   }
+
+  fun setDisabled(disabled: Boolean) {
+    this.enabled = disabled
+  }
+
   override fun toString(): String =
     "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
 }

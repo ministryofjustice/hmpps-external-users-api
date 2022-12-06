@@ -291,7 +291,8 @@ class UserGroupServiceTest {
       val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
-        Group("JOE", "desc", groupId1), Group("LICENCE_VARY", "desc2", groupId2)
+        Group("JOE", "desc", groupId1),
+        Group("LICENCE_VARY", "desc2", groupId2)
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
         group
@@ -314,7 +315,8 @@ class UserGroupServiceTest {
       val groupId1 = UUID.randomUUID()
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
-        Group("JOE", "desc", groupId1), Group("LICENCE_VARY", "desc2", groupId2)
+        Group("JOE", "desc", groupId1),
+        Group("LICENCE_VARY", "desc2", groupId2)
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(group)
       val userId = UUID.randomUUID()
@@ -332,7 +334,8 @@ class UserGroupServiceTest {
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
       val groupId2 = UUID.randomUUID()
       val groups = flowOf(
-        Group("JOE", "desc", UUID.randomUUID()), Group("GROUP_LICENCE_VARY", "desc2", groupId2)
+        Group("JOE", "desc", UUID.randomUUID()),
+        Group("GROUP_LICENCE_VARY", "desc2", groupId2)
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(groups)
       whenever(groupRepository.findGroupsByUsername("MANAGER")).thenReturn(groups)
@@ -413,7 +416,7 @@ class UserGroupServiceTest {
     }
 
     @Test
-    fun success(): Unit = runBlocking {
+    fun `Add Group By User Id success`(): Unit = runBlocking {
       whenever(authenticationFacade.getUsername()).thenReturn("MANAGER")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER)
@@ -434,7 +437,8 @@ class UserGroupServiceTest {
       val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
       verify(telemetryClient).trackEvent(
         eq("AuthUserGroupAddSuccess"),
-        eq(expectedTelemetryDetails), isNull()
+        eq(expectedTelemetryDetails),
+        isNull()
       )
     }
 

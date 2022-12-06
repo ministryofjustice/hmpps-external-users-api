@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
+import com.microsoft.applicationinsights.TelemetryClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -20,6 +21,7 @@ class UserService(
   private val userRepository: UserRepository,
   private val maintainUserCheck: MaintainUserCheck,
   private val authenticationFacade: AuthenticationFacade,
+  private val telemetryClient: TelemetryClient,
   @Value("\${application.authentication.disable.login-days}") private val loginDaysTrigger: Int,
 ) {
 
@@ -35,11 +37,26 @@ class UserService(
         user.lastLoggedIn = LocalDateTime.now().minusDays(loginDaysTrigger - 7L)
       }
       userRepository.save(user)
+      telemetryClient.trackEvent("ExternalUserEnabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
       log.debug("User {} enabled and saved", user)
       return EmailNotificationDto(
-        firstName = user.getFirstName(), username = user.getUserName(),
-        email = user.email, admin = authenticationFacade.getUsername()
+        firstName = user.getFirstName(),
+        username = user.getUserName(),
+        email = user.email,
+        admin = authenticationFacade.getUsername()
       )
+    } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Transactional
+  @Throws(UserGroupRelationshipException::class)
+  suspend fun disableUserByUserId(userId: UUID, inactiveReason: String) {
+    userRepository.findById(userId)?.let { user ->
+      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
+      user.setDisabled(false)
+      user.inactiveReason = inactiveReason
+      userRepository.save(user)
+      telemetryClient.trackEvent("ExternalUserDisabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
