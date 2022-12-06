@@ -3,14 +3,17 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
@@ -62,6 +65,29 @@ class UserSearchServiceTest {
       val actualUsers = userSearchService.findAuthUsersByEmail(email)
 
       assertThat(actualUsers.toList()).containsOnly(user)
+    }
+  }
+
+  @Nested
+  inner class FindExternalUsersByUserName {
+    @Test
+    fun shouldFailWithUserException(): Unit = runBlocking {
+
+      Assertions.assertThatThrownBy {
+        runBlocking {
+          userSearchService.getUserByUsername("   bob   ")
+        }
+      }.isInstanceOf(UsernameNotFoundException::class.java)
+        .hasMessage("Account for username    bob    not found")
+    }
+
+    @Test
+    fun externalUserByUsername(): Unit = runBlocking {
+      val mockUser = User("BOB", AuthSource.auth)
+      whenever(userRepository.findByUsernameAndSource(anyOrNull(), anyOrNull())).thenReturn(mockUser)
+      val user = userSearchService.getUserByUsername("   bob   ")
+      verify(userRepository).findByUsernameAndSource("BOB", AuthSource.auth)
+      assertThat(user).isEqualTo(mockUser)
     }
   }
 }
