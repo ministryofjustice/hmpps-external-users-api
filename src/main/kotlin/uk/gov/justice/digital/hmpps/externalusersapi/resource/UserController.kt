@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -33,14 +34,16 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Size
 
 @RestController
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
 class UserController(
-  private val userSearchService: UserSearchService,
   private val userService: UserService,
-  private val userGroupService: UserGroupService
+  private val userSearchService: UserSearchService,
+  private val userGroupService: UserGroupService,
 ) {
 
   @GetMapping
@@ -240,6 +243,64 @@ class UserController(
     userId
   )
 
+  @PutMapping("/{userId}/disable")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Disable a user.",
+    description = "Disable a user."
+  )
+  @ResponseStatus(HttpStatus.OK)
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK."
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to disable user, the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun disableUserByUserId(
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: UUID,
+    @Parameter(
+      description = "The reason user made inactive.",
+      required = true
+    ) @RequestBody
+    deactivateReason: DeactivateReason
+  ) = userService.disableUserByUserId(
+    userId,
+    deactivateReason.reason
+  )
+
   @GetMapping("/me/assignable-groups")
   @Operation(
     summary = "Get list of assignable groups.",
@@ -342,4 +403,11 @@ data class EmailNotificationDto(
 
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
   val admin: String
+)
+
+@Schema(description = "Deactivate Reason")
+data class DeactivateReason(
+  @Schema(required = true, description = "Deactivate Reason", example = "User has left")
+  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
+  val reason: String
 )

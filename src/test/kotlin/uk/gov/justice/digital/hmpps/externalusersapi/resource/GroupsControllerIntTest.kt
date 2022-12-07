@@ -58,6 +58,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         }
     }
   }
+
   @Nested
   inner class GroupDetails {
     @Test
@@ -223,7 +224,6 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-
           assertThat(it["userMessage"] as String).startsWith("Validation failure:")
 
           assertThat(it["developerMessage"] as String).contains("default message [size must be between 4 and 100]")
@@ -321,7 +321,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(
           BodyInserters.fromValue(
             mapOf(
-              "groupCode" to "12345".repeat(6) + "x", "groupName" to "12345".repeat(20) + "y",
+              "groupCode" to "12345".repeat(6) + "x",
+              "groupName" to "12345".repeat(20) + "y",
             )
           )
         )
@@ -342,7 +343,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(
           BodyInserters.fromValue(
             mapOf(
-              "groupCode" to "x", "groupName" to "123",
+              "groupCode" to "x",
+              "groupName" to "123",
             )
           )
         )
@@ -363,7 +365,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .body(
           BodyInserters.fromValue(
             mapOf(
-              "groupCode" to "a-b", "groupName" to "a\$here",
+              "groupCode" to "a-b",
+              "groupName" to "a\$here",
             )
           )
         )
@@ -503,6 +506,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           """.trimIndent()
         )
     }
+
     @Test
     fun `Delete Child Group details endpoint not accessible without valid token`() {
       webTestClient.delete().uri("/groups/GC_DEL_1")

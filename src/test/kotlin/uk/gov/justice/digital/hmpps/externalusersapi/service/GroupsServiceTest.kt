@@ -92,7 +92,6 @@ class GroupsServiceTest {
 
     @Test
     fun `Create group exists`(): Unit = runBlocking {
-
       val createGroup = CreateGroupDto(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(Group("code", "name"))
 

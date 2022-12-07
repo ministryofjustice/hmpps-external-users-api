@@ -79,9 +79,73 @@ class UserControllerIntTest : IntegrationTestBase() {
     fun `External User Enable endpoint enables user`() {
       webTestClient
         .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75255/enable")
-        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/AUTH_STATUS")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75255",
+              "username" to "AUTH_STATUS",
+              "email" to null,
+              "firstName" to "Auth",
+              "lastName" to "Status",
+              "locked" to false,
+              "enabled" to true,
+              "verified" to true,
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `Group manager Enable endpoint enables user`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/SITE_1_GROUP_2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/enable")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/AUTH_STATUS2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75266",
+              "username" to "AUTH_STATUS2",
+              "email" to null,
+              "firstName" to "Auth",
+              "lastName" to "Status2",
+              "locked" to false,
+              "enabled" to true,
+              "verified" to true,
+            )
+          )
+        }
+
+      // remove role so that tests can be rerun
+      webTestClient
+        .delete().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/site_1_group_2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
     }
 
     @Test
@@ -229,6 +293,145 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].verified").isEqualTo(true)
         .jsonPath("$[0].lastLoggedIn").isNotEmpty
         .jsonPath("$[0].inactiveReason").isEmpty
+    }
+  }
+
+  @Nested
+  inner class DisableUserByUserId {
+    @Test
+    fun `Auth User Disable endpoint disables user`() {
+      val reason = DeactivateReason("left department")
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75255/disable")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .bodyValue(reason)
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/AUTH_STATUS")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75255",
+              "username" to "AUTH_STATUS",
+              "email" to null,
+              "firstName" to "Auth",
+              "lastName" to "Status",
+              "locked" to false,
+              "enabled" to false,
+              "verified" to true,
+            )
+          )
+        }
+
+      // reset user to original state
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75255/enable")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Group manager Disable by userId endpoint disables user`() {
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/groups/SITE_1_GROUP_2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/disable")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .bodyValue(DeactivateReason("left department"))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/AUTH_STATUS2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "userId" to "fc494152-f9ad-48a0-a87c-9adc8bd75266",
+              "username" to "AUTH_STATUS2",
+              "email" to null,
+              "firstName" to "Auth",
+              "lastName" to "Status2",
+              "locked" to false,
+              "enabled" to true,
+              "verified" to true,
+            )
+          )
+        }
+
+      // remove role so that tests can be rerun
+      webTestClient
+        .delete().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/groups/site_1_group_2")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `Disable External User denied access with no authorization header`() {
+      webTestClient
+        .put().uri("/users/FC494152-F9AD-48A0-A87C-9ADC8BD75255/disable")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+  }
+
+  @Nested
+  inner class GetUsersByUserName {
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/user_name")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Is accessible to authorised user without roles`() {
+      webTestClient.get().uri("/users/user_name")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Responds with no content when username not present`() {
+      webTestClient.get().uri("/users")
+        .headers(setAuthorisation("AUTH_ADM"))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+
+    @Test
+    fun `Responds with content when username matches`() {
+      webTestClient.get().uri("/users/AUTH_ADM")
+        .headers(setAuthorisation("AUTH_ADM"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isEqualTo("5105a589-75b3-4ca0-9433-b96228c1c8f3")
+        .jsonPath("$.username").isEqualTo("AUTH_ADM")
+        .jsonPath("$.email").isEqualTo("auth_test2@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Auth")
+        .jsonPath("$.lastName").isEqualTo("Adm")
+        .jsonPath("$.locked").isEqualTo(false)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.lastLoggedIn").isNotEmpty
+        .jsonPath("$.inactiveReason").isEmpty
     }
   }
 
