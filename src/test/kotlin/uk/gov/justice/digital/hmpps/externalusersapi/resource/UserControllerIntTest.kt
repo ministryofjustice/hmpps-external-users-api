@@ -436,47 +436,6 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class MyAssignableGroups {
-
-    @Test
-    fun `Not accessible without valid token`() {
-      webTestClient.get().uri("/users/me/assignable-groups")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `Is accessible to authorised user without roles`() {
-      webTestClient.get().uri("/users/me/assignable-groups")
-        .headers(setAuthorisation())
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `Should respond with authorised user groups`() {
-      webTestClient.get().uri("/users/me/assignable-groups")
-        .headers(setAuthorisation(user = "AUTH_GROUP_MANAGER"))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it).hasSize(2) }
-        .jsonPath("$.[0].groupCode").isEqualTo("SITE_1_GROUP_1")
-        .jsonPath("$.[0].groupName").isEqualTo("Site 1 - Group 1")
-    }
-
-    @Test
-    fun `Should respond with all groups when authorised user holds maintain role`() {
-      webTestClient.get().uri("/users/me/assignable-groups")
-        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
-    }
-  }
-
-  @Nested
   inner class UsersByUserName {
     @Test
     fun `Not accessible without valid token`() {
