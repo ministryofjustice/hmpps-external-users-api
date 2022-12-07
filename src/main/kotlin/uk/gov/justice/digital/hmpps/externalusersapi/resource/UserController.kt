@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
@@ -41,7 +43,7 @@ import javax.validation.constraints.Size
 class UserController(
   private val userSearchService: UserSearchService,
   private val userService: UserService,
-  private val userGroupService: UserGroupService
+  private val userGroupService: UserGroupService,
 ) {
 
   @GetMapping
