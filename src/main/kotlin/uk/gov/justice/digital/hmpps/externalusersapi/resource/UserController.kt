@@ -41,8 +41,8 @@ import javax.validation.constraints.Size
 @RequestMapping("/users")
 @Tag(name = "/users", description = "External User Controller")
 class UserController(
-  private val userSearchService: UserSearchService,
   private val userService: UserService,
+  private val userSearchService: UserSearchService,
   private val userGroupService: UserGroupService,
 ) {
 

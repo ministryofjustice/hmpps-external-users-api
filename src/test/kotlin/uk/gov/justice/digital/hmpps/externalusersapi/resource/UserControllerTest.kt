@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import wiremock.javax.servlet.http.HttpServletRequest
@@ -13,8 +14,9 @@ import java.util.UUID
 class UserControllerTest {
   private val userService: UserService = mock()
   private val userSearchService: UserSearchService = mock()
+  private val userGroupService: UserGroupService = mock()
   private val request: HttpServletRequest = mock()
-  private val userController = UserController(userSearchService, userService)
+  private val userController = UserController(userService, userSearchService, userGroupService)
 
   @Test
   fun enableUserByUserId(): Unit = runBlocking {
