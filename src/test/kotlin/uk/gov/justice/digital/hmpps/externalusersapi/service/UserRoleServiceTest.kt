@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -18,6 +19,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
@@ -44,7 +46,7 @@ internal class UserRoleServiceTest {
   inner class GetAuthUserByUserId {
     @Test
     fun getRolesSuccess(): Unit = runBlocking {
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val id = UUID.randomUUID()
       val user = createSampleUser(username = "user")
 
@@ -52,13 +54,13 @@ internal class UserRoleServiceTest {
 
       whenever(roleRepository.findRolesByUserId(any())).thenReturn(
         flowOf(
-          Authority(UUID.randomUUID(), "GROUP_ONE", "Group One info", adminType = "EXT_ADM"),
+          Authority(UUID.randomUUID(), "ROLE_ONE", "Role One info", adminType = "EXT_ADM"),
           Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", "EXT_ADM")
         )
       )
 
       val roles = service.getUserRoles(id)
-      assertThat(roles).extracting<String> { it.roleCode }.containsOnly("GROUP_ONE", "GLOBAL_SEARCH")
+      assertThat(roles).extracting<String> { it.roleCode }.containsOnly("ROLE_ONE", "GLOBAL_SEARCH")
     }
 
     @Test
@@ -67,6 +69,252 @@ internal class UserRoleServiceTest {
       whenever(userRepository.findById(id)).thenReturn(null)
       val roles = service.getUserRoles(id)
       assertThat(roles).isNull()
+    }
+  }
+
+  @Nested
+  inner class AddRolesByUserId {
+    @Test
+    fun addRoles_userNotfound(): Unit = runBlocking {
+      whenever(userRepository.findById(anyOrNull())).thenReturn(null)
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(
+            UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
+            listOf("ROLE_CODE")
+          )
+        }
+      }.isInstanceOf(
+        UsernameNotFoundException::class.java
+      ).hasMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
+    }
+
+    @Test
+    fun addRoles_roleNotfound(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+      val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      whenever(userRepository.findById(anyOrNull())).thenReturn(createSampleUser(id = userId, username = "user"))
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf())
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(
+            userId,
+            listOf("        ")
+          )
+        }
+      }.isInstanceOf(
+        UserRoleException::class.java
+      ).hasMessage("Modify role failed for field role with reason: role.notfound")
+    }
+
+    @Test
+    fun addRoles_invalidRole(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf())
+      val role = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(role.copy(roleCode = "INCORRECT_ROLE")))
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(
+            UUID.randomUUID(),
+            listOf("BOB"),
+          )
+        }
+      }.isInstanceOf(
+        UserRoleException::class.java
+      ).hasMessage("Modify role failed for field role with reason: invalid")
+    }
+
+    @Test
+    fun addRoles_noaccess(): Unit = runBlocking {
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
+      doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
+        .ensureUserLoggedInUserRelationship(anyString())
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(UUID.randomUUID(), listOf("BOB"))
+        }
+      }.isInstanceOf(
+        UserGroupRelationshipException::class.java
+      ).hasMessage("Unable to maintain user: user with reason: User not with your groups")
+    }
+
+    @Test
+    fun addRoles_invalidRoleGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
+      val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(
+        flowOf(
+          Authority(
+            UUID.randomUUID(),
+            "FRED",
+            "Role Fred", adminType = "EXT_ADM"
+          )
+        )
+      )
+      whenever(roleRepository.findRolesByUserId(any()))
+        .thenReturn(flowOf(Authority(UUID.randomUUID(), "JOE", "bloggs", adminType = "EXT_ADM")))
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(
+            UUID.randomUUID(),
+            listOf("BOB"),
+          )
+        }
+      }.isInstanceOf(
+        UserRoleException::class.java
+      ).hasMessage("Modify role failed for field role with reason: invalid")
+    }
+
+    @Test
+    fun addRoles_oauthAdminRestricted(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf())
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf()) // allroles
+      val role = Authority(UUID.randomUUID(), "ROLE_OAUTH_ADMIN", "Role Licence Vary", adminType = "EXT_ADM")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+
+      assertThatThrownBy {
+        runBlocking { service.addRolesByUserId(UUID.randomUUID(), listOf("BOB")) }
+      }.isInstanceOf(
+        UserRoleException::class.java
+      ).hasMessage("Modify role failed for field role with reason: invalid")
+    }
+
+    @Test
+    fun addRoles_roleAlreadyOnUser(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+
+      val user = createSampleUser(id = UUID.randomUUID(), username = "user")
+      whenever(userRepository.findById(any())).thenReturn(user)
+      val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(role))
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
+
+      assertThatThrownBy {
+        runBlocking {
+          service.addRolesByUserId(
+            UUID.randomUUID(),
+            listOf("LICENCE_VARY"),
+          )
+        }
+      }.isInstanceOf(
+        UserRoleException::class.java
+      ).hasMessage("Modify role failed for field role with reason: role.exists")
+    }
+
+    @Test
+    fun addRoles_oauthAdminRestricted_success(): Unit = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"), SimpleGrantedAuthority("ROLE_OAUTH_ADMIN")))
+
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(userId)).thenReturn(createSampleUser(id = userId, username = "user"))
+      val role = Authority(UUID.randomUUID(), "ROLE_OAUTH_ADMIN", "Role Auth Admin", adminType = "EXT_ADM")
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findByGroupAssignableRolesForUsername(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role))
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
+      whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
+
+      service.addRolesByUserId(userId, listOf("TO_ADD"))
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("username" to userId.toString(), "role" to "TO_ADD", "admin" to "admin"),
+        null
+      )
+    }
+
+    @Test
+    fun addRoles_success(): Unit = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = userId, username = "user"))
+      val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
+
+      service.addRolesByUserId(UUID.randomUUID(), listOf("ROLE_LICENCE_VARY"))
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        null
+      )
+    }
+
+    @Test
+    fun `addRoles success multiple roles`(): Unit = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = userId, username = "user"))
+      val role1 = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
+      val role2 = Authority(UUID.randomUUID(), "ROLE_OTHER", "Role Other", adminType = "EXT_ADM")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role1, role2)) // allroles
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role1).thenReturn(role2)
+      whenever(roleRepository.findRolesByUserId(userId))
+        .thenReturn(flowOf(Authority(UUID.randomUUID(), "JOE", "bloggs", adminType = "EXT_ADM")))
+
+      service.addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY", "ROLE_OTHER"))
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        null
+      )
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("username" to userId.toString(), "role" to "OTHER", "admin" to "admin"),
+        null
+      )
+    }
+
+    @Test
+    fun addRoles_successGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
+
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = userId, username = "user"))
+      val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findByGroupAssignableRolesForUserId(any())).thenReturn(flowOf(role))
+      whenever(roleRepository.findRolesByUserId(userId))
+        .thenReturn(flowOf(Authority(UUID.randomUUID(), "JOE", "bloggs", adminType = "EXT_ADM")))
+
+      service.addRolesByUserId(
+        userId, listOf("ROLE_LICENCE_VARY"),
+      )
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        null
+      )
     }
   }
 
@@ -105,7 +353,7 @@ internal class UserRoleServiceTest {
     @Test
     fun removeRole_invalid(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
       val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
       val role2 = Authority(UUID.randomUUID(), "BOB", "Bloggs", adminType = "EXT_ADM")
@@ -179,7 +427,7 @@ internal class UserRoleServiceTest {
       val userId = UUID.randomUUID()
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(user)
       val roleToRemoveId = UUID.randomUUID()
@@ -203,7 +451,7 @@ internal class UserRoleServiceTest {
       val userId = UUID.randomUUID()
       whenever(authenticationFacade.getUsername()).thenReturn("groupmanager")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
       val role = Authority(UUID.randomUUID(), "LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
       val role2 = Authority(UUID.randomUUID(), "JOE", "Bloggs", adminType = "EXT_ADM")
@@ -227,7 +475,7 @@ internal class UserRoleServiceTest {
     @Test
     fun `assignable roles for group manager`(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
       val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
       val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
@@ -245,7 +493,7 @@ internal class UserRoleServiceTest {
     @Test
     fun `assignable roles for super user`(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
       val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
       val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
@@ -264,7 +512,7 @@ internal class UserRoleServiceTest {
     @Test
     fun `all assignable roles for group manager`(): Unit = runBlocking {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authentication.authorities).thenReturn(GROUP_MANAGER)
+      whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
       val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
       val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
@@ -276,7 +524,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun `all assignable roles for Super User`(): Unit = runBlocking {
-      whenever(authentication.authorities).thenReturn(SUPER_USER)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
       val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
@@ -290,7 +538,7 @@ internal class UserRoleServiceTest {
   }
 
   companion object {
-    private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
-    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+    private val SUPER_USER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+    private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
   }
 }
