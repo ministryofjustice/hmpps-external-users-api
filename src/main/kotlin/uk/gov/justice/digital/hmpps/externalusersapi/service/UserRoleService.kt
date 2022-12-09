@@ -72,7 +72,6 @@ class UserRoleService(
   ) {
     // already checked that user exists
     userRepository.findById(userId)?.let { user: User ->
-      val userId = user.id!!
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       val formattedRoles = roleCodes.map { formatRole(it) }
       val allAssignableRoles = getAllAssignableRolesByUserId(userId)

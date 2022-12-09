@@ -231,7 +231,6 @@ internal class UserRoleServiceTest {
       whenever(userRepository.findById(userId)).thenReturn(createSampleUser(id = userId, username = "user"))
       val role = Authority(UUID.randomUUID(), "ROLE_OAUTH_ADMIN", "Role Auth Admin", adminType = "EXT_ADM")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
-      whenever(roleRepository.findByGroupAssignableRolesForUsername(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role))
       whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
       whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
 
