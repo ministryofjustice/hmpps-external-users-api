@@ -16,7 +16,6 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -89,7 +88,7 @@ class UserController(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
     email: String?
   ): ResponseEntity<Any> {
-    val users = userSearchService.findAuthUsersByEmail(email).map { UserDto.fromUser(it) }
+    val users = userSearchService.findUsersByEmail(email).map { UserDto.fromUser(it) }
     return if (users.count() == 0) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
   }
 
@@ -172,16 +171,13 @@ class UserController(
       defaultValue = "ALL"
     )
     status: Status,
-    @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable,
-    @Parameter(hidden = true) authentication: Authentication
+    @PageableDefault(sort = ["Person.lastName", "Person.firstName"], direction = Sort.Direction.ASC) pageable: Pageable
   ): Page<UserDto> =
-    userSearchService.findAuthUsers(
+    userSearchService.findUsers(
       name,
       roles,
       groups,
       pageable,
-      authentication.name,
-      authentication.authorities,
       status
     )
 
