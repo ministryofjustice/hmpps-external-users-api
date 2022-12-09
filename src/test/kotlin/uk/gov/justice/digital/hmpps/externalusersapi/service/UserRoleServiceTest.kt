@@ -202,17 +202,17 @@ internal class UserRoleServiceTest {
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
-      val user = createSampleUser(id = UUID.randomUUID(), username = "user")
-      whenever(userRepository.findById(any())).thenReturn(user)
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(userId)).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
       val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
-      whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(role))
+      whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role))
       whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
 
       assertThatThrownBy {
         runBlocking {
           service.addRolesByUserId(
-            UUID.randomUUID(),
+            userId,
             listOf("LICENCE_VARY"),
           )
         }
@@ -249,13 +249,13 @@ internal class UserRoleServiceTest {
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
       val userId = UUID.randomUUID()
-      whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = userId, username = "user"))
+      whenever(userRepository.findById(userId)).thenReturn(createSampleUser(id = userId, username = "user"))
       val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
       whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(role)) // allroles
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
 
-      service.addRolesByUserId(UUID.randomUUID(), listOf("ROLE_LICENCE_VARY"))
+      service.addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
