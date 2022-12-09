@@ -90,4 +90,19 @@ class UserSearchServiceTest {
       assertThat(user).isEqualTo(mockUser)
     }
   }
+  @Nested
+  inner class FindAExternalUsersByUsernames {
+    @Test
+    fun shouldReturnFlowDataFromRepository(): Unit = runBlocking() {
+      val email = "fred@testy.co.uk"
+      val user = User(username = email, source = AuthSource.auth)
+      val userNames = listOf("USER_NAME_1", "USER_NAME_2")
+      whenever(userRepository.findByUsernameIn(userNames)).thenReturn(flowOf(user))
+
+      val actualUsers = userSearchService.findUsersByUsernames(userNames)
+
+      verify(userRepository).findByUsernameIn(userNames)
+      assertThat(actualUsers.toList()).containsOnly(user)
+    }
+  }
 }

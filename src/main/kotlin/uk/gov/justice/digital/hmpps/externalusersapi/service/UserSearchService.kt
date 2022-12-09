@@ -77,4 +77,5 @@ class UserSearchService(
 
   suspend fun getUserByUsername(username: String): User =
     userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UsernameNotFoundException("Account for username $username not found")
+  suspend fun findUsersByUsernames(usernames: List<String>) = userRepository.findByUsernameIn(usernames)
 }

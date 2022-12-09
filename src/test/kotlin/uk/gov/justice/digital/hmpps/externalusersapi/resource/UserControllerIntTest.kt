@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
 class UserControllerIntTest : IntegrationTestBase() {
@@ -518,6 +519,70 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
+    }
+  }
+
+  @Nested
+  inner class GetUserEmails {
+    @Test
+    fun `User emails endpoint returns user data forbidden`() {
+      webTestClient
+        .post().uri("/users/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation("ITAG_USER"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `User emails endpoint returns user data`() {
+      webTestClient
+        .post().uri("/users/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER")))
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(
+            listOf("auth_user@digital.justice.gov.uk")
+          )
+        }
+    }
+
+    @Test
+    fun `User emails endpoint does not return non-auth user's data`() {
+      webTestClient
+        .post().uri("/users/email")
+        .body(BodyInserters.fromValue(listOf("AUTH_USER", "ITAG_USER", "delius_email", "DM_USER", "nobody")))
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].email").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(
+            listOf(
+              "auth_user@digital.justice.gov.uk",
+              "itag_user@digital.justice.gov.uk"
+            )
+          )
+        }
+    }
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient.post().uri("/users/email")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access bad request without body`() {
+      webTestClient
+        .post().uri("/users/email")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isBadRequest
     }
   }
 }
