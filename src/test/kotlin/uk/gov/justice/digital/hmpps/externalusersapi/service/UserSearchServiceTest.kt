@@ -46,7 +46,7 @@ class UserSearchServiceTest {
   }
 
   @Nested
-  inner class FindAuthUsersByEmail {
+  inner class FindUsersByEmail {
 
     @Test
     fun shouldNotInvokeRepositoryWhenEmailNull(): Unit = runBlocking {
@@ -82,7 +82,7 @@ class UserSearchServiceTest {
   }
 
   @Nested
-  inner class FindExternalUsersByUserName {
+  inner class FindUsersByUserName {
     @Test
     fun shouldFailWithUserException(): Unit = runBlocking {
 
@@ -240,8 +240,8 @@ class UserSearchServiceTest {
 
     @Test
     fun `filters out groups that group manager isn't a member of`(): Unit = runBlocking {
-      givenLoggedInUserIsGroupManagerWithName("BOB")
-      whenever(userGroupService.getAssignableGroups("BOB", GROUP_MANAGER)).thenReturn(
+      givenLoggedInUserIsGroupManagerWithName("BILL")
+      whenever(userGroupService.getAssignableGroups("BILL", GROUP_MANAGER)).thenReturn(
         listOf(
           Group("SITE_1_GROUP_1", "desc"),
           Group("SITE_1_GROUP_2", "desc"),
