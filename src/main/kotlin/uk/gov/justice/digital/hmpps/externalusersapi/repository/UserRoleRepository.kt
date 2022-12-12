@@ -21,4 +21,13 @@ class UserRoleRepository(private val databaseClient: DatabaseClient) {
       .rowsUpdated()
       .awaitFirst()
   }
+
+  suspend fun insertUserRole(userId: UUID, roleId: UUID): Int =
+    databaseClient
+      .sql("INSERT INTO user_role VALUES (:roleId, :userId)")
+      .bind("userId", userId)
+      .bind("roleId", roleId)
+      .fetch()
+      .rowsUpdated()
+      .awaitFirst()
 }

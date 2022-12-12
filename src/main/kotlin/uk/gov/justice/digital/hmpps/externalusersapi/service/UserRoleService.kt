@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
 import java.util.UUID
+import java.util.function.Consumer
 
 @Service
 @Transactional(readOnly = true)
@@ -65,6 +66,45 @@ class UserRoleService(
     } else roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
 
   @Transactional
+  suspend fun addRolesByUserId(
+    userId: UUID,
+    roleCodes: List<String>,
+  ) {
+    // already checked that user exists
+    userRepository.findById(userId)?.let { user: User ->
+      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
+      val formattedRoles = roleCodes.map { formatRole(it) }
+      val allAssignableRoles = getAllAssignableRolesByUserId(userId)
+      for (roleCode in formattedRoles) {
+        // check that role exists
+        val role = roleRepository.findByRoleCode(roleCode) ?: throw UserRoleException("role", "role.notfound")
+
+        val userRoles = getUserRoles(userId) ?: throw NotFoundException("usernotfound")
+
+        if (userRoles.contains(role)) {
+          throw UserRoleExistsException()
+        }
+        if (!allAssignableRoles.contains(role)) {
+          throw UserRoleException("role", "invalid")
+        }
+        userRoleRepository.insertUserRole(userId, role.id!!)
+      }
+      // now that roles have all been added, then audit the role additions
+      val maintainerName = authenticationFacade.getUsername()
+      formattedRoles.forEach(
+        Consumer { roleCode: String ->
+          telemetryClient.trackEvent(
+            "ExternalUserRoleAddSuccess",
+            mapOf("username" to userId.toString(), "role" to roleCode, "admin" to maintainerName),
+            null
+          )
+          log.info("Adding role {} to user {}", roleCode, userId)
+        }
+      )
+    } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Transactional
   suspend fun removeRoleByUserId(
     userId: UUID,
     roleCode: String
@@ -101,4 +141,5 @@ class UserRoleService(
 
   open class UserRoleException(val field: String, val errorCode: String) :
     Exception("Modify role failed for field $field with reason: $errorCode")
+  class UserRoleExistsException : UserRoleException("role", "role.exists")
 }
