@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.config
 
-import org.hibernate.reactive.persister.entity.impl.ReactiveAbstractEntityPersister.log
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
