@@ -56,6 +56,16 @@ class UserRoleController(
         ]
       ),
       ApiResponse(
+        responseCode = "403",
+        description = "Unable to maintain user, the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
         responseCode = "404",
         description = "User not found.",
         content = [
@@ -102,6 +112,16 @@ class UserRoleController(
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to maintain user, the user is not within one of your groups.",
         content = [
           Content(
             mediaType = "application/json",
@@ -159,6 +179,16 @@ class UserRoleController(
       ApiResponse(
         responseCode = "401",
         description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Unable to maintain user, the user is not within one of your groups.",
         content = [
           Content(
             mediaType = "application/json",
