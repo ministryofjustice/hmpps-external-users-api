@@ -74,6 +74,8 @@ class UserSearchService(
   suspend fun getUserByUsername(username: String): User =
     userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UsernameNotFoundException("Account for username $username not found")
 
+  // NOTE: this function ensures that the response is flagged as sorted, matching the hard coded order by clause in the SQL in UserFilter.
+  // The property names do not appear in the response.
   private fun defaultSortOrder(): List<Sort.Order> {
     return listOf(
       Sort.Order.asc("last_name"),
