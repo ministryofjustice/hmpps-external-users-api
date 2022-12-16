@@ -14,7 +14,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
@@ -108,6 +107,71 @@ class UserSearchServiceTest {
   inner class FindUsers {
 
     @Test
+    fun `should respond with expected content`(): Unit = runBlocking {
+      givenLoggedInUserIsSuperUser()
+      whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(user))
+      whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
+      val pageDetails = PageRequest.of(1, 10)
+
+      val users = userSearchService.findUsers(name = "someName", roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
+
+      val expectedFilter = UserFilter(
+        name = "someName",
+        pageable = pageDetails
+      )
+
+      verify(userSearchRepository).searchForUsers(
+        org.mockito.kotlin.check {
+          assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
+        }
+      )
+      assertThat(users.content).isEqualTo(listOf(user))
+    }
+
+    @Test
+    fun `should respond with expected page data`(): Unit = runBlocking {
+      givenLoggedInUserIsSuperUser()
+      whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(user))
+      whenever(userSearchRepository.countAllBy(any())).thenReturn(1)
+      val pageDetails = PageRequest.of(0, 10)
+
+      val users = userSearchService.findUsers(name = "someName", roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
+
+      val expectedFilter = UserFilter(
+        name = "someName",
+        pageable = pageDetails
+      )
+
+      verify(userSearchRepository).searchForUsers(
+        org.mockito.kotlin.check {
+          assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
+        }
+      )
+
+      assertThat(users.content).isEqualTo(listOf(user))
+      assertThat(users.size).isEqualTo(10)
+      assertThat(users.totalElements).isEqualTo(1)
+      assertThat(users.totalPages).isEqualTo(1)
+      assertThat(users.isEmpty).isEqualTo(false)
+      assertThat(users.isFirst).isEqualTo(true)
+      assertThat(users.isLast).isEqualTo(true)
+      assertThat(users.isEmpty).isEqualTo(false)
+      assertThat(users.number).isEqualTo(0)
+      assertThat(users.numberOfElements).isEqualTo(1)
+      assertThat(users.pageable.pageSize).isEqualTo(10)
+      assertThat(users.pageable.offset).isEqualTo(0)
+      assertThat(users.pageable.pageNumber).isEqualTo(0)
+      assertThat(users.pageable.isPaged).isEqualTo(true)
+      assertThat(users.pageable.isUnpaged).isEqualTo(false)
+      assertThat(users.pageable.sort.isSorted).isEqualTo(true)
+      assertThat(users.pageable.sort.isUnsorted).isEqualTo(false)
+      assertThat(users.pageable.sort.isEmpty).isEqualTo(false)
+      assertThat(users.sort.isSorted).isEqualTo(true)
+      assertThat(users.sort.isUnsorted).isEqualTo(false)
+      assertThat(users.sort.isEmpty).isEqualTo(false)
+    }
+
+    @Test
     fun `should generate sql filters using all parameters`(): Unit = runBlocking {
       givenLoggedInUserIsSuperUser()
       whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(user))
@@ -115,7 +179,7 @@ class UserSearchServiceTest {
 
       val pageDetails = PageRequest.of(1, 10)
 
-      val users = userSearchService.findUsers(
+      userSearchService.findUsers(
         "someName",
         listOf("someRole"),
         listOf("someGroup"),
@@ -136,8 +200,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
 
     @Test
@@ -147,7 +209,7 @@ class UserSearchServiceTest {
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
       val pageDetails = PageRequest.of(1, 10)
 
-      val users = userSearchService.findUsers(name = "someName", roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
+      userSearchService.findUsers(name = "someName", roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
 
       val expectedFilter = UserFilter(
         name = "someName",
@@ -159,8 +221,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
 
     @Test
@@ -170,7 +230,7 @@ class UserSearchServiceTest {
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
       val pageDetails = PageRequest.of(1, 10)
 
-      val users = userSearchService.findUsers(name = null, roleCodes = listOf("AUDIT_VIEWER"), groupCodes = null, pageDetails, UserFilter.Status.ALL)
+      userSearchService.findUsers(name = null, roleCodes = listOf("AUDIT_VIEWER"), groupCodes = null, pageDetails, UserFilter.Status.ALL)
 
       val expectedFilter = UserFilter(
         roleCodes = listOf("AUDIT_VIEWER"),
@@ -182,8 +242,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
 
     @Test
@@ -193,7 +251,7 @@ class UserSearchServiceTest {
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
       val pageDetails = PageRequest.of(1, 10)
 
-      val users = userSearchService.findUsers(name = null, roleCodes = null, groupCodes = listOf("INT_SP_HARMONY_LIVING"), pageDetails, UserFilter.Status.ALL)
+      userSearchService.findUsers(name = null, roleCodes = null, groupCodes = listOf("INT_SP_HARMONY_LIVING"), pageDetails, UserFilter.Status.ALL)
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("INT_SP_HARMONY_LIVING"),
@@ -205,8 +263,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
 
     @Test
@@ -222,7 +278,7 @@ class UserSearchServiceTest {
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
 
       val pageDetails = PageRequest.of(1, 10)
-      val users = userSearchService.findUsers(name = null, roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
+      userSearchService.findUsers(name = null, roleCodes = null, groupCodes = null, pageDetails, UserFilter.Status.ALL)
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("SITE_1_GROUP_1", "SITE_1_GROUP_2"),
@@ -234,8 +290,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
 
     @Test
@@ -251,7 +305,7 @@ class UserSearchServiceTest {
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
 
       val pageDetails = PageRequest.of(1, 10)
-      val users = userSearchService.findUsers(name = null, roleCodes = null, groupCodes = listOf("SITE_1_GROUP_1", "SITE_1_GROUP_3"), pageDetails, UserFilter.Status.ALL)
+      userSearchService.findUsers(name = null, roleCodes = null, groupCodes = listOf("SITE_1_GROUP_1", "SITE_1_GROUP_3"), pageDetails, UserFilter.Status.ALL)
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("SITE_1_GROUP_1"),
@@ -263,8 +317,6 @@ class UserSearchServiceTest {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
         }
       )
-
-      assertThat(users).isEqualTo(PageImpl(listOf(user), pageDetails, 20))
     }
   }
 

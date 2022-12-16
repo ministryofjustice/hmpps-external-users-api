@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.StringUtils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -52,7 +54,11 @@ class UserSearchService(
 
     PageImpl(
       users.await().toList(),
-      pageable,
+      PageRequest.of(
+        pageable.pageNumber,
+        pageable.pageSize,
+        Sort.by(defaultSortOrder())
+      ),
       count.await()
     )
   }
@@ -67,6 +73,15 @@ class UserSearchService(
 
   suspend fun getUserByUsername(username: String): User =
     userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UsernameNotFoundException("Account for username $username not found")
+
+  // NOTE: this function ensures that the response is flagged as sorted, matching the hard coded order by clause in the SQL in UserFilter.
+  // The property names do not appear in the response.
+  private fun defaultSortOrder(): List<Sort.Order> {
+    return listOf(
+      Sort.Order.asc("last_name"),
+      Sort.Order.asc("first_name")
+    )
+  }
 
   private suspend fun limitGroupSearchCodesByUserAuthority(groupCodes: List<String>?): List<String>? {
     val authorities = authenticationFacade.getAuthentication().authorities
