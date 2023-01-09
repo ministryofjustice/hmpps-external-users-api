@@ -324,10 +324,10 @@ class UserController(
     return groups.map { UserGroupDto(it) }
   }
 
-  @GetMapping("/userid/{userId}")
+  @GetMapping("/maintain/{userId}")
   @Operation(
-    summary = "Returns User details and checks whether user is within one of the assigned groups.",
-    description = "Checks whether UUID of the user is within one of the assigned groups and returns User detail."
+    summary = "Returns existing user details for maintenance",
+    description = "Returns user details if the logged in user has maintain privileges or is a member of one of the user's assigned groups."
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @ApiResponses(
@@ -368,10 +368,10 @@ class UserController(
       )
     ]
   )
-  suspend fun findUsersByUserId(
+  suspend fun findUserByUserId(
     @Parameter(description = "The userId of the user", required = true)
     @PathVariable userId: UUID
-  ) = UserDto.fromUser(userService.findUsersByUserId(userId))
+  ) = UserDto.fromUser(userService.findUserByUserIdForMaintenance(userId))
 }
 
 data class UserDto(

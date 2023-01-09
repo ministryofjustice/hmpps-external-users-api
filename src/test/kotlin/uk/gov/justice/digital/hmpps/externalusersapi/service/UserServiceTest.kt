@@ -4,6 +4,7 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -11,6 +12,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -21,6 +23,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.time.LocalDateTime
+import java.util.UUID
 import java.util.UUID.fromString
 
 class UserServiceTest {
@@ -192,6 +195,54 @@ class UserServiceTest {
           }
         }.isInstanceOf(UsernameNotFoundException::class.java)
           .withFailMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
+      }
+    }
+
+    @Nested
+    inner class FindUserByUserIdForMaintenance {
+
+      private val userId = UUID.randomUUID()
+
+      @Test
+      fun `should throw exception when user not found`(): Unit = runBlocking {
+        whenever(userRepository.findById(userId)).thenReturn(null)
+
+        assertThatThrownBy {
+          runBlocking {
+            userService.findUserByUserIdForMaintenance(userId)
+          }
+        }.isInstanceOf(
+          UsernameNotFoundException::class.java
+        )
+          .hasMessage("User $userId not found")
+
+        verify(maintainUserCheck, never()).ensureUserLoggedInUserRelationship(anyString())
+      }
+
+      @Test
+      fun `should throw exception when maintain user check fails`(): Unit = runBlocking {
+        doThrow(UserGroupRelationshipException("Bob", "User not with your groups"))
+          .whenever(maintainUserCheck).ensureUserLoggedInUserRelationship(anyString())
+        whenever(userRepository.findById(userId)).thenReturn(user)
+
+        assertThatThrownBy {
+          runBlocking {
+            userService.findUserByUserIdForMaintenance(userId)
+          }
+        }.isInstanceOf(
+          UserGroupRelationshipException::class.java
+        )
+          .hasMessage("Unable to maintain user: Bob with reason: User not with your groups")
+      }
+
+      @Test
+      fun `should respond with user when user found`(): Unit = runBlocking {
+        whenever(userRepository.findById(userId)).thenReturn(user)
+
+        val actualUser = userService.findUserByUserIdForMaintenance(userId)
+
+        assertEquals(user, actualUser)
+        verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
       }
     }
   }
