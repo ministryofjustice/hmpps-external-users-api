@@ -369,7 +369,7 @@ class UserController(
     ]
   )
   suspend fun findUsersByUserId(
-    @Parameter(description = "The userId of the user.", required = true)
+    @Parameter(description = "The userId of the user", required = true)
     @PathVariable userId: UUID
   ) = UserDto.fromUser(userService.findUsersByUserId(userId))
 }
