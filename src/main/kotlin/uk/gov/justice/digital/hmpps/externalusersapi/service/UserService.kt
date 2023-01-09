@@ -74,6 +74,16 @@ class UserService(
     } ?: throw UserNotFoundException("User $userId not found")
   }
 
+  @Transactional
+  @Throws(UserGroupRelationshipException::class, UsernameNotFoundException::class)
+  suspend fun findUsersByUserId(
+    userId: UUID,
+  ): User {
+    val user = userRepository.findById(userId) ?: throw UsernameNotFoundException("User $userId not found")
+    maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
+    return user
+  }
+
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
