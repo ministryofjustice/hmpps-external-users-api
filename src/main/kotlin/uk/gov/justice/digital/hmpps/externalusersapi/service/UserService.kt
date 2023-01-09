@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -58,6 +59,16 @@ class UserService(
       userRepository.save(user)
       telemetryClient.trackEvent("ExternalUserDisabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
     } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Transactional
+  @Throws(UserGroupRelationshipException::class, UsernameNotFoundException::class)
+  suspend fun findUsersByUserId(
+    userId: UUID,
+  ): User {
+    val user = userRepository.findById(userId) ?: throw UsernameNotFoundException("User $userId not found")
+    maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
+    return user
   }
 
   companion object {
