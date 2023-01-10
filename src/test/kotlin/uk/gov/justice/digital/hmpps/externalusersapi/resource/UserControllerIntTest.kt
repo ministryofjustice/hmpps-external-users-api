@@ -520,4 +520,69 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
     }
   }
+
+  @Nested
+  inner class FindUserByUserId {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct authority`() {
+      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("AUDIT_VIEWER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Not accessible with group manager authority when logged in user has no assignable group in common with user`() {
+      webTestClient.get().uri("/users/maintain/c0279ee3-76bf-487f-833c-aa47c5df22f8")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Responds with user data when user has maintain oauth users authority`() {
+      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isNotEmpty
+        .jsonPath("$.username").isEqualTo("AUTH_USER")
+        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Auth")
+        .jsonPath("$.lastName").isEqualTo("Only")
+        .jsonPath("$.locked").isEqualTo(false)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.lastLoggedIn").isNotEmpty
+        .jsonPath("$.inactiveReason").isEmpty
+    }
+
+    @Test
+    fun `Responds with user data when user has auth group manager authority and an assignable group in common with user`() {
+      webTestClient.get().uri("/users/maintain/1f650f15-0993-4db7-9a32-5b930ff86035")
+        .headers(setAuthorisation(user = "AUTH_RO_VARY_USER", roles = listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isNotEmpty
+        .jsonPath("$.username").isEqualTo("AUTH_GROUP_MANAGER")
+        .jsonPath("$.email").isEqualTo("auth_group_manager@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Group")
+        .jsonPath("$.lastName").isEqualTo("Manager")
+        .jsonPath("$.locked").isEqualTo(false)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.lastLoggedIn").isNotEmpty
+        .jsonPath("$.inactiveReason").isEmpty
+    }
+  }
 }
