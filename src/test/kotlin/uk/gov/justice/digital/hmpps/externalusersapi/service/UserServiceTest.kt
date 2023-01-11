@@ -209,7 +209,7 @@ class UserServiceTest {
 
         assertThatThrownBy {
           runBlocking {
-            userService.findUserByUserIdForMaintenance(userId)
+            userService.findUserForEmailUpdate(userId)
           }
         }.isInstanceOf(
           UsernameNotFoundException::class.java
@@ -227,7 +227,7 @@ class UserServiceTest {
 
         assertThatThrownBy {
           runBlocking {
-            userService.findUserByUserIdForMaintenance(userId)
+            userService.findUserForEmailUpdate(userId)
           }
         }.isInstanceOf(
           UserGroupRelationshipException::class.java
@@ -239,7 +239,7 @@ class UserServiceTest {
       fun `should respond with user when user found`(): Unit = runBlocking {
         whenever(userRepository.findById(userId)).thenReturn(user)
 
-        val actualUser = userService.findUserByUserIdForMaintenance(userId)
+        val actualUser = userService.findUserForEmailUpdate(userId)
 
         assertEquals(user, actualUser)
         verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)

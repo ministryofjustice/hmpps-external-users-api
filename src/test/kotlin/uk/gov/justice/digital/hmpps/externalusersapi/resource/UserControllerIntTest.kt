@@ -522,7 +522,7 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
-  inner class FindUserByUserId {
+  inner class FindUserDetailsByUserIdForEmailUpdate {
 
     @Test
     fun `Not accessible without valid token`() {
@@ -554,16 +554,10 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.userId").isNotEmpty
         .jsonPath("$.username").isEqualTo("AUTH_USER")
-        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
         .jsonPath("$.firstName").isEqualTo("Auth")
         .jsonPath("$.lastName").isEqualTo("Only")
-        .jsonPath("$.locked").isEqualTo(false)
-        .jsonPath("$.enabled").isEqualTo(true)
-        .jsonPath("$.verified").isEqualTo(true)
-        .jsonPath("$.lastLoggedIn").isNotEmpty
-        .jsonPath("$.inactiveReason").isEmpty
+        .jsonPath("$.passwordPresent").isEqualTo(true)
     }
 
     @Test
@@ -573,16 +567,10 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.userId").isNotEmpty
         .jsonPath("$.username").isEqualTo("AUTH_GROUP_MANAGER")
-        .jsonPath("$.email").isEqualTo("auth_group_manager@digital.justice.gov.uk")
         .jsonPath("$.firstName").isEqualTo("Group")
         .jsonPath("$.lastName").isEqualTo("Manager")
-        .jsonPath("$.locked").isEqualTo(false)
-        .jsonPath("$.enabled").isEqualTo(true)
-        .jsonPath("$.verified").isEqualTo(true)
-        .jsonPath("$.lastLoggedIn").isNotEmpty
-        .jsonPath("$.inactiveReason").isEmpty
+        .jsonPath("$.passwordPresent").isEqualTo(true)
     }
   }
 }

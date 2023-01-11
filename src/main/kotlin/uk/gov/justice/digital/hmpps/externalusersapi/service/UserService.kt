@@ -61,9 +61,8 @@ class UserService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
-  @Transactional
-  @Throws(UserGroupRelationshipException::class, UsernameNotFoundException::class)
-  suspend fun findUserByUserIdForMaintenance(
+  @Throws(UserGroupRelationshipException::class)
+  suspend fun findUserForEmailUpdate(
     userId: UUID,
   ): User {
     val user = userRepository.findById(userId) ?: throw UsernameNotFoundException("User $userId not found")

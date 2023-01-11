@@ -326,7 +326,7 @@ class UserController(
 
   @GetMapping("/maintain/{userId}")
   @Operation(
-    summary = "Returns existing user details for maintenance",
+    summary = "Returns existing user details required for email update",
     description = "Returns user details if the logged in user has maintain privileges or is a member of one of the user's assigned groups."
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -368,10 +368,34 @@ class UserController(
       )
     ]
   )
-  suspend fun findUserByUserId(
+  suspend fun findUserDetailsByUserIdForEmailUpdate(
     @Parameter(description = "The userId of the user", required = true)
     @PathVariable userId: UUID
-  ) = UserDto.fromUser(userService.findUserByUserIdForMaintenance(userId))
+  ) = UserDetailsForEmailUpdateDto.fromUser(userService.findUserForEmailUpdate(userId))
+}
+
+data class UserDetailsForEmailUpdateDto(
+  @Schema(required = true, description = "Username", example = "externaluser")
+  val username: String? = null,
+
+  @Schema(required = true, description = "First name", example = "External")
+  val firstName: String? = null,
+
+  @Schema(required = true, description = "Last name", example = "User")
+  val lastName: String? = null,
+
+  val passwordPresent: Boolean
+) {
+  companion object {
+    fun fromUser(user: User): UserDetailsForEmailUpdateDto {
+      return UserDetailsForEmailUpdateDto(
+        username = user.getUserName(),
+        firstName = user.getFirstName(),
+        lastName = user.lastName,
+        passwordPresent = user.passwordPresent()
+      )
+    }
+  }
 }
 
 data class UserDto(
