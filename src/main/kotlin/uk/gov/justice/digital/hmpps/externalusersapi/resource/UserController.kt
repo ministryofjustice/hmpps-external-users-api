@@ -384,16 +384,30 @@ data class UserDetailsForEmailUpdateDto(
   @Schema(required = true, description = "Last name", example = "User")
   val lastName: String? = null,
 
-  val passwordPresent: Boolean
+  @Schema(required = true, description = "Email address", example = "external.user@someagency.justice.gov.uk")
+  val email: String? = null,
+
+  @Schema(required = true, description = "Flag indicating whether or not the user has a password set", example = "true")
+  val passwordPresent: Boolean,
+
+  @Schema(required = true, description = "Link", example = "true")
+  val inPECSGroup: Boolean
 ) {
   companion object {
-    fun fromUser(user: User): UserDetailsForEmailUpdateDto {
-      return UserDetailsForEmailUpdateDto(
-        username = user.getUserName(),
-        firstName = user.getFirstName(),
-        lastName = user.lastName,
-        passwordPresent = user.passwordPresent()
-      )
+    fun fromUser(userAndPECSGroupFlag: Pair<User, Boolean>): UserDetailsForEmailUpdateDto {
+      val user = userAndPECSGroupFlag.first
+      val inPECSGroup = userAndPECSGroupFlag.second
+
+      with(user) {
+        return UserDetailsForEmailUpdateDto(
+          username = getUserName(),
+          firstName = getFirstName(),
+          lastName = lastName,
+          email = email,
+          passwordPresent = passwordPresent(),
+          inPECSGroup = inPECSGroup
+        )
+      }
     }
   }
 }

@@ -557,6 +557,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.username").isEqualTo("AUTH_USER")
         .jsonPath("$.firstName").isEqualTo("Auth")
         .jsonPath("$.lastName").isEqualTo("Only")
+        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
         .jsonPath("$.passwordPresent").isEqualTo(true)
     }
 
@@ -570,6 +571,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.username").isEqualTo("AUTH_GROUP_MANAGER")
         .jsonPath("$.firstName").isEqualTo("Group")
         .jsonPath("$.lastName").isEqualTo("Manager")
+        .jsonPath("$.email").isEqualTo("auth_group_manager@digital.justice.gov.uk")
         .jsonPath("$.passwordPresent").isEqualTo(true)
     }
   }
