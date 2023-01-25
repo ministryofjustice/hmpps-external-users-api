@@ -549,16 +549,17 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Responds with user data when user has maintain oauth users authority`() {
-      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+      webTestClient.get().uri("/users/maintain/ABD94E71-0047-43F1-842B-5BEF234AEB10")
         .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.username").isEqualTo("AUTH_USER")
-        .jsonPath("$.firstName").isEqualTo("Auth")
-        .jsonPath("$.lastName").isEqualTo("Only")
-        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
+        .jsonPath("$.username").isEqualTo("JPC_USER")
+        .jsonPath("$.firstName").isEqualTo("JPC")
+        .jsonPath("$.lastName").isEqualTo("User")
+        .jsonPath("$.email").isEqualTo("auth.intel@digital.justice.gov.uk")
         .jsonPath("$.passwordPresent").isEqualTo(true)
+        .jsonPath("$.inPECSGroup").isEqualTo(false)
     }
 
     @Test
@@ -573,6 +574,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.lastName").isEqualTo("Manager")
         .jsonPath("$.email").isEqualTo("auth_group_manager@digital.justice.gov.uk")
         .jsonPath("$.passwordPresent").isEqualTo(true)
+        .jsonPath("$.inPECSGroup").isEqualTo(false)
     }
   }
 }

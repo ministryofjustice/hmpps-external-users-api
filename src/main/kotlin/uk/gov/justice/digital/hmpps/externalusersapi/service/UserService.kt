@@ -71,7 +71,7 @@ class UserService(
     val user = userRepository.findById(userId) ?: throw UsernameNotFoundException("User $userId not found")
     maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
     val groups = groupRepository.findGroupsByUserId(userId).toList()
-    val inPECSGroup = groups.firstOrNull { it.groupCode.startsWith("PECS") }?.groupCode.toBoolean()
+    val inPECSGroup = groups.firstOrNull { it.groupCode.startsWith("PECS") }?.let { true } ?: false
     return Pair(user, inPECSGroup)
   }
 

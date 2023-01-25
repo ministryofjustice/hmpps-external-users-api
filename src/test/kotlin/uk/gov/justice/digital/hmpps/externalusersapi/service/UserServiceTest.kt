@@ -1,10 +1,13 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -17,7 +20,9 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
@@ -28,11 +33,12 @@ import java.util.UUID.fromString
 
 class UserServiceTest {
   private val userRepository: UserRepository = mock()
+  private val groupRepository: GroupRepository = mock()
   private val maintainUserCheck: MaintainUserCheck = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val user = User("someuser", AuthSource.auth)
-  private val userService = UserService(userRepository, maintainUserCheck, authenticationFacade, telemetryClient, 90)
+  private val userService = UserService(userRepository, groupRepository, maintainUserCheck, authenticationFacade, telemetryClient, 90)
 
   @Nested
   inner class EnableUserByUserId {
@@ -236,14 +242,43 @@ class UserServiceTest {
       }
 
       @Test
-      fun `should respond with user when user found`(): Unit = runBlocking {
+      fun `should respond with user when user found and in PECS group`(): Unit = runBlocking {
         whenever(userRepository.findById(userId)).thenReturn(user)
+        whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(createGroup(UUID.randomUUID(), "PECS Group Test", "PECS Group Testing")))
 
-        val actualUser = userService.findUserForEmailUpdate(userId)
+        val userInfo = userService.findUserForEmailUpdate(userId)
 
-        assertEquals(user, actualUser)
+        assertEquals(user, userInfo.first)
+        assertTrue(userInfo.second)
         verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
       }
+
+      @Test
+      fun `should respond with user when user found but not in PECS group`(): Unit = runBlocking {
+        whenever(userRepository.findById(userId)).thenReturn(user)
+        whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(createGroup(UUID.randomUUID(), "Group Test", "Group Testing")))
+
+        val userInfo = userService.findUserForEmailUpdate(userId)
+
+        assertEquals(user, userInfo.first)
+        assertFalse(userInfo.second)
+        verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
+      }
+
+      @Test
+      fun `should respond with user when user found but not in any groups`(): Unit = runBlocking {
+        whenever(userRepository.findById(userId)).thenReturn(user)
+        whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf())
+
+        val userInfo = userService.findUserForEmailUpdate(userId)
+
+        assertEquals(user, userInfo.first)
+        assertFalse(userInfo.second)
+        verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
+      }
+
+      private fun createGroup(id: UUID, groupCode: String, groupName: String): Group =
+        Group(groupCode, groupName, id)
     }
   }
 }
