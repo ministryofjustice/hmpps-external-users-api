@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailNotificationDto
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.time.LocalDateTime
@@ -70,6 +71,8 @@ class UserService(
     maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
     return user
   }
+  suspend fun myRoles() =
+    authenticationFacade.getAuthentication().authorities.map { UserRole(it!!.authority.substring(5)) }
 
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)

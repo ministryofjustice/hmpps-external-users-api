@@ -13,10 +13,13 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
+import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserRole
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -29,6 +32,7 @@ class UserServiceTest {
   private val authenticationFacade: AuthenticationFacade = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val user = User("someuser", AuthSource.auth)
+  private val authentication: Authentication = mock()
   private val userService = UserService(userRepository, maintainUserCheck, authenticationFacade, telemetryClient, 90)
 
   @Nested
@@ -193,6 +197,22 @@ class UserServiceTest {
         }.isInstanceOf(UsernameNotFoundException::class.java)
           .withFailMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
       }
+    }
+  }
+  @Nested
+  inner class MyRoles {
+    @Test
+    fun myRoles(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_BOB"), SimpleGrantedAuthority("ROLE_JOE_FRED")))
+      assertThat(userService.myRoles()).containsOnly(UserRole("BOB"), UserRole("JOE_FRED"))
+    }
+
+    @Test
+    fun myRoles_noRoles(): Unit = runBlocking {
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(emptyList())
+      assertThat(userService.myRoles()).isEmpty()
     }
   }
 }

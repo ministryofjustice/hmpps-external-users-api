@@ -372,6 +372,31 @@ class UserController(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable userId: UUID
   ) = UserDto.fromUser(userService.findUsersByUserId(userId))
+
+  @GetMapping("/user/me/roles")
+  @Operation(
+    summary = "List of roles for current user.",
+    description = "List of roles for current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun myRoles() = userService.myRoles()
 }
 
 data class UserDto(
@@ -454,4 +479,10 @@ data class DeactivateReason(
   @Schema(required = true, description = "Deactivate Reason", example = "User has left")
   @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
   val reason: String
+)
+
+@Schema(description = "User Role")
+data class UserRole(
+  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
+  val roleCode: String,
 )
