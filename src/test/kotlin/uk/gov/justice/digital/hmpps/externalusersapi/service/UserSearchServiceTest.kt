@@ -5,11 +5,13 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -18,7 +20,6 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
@@ -27,12 +28,16 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
+import java.util.UUID
 
 class UserSearchServiceTest {
 
   private val userGroupService: UserGroupService = mock()
   private val userSearchRepository: UserSearchRepository = mock()
   private val userRepository: UserRepository = mock()
+  private val maintainUserCheck: MaintainUserCheck = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val authentication: Authentication = mock()
   private val user: UserDto = givenAUser()
@@ -41,7 +46,49 @@ class UserSearchServiceTest {
 
   @BeforeEach
   fun setUp() {
-    userSearchService = UserSearchService(userGroupService, userSearchRepository, userRepository, authenticationFacade)
+    userSearchService = UserSearchService(userGroupService, userSearchRepository, userRepository, maintainUserCheck, authenticationFacade)
+  }
+
+  @Nested
+  inner class FindUserById {
+
+    val userId: UUID = UUID.randomUUID()
+
+    @Test
+    fun shouldFailWhenUserNotFound(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(null)
+
+      Assertions.assertThatThrownBy {
+        runBlocking {
+          userSearchService.getUserByUserId(userId)
+        }
+      }.isInstanceOf(UserNotFoundException::class.java)
+        .hasMessage("User with id $userId not found")
+    }
+
+    @Test
+    fun shouldFailWhenMaintainUserCheckFails(): Unit = runBlocking {
+      whenever(userRepository.findById(userId)).thenReturn(User("testy", AuthSource.auth))
+      doThrow(UserGroupRelationshipException("testy", "123")).whenever(maintainUserCheck).ensureUserLoggedInUserRelationship("testy")
+
+      Assertions.assertThatThrownBy {
+        runBlocking {
+          userSearchService.getUserByUserId(userId)
+        }
+      }.isInstanceOf(UserGroupRelationshipException::class.java)
+        .hasMessage("Unable to maintain user: testy with reason: 123")
+    }
+
+    @Test
+    fun shouldReturnUserFound(): Unit = runBlocking {
+      val expectedUser = User("testy", AuthSource.auth)
+      whenever(userRepository.findById(userId)).thenReturn(expectedUser)
+
+      val actualUser = userSearchService.getUserByUserId(userId)
+
+      verify(maintainUserCheck).ensureUserLoggedInUserRelationship("testy")
+      assertEquals(expectedUser, actualUser)
+    }
   }
 
   @Nested
@@ -89,7 +136,7 @@ class UserSearchServiceTest {
         runBlocking {
           userSearchService.getUserByUsername("   bob   ")
         }
-      }.isInstanceOf(UsernameNotFoundException::class.java)
+      }.isInstanceOf(UserNotFoundException::class.java)
         .hasMessage("Account for username    bob    not found")
     }
 

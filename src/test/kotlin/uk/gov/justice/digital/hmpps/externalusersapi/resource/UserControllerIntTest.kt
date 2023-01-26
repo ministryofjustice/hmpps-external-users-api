@@ -391,6 +391,58 @@ class UserControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class GetUserById {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ADD_SENSITIVE_CASE_NOTES")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Not accessible to group manager when no groups in common with user`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8")
+        .headers(setAuthorisation("CA_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `User not found`() {
+      webTestClient.get().uri("/users/id/999955ae-52ed-44cc-884c-011597a77999")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Returns user details with correct role`() {
+      webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.userId").isEqualTo("608955ae-52ed-44cc-884c-011597a77949")
+        .jsonPath("$.username").isEqualTo("AUTH_USER")
+        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
+        .jsonPath("$.firstName").isEqualTo("Auth")
+        .jsonPath("$.lastName").isEqualTo("Only")
+        .jsonPath("$.verified").isEqualTo(true)
+        .jsonPath("$.enabled").isEqualTo(true)
+        .jsonPath("$.locked").isEqualTo(false)
+    }
+  }
+
+  @Nested
   inner class GetUsersByUserName {
     @Test
     fun `Not accessible without valid token`() {
