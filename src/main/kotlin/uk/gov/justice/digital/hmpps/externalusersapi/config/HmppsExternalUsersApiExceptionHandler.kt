@@ -313,7 +313,7 @@ class HmppsExternalUsersApiExceptionHandler {
   fun handleUserRoleExistsException(e: UserRoleExistsException): ResponseEntity<ErrorResponse> {
     log.debug("User role exists exception caught: {}", e.message)
     return ResponseEntity
-      .status(HttpStatus.CONFLICT)
+      .status(CONFLICT)
       .body(
         ErrorResponse(
           status = CONFLICT,
