@@ -65,6 +65,16 @@ class UserController(
         ]
       ),
       ApiResponse(
+        responseCode = "403",
+        description = "Unable to view user, either you do not have authority or the user is not within one of your groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
         responseCode = "404",
         description = "User not found.",
         content = [
