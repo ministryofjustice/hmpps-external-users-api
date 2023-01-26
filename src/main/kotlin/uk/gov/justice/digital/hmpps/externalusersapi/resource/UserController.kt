@@ -43,6 +43,44 @@ class UserController(
   private val userGroupService: UserGroupService,
 ) {
 
+  @GetMapping("/id/{userId}")
+  @Operation(
+    summary = "User detail.",
+    description = "User detail."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  suspend fun getUserById(
+    @Parameter(description = "The ID of the user.", required = true) @PathVariable userId: UUID,
+  ) = UserDto.fromUser(userSearchService.getUserByUserId(userId))
+
   @GetMapping
   @Operation(
     summary = "Search for a user.",

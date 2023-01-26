@@ -31,6 +31,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNot
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleExistsException
 import javax.validation.ValidationException
@@ -191,6 +192,20 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Group Not found: ${e.message}",
+          developerMessage = e.message ?: "Error message not set"
+        )
+      )
+  }
+
+  @ExceptionHandler(UserNotFoundException::class)
+  fun handleUserNotFoundException(e: UserNotFoundException): ResponseEntity<ErrorResponse> {
+    log.debug("User not found exception caught: {}", e.message)
+    return ResponseEntity
+      .status(NOT_FOUND)
+      .body(
+        ErrorResponse(
+          status = NOT_FOUND,
+          userMessage = "User Not found: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )

@@ -12,7 +12,6 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
@@ -22,7 +21,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserSearchRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserDto
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.util.EmailHelper
+import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
@@ -30,6 +31,7 @@ class UserSearchService(
   private val userGroupService: UserGroupService,
   private val userSearchRepository: UserSearchRepository,
   private val userRepository: UserRepository,
+  private val maintainUserCheck: MaintainUserCheck,
   private val authenticationFacade: AuthenticationFacade
 ) {
 
@@ -72,7 +74,13 @@ class UserSearchService(
   }
 
   suspend fun getUserByUsername(username: String): User =
-    userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UsernameNotFoundException("Account for username $username not found")
+    userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UserNotFoundException("Account for username $username not found")
+
+  suspend fun getUserByUserId(userId: UUID): User {
+    val user = userRepository.findById(userId) ?: throw UserNotFoundException("User with id $userId not found")
+    maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
+    return user
+  }
 
   // NOTE: this function ensures that the response is flagged as sorted, matching the hard coded order by clause in the SQL in UserFilter.
   // The property names do not appear in the response.
@@ -95,3 +103,6 @@ class UserSearchService(
     }
   }
 }
+
+class UserNotFoundException(message: String) :
+  Exception(message)
