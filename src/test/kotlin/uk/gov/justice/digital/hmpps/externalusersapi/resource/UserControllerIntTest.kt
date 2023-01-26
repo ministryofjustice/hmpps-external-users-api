@@ -417,6 +417,14 @@ class UserControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `User not found`() {
+      webTestClient.get().uri("/users/id/999955ae-52ed-44cc-884c-011597a77999")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
     fun `Returns user details with correct role`() {
       webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
