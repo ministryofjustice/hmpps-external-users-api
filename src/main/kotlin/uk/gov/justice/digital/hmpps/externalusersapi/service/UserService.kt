@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -8,7 +9,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -19,6 +22,7 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class UserService(
   private val userRepository: UserRepository,
+  private val groupRepository: GroupRepository,
   private val maintainUserCheck: MaintainUserCheck,
   private val authenticationFacade: AuthenticationFacade,
   private val telemetryClient: TelemetryClient,
@@ -58,6 +62,17 @@ class UserService(
       userRepository.save(user)
       telemetryClient.trackEvent("ExternalUserDisabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
     } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Throws(UserGroupRelationshipException::class)
+  suspend fun findUserForEmailUpdate(
+    userId: UUID,
+  ): Pair<User, Boolean> {
+    val user = userRepository.findById(userId) ?: throw UsernameNotFoundException("User $userId not found")
+    maintainUserCheck.ensureUserLoggedInUserRelationship(user.getUserName())
+    val groups = groupRepository.findGroupsByUserId(userId).toList()
+    val inPECSGroup = groups.firstOrNull { it.groupCode.startsWith("PECS") }?.let { true } ?: false
+    return Pair(user, inPECSGroup)
   }
 
   companion object {

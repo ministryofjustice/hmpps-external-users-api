@@ -572,4 +572,61 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
     }
   }
+
+  @Nested
+  inner class FindUserDetailsByUserIdForEmailUpdate {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct authority`() {
+      webTestClient.get().uri("/users/maintain/608955AE-52ED-44CC-884C-011597A77949")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("AUDIT_VIEWER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Not accessible with group manager authority when logged in user has no assignable group in common with user`() {
+      webTestClient.get().uri("/users/maintain/c0279ee3-76bf-487f-833c-aa47c5df22f8")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Responds with user data when user has maintain oauth users authority`() {
+      webTestClient.get().uri("/users/maintain/ABD94E71-0047-43F1-842B-5BEF234AEB10")
+        .headers(setAuthorisation(user = "AUTH_ADM", roles = listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.username").isEqualTo("JPC_USER")
+        .jsonPath("$.firstName").isEqualTo("JPC")
+        .jsonPath("$.lastName").isEqualTo("User")
+        .jsonPath("$.email").isEqualTo("auth.intel@digital.justice.gov.uk")
+        .jsonPath("$.passwordPresent").isEqualTo(true)
+        .jsonPath("$.inPECSGroup").isEqualTo(false)
+    }
+
+    @Test
+    fun `Responds with user data when user has auth group manager authority and an assignable group in common with user`() {
+      webTestClient.get().uri("/users/maintain/1f650f15-0993-4db7-9a32-5b930ff86035")
+        .headers(setAuthorisation(user = "AUTH_RO_VARY_USER", roles = listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.username").isEqualTo("AUTH_GROUP_MANAGER")
+        .jsonPath("$.firstName").isEqualTo("Group")
+        .jsonPath("$.lastName").isEqualTo("Manager")
+        .jsonPath("$.email").isEqualTo("auth_group_manager@digital.justice.gov.uk")
+        .jsonPath("$.passwordPresent").isEqualTo(true)
+        .jsonPath("$.inPECSGroup").isEqualTo(false)
+    }
+  }
 }
