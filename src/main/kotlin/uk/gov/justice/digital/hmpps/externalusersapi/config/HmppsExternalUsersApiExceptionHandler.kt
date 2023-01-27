@@ -205,7 +205,7 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = NOT_FOUND,
-          userMessage = "User Not found: ${e.message}",
+          userMessage = "User not found: ${e.message}",
           developerMessage = e.message ?: "Error message not set"
         )
       )
