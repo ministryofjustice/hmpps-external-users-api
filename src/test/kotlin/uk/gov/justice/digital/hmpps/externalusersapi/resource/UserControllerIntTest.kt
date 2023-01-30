@@ -5,9 +5,88 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
 class UserControllerIntTest : IntegrationTestBase() {
+
+  @Nested
+  inner class UpdateEmailAndUsername {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.put().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/email")
+        .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.put().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/email")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ADD_SENSITIVE_CASE_NOTES")))
+        .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Not accessible to group manager when no groups in common with user`() {
+      webTestClient.put().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/email")
+        .headers(setAuthorisation("CA_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `User not found`() {
+      webTestClient.put().uri("/users/id/C0999EE9-99BF-999F-999C-AA99C9DF99F9/email")
+        .headers(setAuthorisation("CA_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Bad request - missing email and username`() {
+      webTestClient.put().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/email")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `Email and username updated`() {
+      webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.username").isEqualTo("AUTH_USER")
+        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
+
+      webTestClient.put().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949/email")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.username").isEqualTo("JO_BLOGGS")
+        .jsonPath("$.email").isEqualTo("jo@bloggs.com")
+
+      webTestClient.put().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949/email")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(mapOf("username" to "AUTH_USER", "email" to "auth_user@digital.justice.gov.uk")))
+        .exchange()
+        .expectStatus().isNoContent
+    }
+  }
 
   @Nested
   inner class UserSearch {
