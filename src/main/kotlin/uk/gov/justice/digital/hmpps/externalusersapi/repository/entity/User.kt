@@ -61,6 +61,10 @@ class User(
 
   fun getUserName() = username
 
+  fun setUsername(username: String) {
+    this.username = username.uppercase()
+  }
+
   fun getFirstName() = firstName ?: username
 
   fun isEnabled(): Boolean = enabled

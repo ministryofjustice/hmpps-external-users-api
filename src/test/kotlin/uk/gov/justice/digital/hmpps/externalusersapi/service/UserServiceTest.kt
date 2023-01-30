@@ -13,7 +13,6 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
@@ -90,7 +89,7 @@ class UserServiceTest {
               fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
             )
           }
-        }.isInstanceOf(UsernameNotFoundException::class.java)
+        }.isInstanceOf(UserNotFoundException::class.java)
           .withFailMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
       }
 
@@ -190,7 +189,7 @@ class UserServiceTest {
               fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "A Reason"
             )
           }
-        }.isInstanceOf(UsernameNotFoundException::class.java)
+        }.isInstanceOf(UserNotFoundException::class.java)
           .withFailMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
       }
     }

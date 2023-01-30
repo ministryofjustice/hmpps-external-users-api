@@ -31,6 +31,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
 import java.util.UUID
+import javax.validation.Valid
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
 
@@ -227,6 +228,57 @@ class UserController(
       PageRequest.of(page, size),
       status
     )
+
+  @PutMapping("/id/{userId}/email")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Update email address and username of user.",
+    description = "Update email address and user name of user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "204",
+        description = "User updated.",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Requester either doers not have role authority or is not in any of the user's groups.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun updateUserEmailAddressAndUsername(
+    @Parameter(description = "The userId of the user.", required = true) @PathVariable
+    userId: UUID,
+    @Valid @RequestBody emailUpdateDto: EmailUpdateDto
+  ) = userService.updateUserEmailAndUsername(userId, emailUpdateDto)
 
   @PutMapping("/{userId}/enable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
@@ -433,6 +485,18 @@ data class UserDto(
     }
   }
 }
+
+data class EmailUpdateDto(
+  @Schema(description = "Username", example = "TEST_USER")
+  @field:NotBlank(message = "username must be supplied")
+  @field:Size(min = 2, max = 240)
+  val username: String,
+
+  @Schema(description = "email of the user", example = "Smith@gov.uk")
+  @field:NotBlank(message = "email must be supplied")
+  @field:Size(min = 2, max = 240)
+  val email: String,
+)
 
 data class EmailNotificationDto(
   @Schema(description = "Username", example = "TEST_USER")
