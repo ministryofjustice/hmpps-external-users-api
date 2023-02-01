@@ -26,6 +26,8 @@ class UserService(
   @Value("\${application.authentication.disable.login-days}") private val loginDaysTrigger: Int,
 ) {
 
+  suspend fun hasPassword(userId: UUID) = getUserForUpdate(userId).hasPassword()
+
   @Transactional
   suspend fun updateUserEmailAndUsername(userId: UUID, emailUpdateDto: EmailUpdateDto) {
     val user = getUserForUpdate(userId)
