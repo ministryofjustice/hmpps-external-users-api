@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
@@ -9,6 +12,67 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
 
 class UserControllerIntTest : IntegrationTestBase() {
+
+  @Nested
+  inner class HasPassword {
+
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/password/present")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/password/present")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ADD_SENSITIVE_CASE_NOTES")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Not accessible to group manager when no groups in common with user`() {
+      webTestClient.get().uri("/users/id/C0279EE3-76BF-487F-833C-AA47C5DF22F8/password/present")
+        .headers(setAuthorisation("CA_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `User not found`() {
+      webTestClient.get().uri("/users/id/C0999EE9-99BF-999F-999C-AA99C9DF99F9/password/present")
+        .headers(setAuthorisation("CA_USER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `User with password`() {
+      val hasPassword = webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949/password/present")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(Boolean::class.java)
+        .returnResult().responseBody
+
+      assertNotNull(hasPassword)
+      assertTrue(hasPassword)
+    }
+
+    @Test
+    fun `User without password`() {
+      val hasPassword = webTestClient.get().uri("/users/id/c0279ee3-76bf-487f-833c-aa47c5df22f8/password/present")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(Boolean::class.java)
+        .returnResult().responseBody
+
+      assertNotNull(hasPassword)
+      assertFalse(hasPassword)
+    }
+  }
 
   @Nested
   inner class UpdateEmailAndUsername {

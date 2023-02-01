@@ -77,6 +77,8 @@ class User(
     this.enabled = disabled
   }
 
+  fun hasPassword() = password != null
+
   override fun toString(): String =
     "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
 }
