@@ -15,6 +15,9 @@ configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
 }
 
+// Temporarily kept at 0.9.2 as get class java.lang.Long cannot be cast to class java.lang.Integer when upgrading to 1.0.0.RELEASE
+val r2dbcPostgresVersion by extra("0.9.2.RELEASE")
+
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -30,7 +33,7 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.10.0")
 
   implementation("org.flywaydb:flyway-core")
-  runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.0.RELEASE")
+  runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.5.1")
   implementation("io.opentelemetry:opentelemetry-api:1.22.0")
