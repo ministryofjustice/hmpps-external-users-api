@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.1-beta-1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.2-beta"
   kotlin("plugin.spring") version "1.8.0"
 }
 
@@ -14,6 +14,9 @@ configurations {
   implementation { exclude(module = "spring-boot-starter-tomcat") }
   testImplementation { exclude(group = "org.junit.vintage") }
 }
+
+// Temporarily kept at 0.9.2 as get class java.lang.Long cannot be cast to class java.lang.Integer when upgrading to 1.0.0.RELEASE
+val r2dbcPostgresVersion by extra("0.9.2.RELEASE")
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -30,7 +33,7 @@ dependencies {
   implementation("org.apache.commons:commons-text:1.10.0")
 
   implementation("org.flywaydb:flyway-core")
-  runtimeOnly("org.postgresql:r2dbc-postgresql:0.9.2.RELEASE")
+  runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.5.1")
   implementation("io.opentelemetry:opentelemetry-api:1.22.0")
@@ -39,7 +42,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
   implementation("org.springdoc:springdoc-openapi-security:1.6.14")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
