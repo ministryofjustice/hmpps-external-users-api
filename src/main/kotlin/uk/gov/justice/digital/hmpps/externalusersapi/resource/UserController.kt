@@ -469,55 +469,6 @@ class UserController(
     val groups = userGroupService.getMyAssignableGroups()
     return groups.map { UserGroupDto(it) }
   }
-
-  @GetMapping("/userid/{userId}")
-  @Operation(
-    summary = "Returns User details and checks whether user is within one of the assigned groups.",
-    description = "Checks whether UUID of the user is within one of the assigned groups and returns User detail."
-  )
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
-  @ApiResponses(
-    value = [
-      ApiResponse(
-        responseCode = "200",
-        description = "OK"
-      ),
-      ApiResponse(
-        responseCode = "401",
-        description = "Unauthorized.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      ),
-      ApiResponse(
-        responseCode = "403",
-        description = "Unable to maintain user, the user is not within one of your groups.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      ),
-      ApiResponse(
-        responseCode = "404",
-        description = "User not found.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
-  )
-  suspend fun findUsersByUserId(
-    @Parameter(description = "The userId of the user.", required = true)
-    @PathVariable userId: UUID
-  ) = UserDto.fromUser(userService.findUsersByUserId(userId))
 }
 
 data class UserDto(

@@ -272,4 +272,32 @@ class UserRoleController(
     val roles = userRoleService.getAssignableRolesByUserId(userId)
     return roles.map { UserRoleDto(it) }
   }
+
+  @GetMapping("/users/me/searchable-roles")
+  @Operation(
+    summary = "Get list of searchable roles.",
+    description = "Get list of roles that can be search for by the current user."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  suspend fun searchableRoles(): List<UserRoleDto> {
+    val roles = userRoleService.getAllAssignableRoles()
+    return roles.map { UserRoleDto(it) }
+  }
 }

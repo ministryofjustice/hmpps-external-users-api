@@ -136,6 +136,13 @@ class UserRoleService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
+  suspend fun getAllAssignableRoles() =
+    if (canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
+      // only allow oauth admins to see that role
+      allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }.toSet()
+      // otherwise they can assign all roles that can be assigned to any of their groups
+    } else roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
+
   private fun formatRole(role: String) =
     Authority.removeRolePrefixIfNecessary(StringUtils.upperCase(StringUtils.trim(role)))
 

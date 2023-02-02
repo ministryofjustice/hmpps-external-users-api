@@ -536,6 +536,39 @@ internal class UserRoleServiceTest {
     }
   }
 
+  @Nested
+  inner class AllAssignableRoles {
+    @Test
+    fun `all assignable roles for group manager`(): Unit = runBlocking {
+
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(first, second, fred))
+
+      assertThat(service.getAllAssignableRoles()).containsOnly(first, fred, second)
+      verify(roleRepository, never()).findByGroupAssignableRolesForUserName(EXT_ADM.adminTypeCode)
+    }
+
+    @Test
+    fun `all assignable roles for Super User`(): Unit = runBlocking {
+
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+      val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
+      val second = Authority(UUID.randomUUID(), "SECOND", "Role Second", adminType = "EXT_ADM")
+      val fred = Authority(UUID.randomUUID(), "FRED", "Role Fred", adminType = "EXT_ADM")
+      val joe = Authority(UUID.randomUUID(), "JOE", "Role Joe", adminType = "EXT_ADM")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(EXT_ADM.adminTypeCode)).thenReturn(flowOf(first, second, fred, joe))
+
+      assertThat(service.getAllAssignableRoles()).containsOnly(first, fred, second, joe)
+      verify(roleRepository, never()).findByGroupAssignableRolesForUserName(anyString())
+    }
+  }
+
   companion object {
     private val SUPER_USER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
