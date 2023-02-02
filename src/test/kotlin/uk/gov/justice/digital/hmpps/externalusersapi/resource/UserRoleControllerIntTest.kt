@@ -422,7 +422,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
   inner class SearchableRoles {
 
     @Test
-    fun `access forbidden without valid token`() {
+    fun `access unauthorized without valid token`() {
       webTestClient
         .get().uri("/users/me/searchable-roles")
         .exchange()
