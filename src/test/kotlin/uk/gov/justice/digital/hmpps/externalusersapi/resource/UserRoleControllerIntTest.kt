@@ -420,6 +420,15 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
 
   @Nested
   inner class SearchableRoles {
+
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
     @Test
     fun `Searchable roles for group manager user returns their roles based on the groups they manage`() {
       webTestClient
