@@ -418,6 +418,76 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     }
   }
 
+  @Nested
+  inner class SearchableRoles {
+
+    @Test
+    fun `access unauthorized without valid token`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Searchable roles for group manager user returns their roles based on the groups they manage`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER2", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+       [{"roleCode":"PF_POLICE","roleName":"Pathfinder Police"}]
+          """.trimIndent()
+        )
+    }
+
+    @Test
+    fun `Searchable roles for user with MAINTAIN_OAUTH_USERS role returns all roles excluding OAUTH_ADMIN`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).hasSizeGreaterThan(22)
+          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+          assertThat(it).doesNotContain("OAUTH_ADMIN")
+        }
+    }
+
+    @Test
+    fun `Searchable roles for user with MAINTAIN_OAUTH_USERS and OAUTH_ADMIN role returns all roles`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS", "ROLE_OAUTH_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).hasSizeGreaterThan(23)
+          assertThat(it).contains("AUTH_GROUP_MANAGER")
+          assertThat(it).contains("OAUTH_ADMIN")
+        }
+    }
+
+    @Test
+    fun `Searchable roles for User without MAINTAIN_OAUTH_USERS role and has no groups will not return any roles`() {
+      webTestClient
+        .get().uri("/users/me/searchable-roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).hasSize(0)
+        }
+    }
+  }
+
   private fun addRoleForUserId(userId: String, roleCode: String) {
     webTestClient
       .post().uri("/users/$userId/roles")
