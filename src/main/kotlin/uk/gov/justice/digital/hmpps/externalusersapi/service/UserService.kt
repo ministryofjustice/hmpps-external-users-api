@@ -33,6 +33,7 @@ class UserService(
     val user = getUserForUpdate(userId)
     user.email = emailUpdateDto.email
     user.setUsername(emailUpdateDto.username)
+    user.verified = false
     userRepository.save(user)
   }
 
