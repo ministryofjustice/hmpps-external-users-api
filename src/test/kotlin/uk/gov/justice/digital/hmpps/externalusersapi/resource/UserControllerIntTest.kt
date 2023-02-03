@@ -122,33 +122,29 @@ class UserControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Email and username updated`() {
-      webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
+      webTestClient.get().uri("/users/id/1F650F15-0993-4DB7-9A32-5B930FF86037")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.username").isEqualTo("AUTH_USER")
-        .jsonPath("$.email").isEqualTo("auth_user@digital.justice.gov.uk")
+        .jsonPath("$.username").isEqualTo("AUTH_DEVELOPER")
+        .jsonPath("$.email").isEqualTo("auth_developer@digital.justice.gov.uk")
+        .jsonPath("$.verified").isEqualTo(true)
 
-      webTestClient.put().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949/email")
+      webTestClient.put().uri("/users/id/1F650F15-0993-4DB7-9A32-5B930FF86037/email")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .body(BodyInserters.fromValue(mapOf("username" to "jo_bloggs", "email" to "jo@bloggs.com")))
         .exchange()
         .expectStatus().isNoContent
 
-      webTestClient.get().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949")
+      webTestClient.get().uri("/users/id/1F650F15-0993-4DB7-9A32-5B930FF86037")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("$.username").isEqualTo("JO_BLOGGS")
         .jsonPath("$.email").isEqualTo("jo@bloggs.com")
-
-      webTestClient.put().uri("/users/id/608955ae-52ed-44cc-884c-011597a77949/email")
-        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
-        .body(BodyInserters.fromValue(mapOf("username" to "AUTH_USER", "email" to "auth_user@digital.justice.gov.uk")))
-        .exchange()
-        .expectStatus().isNoContent
+        .jsonPath("$.verified").isEqualTo(false)
     }
   }
 
