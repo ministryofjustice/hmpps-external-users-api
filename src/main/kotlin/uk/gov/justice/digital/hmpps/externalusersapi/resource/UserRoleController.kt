@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -300,4 +303,54 @@ class UserRoleController(
     val roles = userRoleService.getAllAssignableRoles()
     return roles.map { UserRoleDto(it) }
   }
+  @GetMapping("/users/username/{username}/roles")
+  @Operation(
+    summary = "List of roles for user.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN."
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK"
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "User not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class)
+          )
+        ]
+      )
+    ]
+  )
+  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN')")
+  suspend fun userRoles(
+    @Parameter(description = "The username of the user.", required = true) @PathVariable
+    username: String
+  ): Set<UserRole> {
+
+    val userRoles = userRoleService.getRolesByUsername(username)
+
+    if (userRoles.count() == 0) throw UsernameNotFoundException("User $username not found")
+
+    return userRoles.map { role -> UserRole(role.roleCode) }.toSet()
+  }
 }
+@Schema(description = "User Role")
+data class UserRole(
+  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
+  val roleCode: String,
+)

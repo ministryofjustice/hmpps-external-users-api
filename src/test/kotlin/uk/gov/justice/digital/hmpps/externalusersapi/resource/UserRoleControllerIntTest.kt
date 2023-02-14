@@ -488,6 +488,50 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     }
   }
 
+  @Nested
+  inner class ListOfRolesForUser {
+    @Test
+    fun `access unauthorized without valid token`() {
+      webTestClient
+        .get().uri("/users/username/AUTH_ADM/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+    @Test
+    fun `User Roles endpoint returns roles for user`() {
+      webTestClient
+        .get().uri("/users/username/AUTH_ADM/roles")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("OAUTH_ADMIN")
+          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+        }
+    }
+    @Test
+    fun `User Roles endpoint returns roles for user - PF_USER_ADMIN role`() {
+      webTestClient
+        .get().uri("/users/username/AUTH_ADM/roles")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PF_USER_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("OAUTH_ADMIN")
+          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+        }
+    }
+    @Test
+    fun `User Roles endpoint returns not found for unknown username`() {
+      webTestClient
+        .get().uri("/users/username/UNKNOWN/roles")
+        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+  }
   private fun addRoleForUserId(userId: String, roleCode: String) {
     webTestClient
       .post().uri("/users/$userId/roles")
