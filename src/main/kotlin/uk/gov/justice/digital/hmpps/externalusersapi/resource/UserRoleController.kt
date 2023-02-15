@@ -7,9 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import kotlinx.coroutines.flow.count
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -340,14 +337,7 @@ class UserRoleController(
   suspend fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ): Set<UserRole> {
-
-    val userRoles = userRoleService.getRolesByUsername(username)
-
-    if (userRoles.count() == 0) throw UsernameNotFoundException("User $username not found")
-
-    return userRoles.map { role -> UserRole(role.roleCode) }.toSet()
-  }
+  ): Set<UserRole> = userRoleService.getRolesByUsername(username).map { role -> UserRole(role.roleCode) }.toSet()
 }
 @Schema(description = "User Role")
 data class UserRole(

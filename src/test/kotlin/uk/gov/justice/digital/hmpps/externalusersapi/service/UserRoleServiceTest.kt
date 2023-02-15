@@ -26,6 +26,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
+import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
@@ -566,6 +568,28 @@ internal class UserRoleServiceTest {
 
       assertThat(service.getAllAssignableRoles()).containsOnly(first, fred, second, joe)
       verify(roleRepository, never()).findByGroupAssignableRolesForUserName(anyString())
+    }
+
+    @Nested
+    inner class ListOfRolesForUser {
+      @Test
+      fun userRoles_notFound(): Unit = runBlocking {
+        whenever(userRepository.findByUsernameAndSource(anyOrNull(), anyOrNull())).thenReturn(null)
+        assertThatThrownBy { runBlocking { service.getRolesByUsername("JOE") } }
+          .isInstanceOf(UsernameNotFoundException::class.java)
+          .hasMessage("User with username JOE not found")
+      }
+
+      @Test
+      fun userRoles_externalUser(): Unit = runBlocking {
+        val mockUser = User("JOE", AuthSource.auth)
+        whenever(userRepository.findByUsernameAndSource(anyOrNull(), anyOrNull())).thenReturn(mockUser)
+        val role1 = Authority(UUID.randomUUID(), "FRED", "FRED", adminType = "EXT_ADM")
+        val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "EXT_ADM")
+        whenever(roleRepository.findByUserRolesForUserName(any())).thenReturn(flowOf(role1, role2))
+        assertThat(service.getRolesByUsername("JOE")).containsOnly(role1, role2)
+        verify(roleRepository).findByUserRolesForUserName("JOE")
+      }
     }
   }
 

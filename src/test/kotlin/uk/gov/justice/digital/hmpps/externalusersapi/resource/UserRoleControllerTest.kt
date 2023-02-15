@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -88,19 +86,18 @@ class UserRoleControllerTest {
   @Nested
   inner class ListOfRolesForUser {
     @Test
-    fun userRoles_authUser(): Unit = runBlocking {
+    fun userRoles_externalUser(): Unit = runBlocking {
       val role1 = Authority(UUID.randomUUID(), "FRED", "FRED", adminType = "EXT_ADM")
       val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "EXT_ADM")
-      whenever(userRoleService.getRolesByUsername(any())).thenReturn(flowOf(role1, role2))
+      whenever(userRoleService.getRolesByUsername(any())).thenReturn(setOf(role1, role2))
       assertThat(userRoleController.userRoles("JOE")).contains(UserRole("FRED"), UserRole("GLOBAL_SEARCH"))
     }
 
     @Test
     fun userRoles_notFound(): Unit = runBlocking {
-      whenever(userRoleService.getRolesByUsername(any())).thenReturn(emptyFlow())
+      whenever(userRoleService.getRolesByUsername(any())).thenThrow(UsernameNotFoundException::class.java)
       assertThatThrownBy { runBlocking { userRoleController.userRoles("JOE") } }
         .isInstanceOf(UsernameNotFoundException::class.java)
-        .hasMessage("User JOE not found")
     }
   }
 }

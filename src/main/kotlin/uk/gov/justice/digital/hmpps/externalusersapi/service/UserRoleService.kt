@@ -104,7 +104,10 @@ class UserRoleService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
-  suspend fun getRolesByUsername(username: String) = roleRepository.findByUserRolesForUserName(username)
+  suspend fun getRolesByUsername(username: String): Set<Authority> {
+    userRepository.findByUsernameAndSource(username) ?: throw UsernameNotFoundException("User with username $username not found")
+    return roleRepository.findByUserRolesForUserName(username).toSet()
+  }
 
   @Transactional
   suspend fun removeRoleByUserId(
