@@ -71,9 +71,9 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
 
   @Query(
     """
-      select r.* from  roles r, user_role ur 
-      where  r.role_id = ur.role_id
-      and ur.user_id = ( select user_id from  USERS u where u.username = :userName)
+      select r.* from  roles r, user_role ur , USERS u 
+      where  r.role_id = ur.role_id and u.user_id = ur.user_id
+      and  u.username = :userName
     """
   )
   fun findByUserRolesForUserName(userName: String): Flow<Authority>

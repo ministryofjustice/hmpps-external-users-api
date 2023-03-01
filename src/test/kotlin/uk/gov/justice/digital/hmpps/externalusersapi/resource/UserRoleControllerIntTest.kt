@@ -493,41 +493,55 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `access unauthorized without valid token`() {
       webTestClient
-        .get().uri("/users/username/AUTH_ADM/roles")
+        .get().uri("/users/username/EXT_USER/roles")
         .exchange()
         .expectStatus().isUnauthorized
     }
     @Test
     fun `User Roles endpoint returns roles for user`() {
       webTestClient
-        .get().uri("/users/username/AUTH_ADM/roles")
-        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
+        .get().uri("/users/username/EXT_USER/roles")
+        .headers(setAuthorisation("EXT_USER", listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("[*].roleCode").value<List<String>> {
-          assertThat(it).contains("OAUTH_ADMIN")
-          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+          assertThat(it).contains("ROLES_ADMIN")
+          assertThat(it).contains("AUDIT_VIEWER")
         }
     }
     @Test
     fun `User Roles endpoint returns roles for user - PF_USER_ADMIN role`() {
       webTestClient
-        .get().uri("/users/username/AUTH_ADM/roles")
-        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PF_USER_ADMIN")))
+        .get().uri("/users/username/EXT_USER/roles")
+        .headers(setAuthorisation("EXT_USER", listOf("ROLE_PF_USER_ADMIN")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("[*].roleCode").value<List<String>> {
-          assertThat(it).contains("OAUTH_ADMIN")
-          assertThat(it).contains("MAINTAIN_OAUTH_USERS")
+          assertThat(it).contains("ROLES_ADMIN")
+          assertThat(it).contains("AUDIT_VIEWER")
+        }
+    }
+
+    @Test
+    fun `User Roles endpoint returns roles for user - INTEL_ADMIN role`() {
+      webTestClient
+        .get().uri("/users/username/EXT_USER/roles")
+        .headers(setAuthorisation("EXT_USER", listOf("ROLE_INTEL_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[*].roleCode").value<List<String>> {
+          assertThat(it).contains("ROLES_ADMIN")
+          assertThat(it).contains("AUDIT_VIEWER")
         }
     }
     @Test
     fun `User Roles endpoint returns not found for unknown username`() {
       webTestClient
         .get().uri("/users/username/UNKNOWN/roles")
-        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_PCMS_USER_ADMIN")))
+        .headers(setAuthorisation("EXT_USER", listOf("ROLE_PCMS_USER_ADMIN")))
         .exchange()
         .expectStatus().isNotFound
     }

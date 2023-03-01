@@ -303,7 +303,7 @@ class UserRoleController(
   @GetMapping("/users/username/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN."
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_PF_USER_ADMIN, ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN."
   )
   @ApiResponses(
     value = [
