@@ -337,10 +337,5 @@ class UserRoleController(
   suspend fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String
-  ): Set<UserRole> = userRoleService.getRolesByUsername(username).map { role -> UserRole(role.roleCode) }.toSet()
+  ): Set<UserRoleDto> = userRoleService.getRolesByUsername(username).map { UserRoleDto(it) }.toSet()
 }
-@Schema(description = "User Role")
-data class UserRole(
-  @Schema(required = true, description = "Role Code", example = "GLOBAL_SEARCH")
-  val roleCode: String,
-)

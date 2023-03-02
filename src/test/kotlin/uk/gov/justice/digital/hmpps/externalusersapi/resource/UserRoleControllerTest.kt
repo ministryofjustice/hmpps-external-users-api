@@ -90,7 +90,7 @@ class UserRoleControllerTest {
       val role1 = Authority(UUID.randomUUID(), "FRED", "FRED", adminType = "EXT_ADM")
       val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "EXT_ADM")
       whenever(userRoleService.getRolesByUsername(any())).thenReturn(setOf(role1, role2))
-      assertThat(userRoleController.userRoles("JOE")).contains(UserRole("FRED"), UserRole("GLOBAL_SEARCH"))
+      assertThat(userRoleController.userRoles("JOE")).contains(UserRoleDto(role1), UserRoleDto(role2))
     }
 
     @Test
