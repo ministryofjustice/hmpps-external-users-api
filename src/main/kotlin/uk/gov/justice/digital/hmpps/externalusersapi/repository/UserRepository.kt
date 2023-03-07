@@ -19,7 +19,7 @@ interface UserRepository : CoroutineCrudRepository<User, UUID> {
       where 
           u.source = :source 
           and 
-          g.group_code = :groupCode """
+          g.group_code = :groupCode """,
   )
   fun findAllByGroupCode(groupCode: String, source: AuthSource = AuthSource.auth): Flow<User>
 

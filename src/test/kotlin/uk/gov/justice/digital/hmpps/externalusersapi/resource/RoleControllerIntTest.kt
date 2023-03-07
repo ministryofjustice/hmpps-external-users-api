@@ -32,9 +32,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC",
               "roleName" to " New role",
               "roleDescription" to "New role description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -58,9 +58,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC",
               "roleName" to "good's & Role(),.-",
               "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -84,9 +84,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "RC",
               "roleName" to " New role",
               "roleDescription" to "",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -109,9 +109,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "roleCode" to "RC",
               "roleName" to " New role",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -134,9 +134,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "roleCode" to "",
               "roleName" to "",
-              "adminType" to listOf<String>()
-            )
-          )
+              "adminType" to listOf<String>(),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -161,9 +161,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "x".repeat(30) + "x",
               "roleName" to "x".repeat(128) + "y",
               "roleDescription" to "x".repeat(1024) + "y",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -184,9 +184,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .body(
           fromValue(
             mapOf(
-              "roleCode" to "xxxx", "roleName" to "123456", "adminType" to listOf<String>()
-            )
-          )
+              "roleCode" to "xxxx",
+              "roleName" to "123456",
+              "adminType" to listOf<String>(),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -210,9 +212,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "a-b",
               "roleName" to "a\$here",
               "roleDescription" to "a\$description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -237,9 +239,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -247,7 +249,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .json(
           """
       {"userMessage":"Denied","developerMessage":"Denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -262,9 +264,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
               "roleDescription" to "New role description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isCreated
@@ -278,16 +280,15 @@ class RoleControllerIntTest : IntegrationTestBase() {
               "roleCode" to "ROLE3",
               "roleName" to " role 3",
               "roleDescription" to "New role description",
-              "adminType" to listOf("EXT_ADM")
-            )
-          )
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$").value<Map<String, Any>> {
-
           assertThat(it["userMessage"] as String)
             .isEqualTo("Unable to add role: Unable to create role: ROLE3 with reason: role code already exists")
         }
@@ -330,8 +331,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
-              "userMessage" to "Denied"
-            )
+              "userMessage" to "Denied",
+            ),
           )
         }
     }
@@ -405,6 +406,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isForbidden
     }
+
     @Test
     fun `Get Paged Roles endpoint returns (default size=10) roles when user has role ROLE_ROLES_ADMIN`() {
       webTestClient
@@ -568,8 +570,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "developerMessage" to "Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
-              "userMessage" to "Unable to find role: Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound"
-            )
+              "userMessage" to "Unable to find role: Unable to get role: ROLE_DOES_NOT_EXIST with reason: notfound",
+            ),
           )
         }
     }
@@ -611,8 +613,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
-              "userMessage" to "Denied"
-            )
+              "userMessage" to "Denied",
+            ),
           )
         }
     }
@@ -632,8 +634,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
-              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
-            )
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound",
+            ),
           )
         }
     }
@@ -663,8 +665,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "roleName" to "12345".repeat(20) + "y",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -685,8 +687,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "roleName" to "a\$here",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -706,6 +708,14 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .body(fromValue(mapOf("roleName" to "new role name")))
         .exchange()
         .expectStatus().isOk
+
+      // reset role
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "Auth Client Management (admin)")))
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -716,10 +726,18 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .body(
           fromValue(
             mapOf(
-              "roleName" to "good's & Role(),.-"
-            )
-          )
+              "roleName" to "good's & Role(),.-",
+            ),
+          ),
         )
+        .exchange()
+        .expectStatus().isOk
+
+      // reset role
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleName" to "Auth Client Management (admin)")))
         .exchange()
         .expectStatus().isOk
     }
@@ -750,8 +768,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
-              "userMessage" to "Denied"
-            )
+              "userMessage" to "Denied",
+            ),
           )
         }
     }
@@ -771,8 +789,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
-              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
-            )
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound",
+            ),
           )
         }
     }
@@ -786,8 +804,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "roleDescription" to "12345".repeat(205) + "y",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -809,8 +827,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
           fromValue(
             mapOf(
               "roleDescription" to "a\$here",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -829,6 +847,14 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .put().uri("/roles/OAUTH_ADMIN/description")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
         .body(fromValue(mapOf("roleDescription" to "new role description")))
+        .exchange()
+        .expectStatus().isOk
+
+      // reset role
+      webTestClient
+        .put().uri("/roles/OAUTH_ADMIN/description")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(fromValue(mapOf("roleDescription" to null)))
         .exchange()
         .expectStatus().isOk
     }
@@ -861,9 +887,9 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .body(
           fromValue(
             mapOf(
-              "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo"
-            )
-          )
+              "roleDescription" to "good's & Role(),.-lineone\r\nlinetwo",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -895,8 +921,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Denied",
-              "userMessage" to "Denied"
-            )
+              "userMessage" to "Denied",
+            ),
           )
         }
     }
@@ -916,8 +942,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "developerMessage" to "Unable to maintain role: Not_A_Role with reason: notfound",
-              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound"
-            )
+              "userMessage" to "Unable to find role: Unable to maintain role: Not_A_Role with reason: notfound",
+            ),
           )
         }
     }

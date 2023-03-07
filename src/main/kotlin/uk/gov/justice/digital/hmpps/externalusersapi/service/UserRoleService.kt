@@ -53,7 +53,7 @@ class UserRoleService(
     userRepository.findById(userId)?.let {
       Sets.difference(
         getAllAssignableRolesByUserId(userId).toSet(),
-        roleRepository.findRolesByUserId(userId).toSet()
+        roleRepository.findRolesByUserId(userId).toSet(),
       )
         .sortedBy { it.roleName }
     } ?: throw UsernameNotFoundException("User $userId not found")
@@ -63,7 +63,9 @@ class UserRoleService(
       // only allow oauth admins to see that role
       allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }.toSet()
       // otherwise they can assign all roles that can be assigned to any of their groups
-    } else roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
+    } else {
+      roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
+    }
 
   @Transactional
   suspend fun addRolesByUserId(
@@ -96,10 +98,10 @@ class UserRoleService(
           telemetryClient.trackEvent(
             "ExternalUserRoleAddSuccess",
             mapOf("username" to userId.toString(), "role" to roleCode, "admin" to maintainerName),
-            null
+            null,
           )
           log.info("Adding role {} to user {}", roleCode, userId)
-        }
+        },
       )
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
@@ -107,7 +109,7 @@ class UserRoleService(
   @Transactional
   suspend fun removeRoleByUserId(
     userId: UUID,
-    roleCode: String
+    roleCode: String,
   ) {
     // already checked that user exists
     // check that the logged in user has permission to modify user
@@ -131,7 +133,7 @@ class UserRoleService(
       telemetryClient.trackEvent(
         "ExternalUserRoleRemoveSuccess",
         mapOf("userId" to userId.toString(), "role" to roleFormatted, "admin" to authenticationFacade.getUsername()),
-        null
+        null,
       )
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
@@ -141,7 +143,9 @@ class UserRoleService(
       // only allow oauth admins to see that role
       allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }.toSet()
       // otherwise they can assign all roles that can be assigned to any of their groups
-    } else roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
+    } else {
+      roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
+    }
 
   private fun formatRole(role: String) =
     Authority.removeRolePrefixIfNecessary(StringUtils.upperCase(StringUtils.trim(role)))

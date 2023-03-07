@@ -34,7 +34,7 @@ class EmailDomainRepositoryTest {
       EmailDomainDto(
         emailDomain.id.toString(),
         emailDomain.name,
-        emailDomain.description.toString()
+        emailDomain.description.toString(),
       )
     }
     val sortedList = emailDomainDtoList.toList()

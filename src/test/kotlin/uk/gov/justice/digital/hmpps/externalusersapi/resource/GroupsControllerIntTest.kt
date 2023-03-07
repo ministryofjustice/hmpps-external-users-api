@@ -36,8 +36,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to FORBIDDEN.value(),
               "developerMessage" to "Denied",
-              "userMessage" to "Denied"
-            )
+              "userMessage" to "Denied",
+            ),
           )
         }
     }
@@ -101,8 +101,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
               "userMessage" to "Group not within your groups: Unable to maintain group: SITE_1_GROUP_2 with reason: Group not with your groups",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -122,8 +122,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Denied",
               "userMessage" to "Denied",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -144,8 +144,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to get group: bob with reason: notfound",
               "userMessage" to "Group Not found: Unable to get group: bob with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -166,8 +166,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to get group: bob with reason: notfound",
               "userMessage" to "Group Not found: Unable to get group: bob with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -188,8 +188,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to maintain group: bob with reason: Group not with your groups",
               "userMessage" to "Group not within your groups: Unable to maintain group: bob with reason: Group not with your groups",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -283,9 +283,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "groupCode" to "CG",
-              "groupName" to " groupie"
-            )
-          )
+              "groupName" to " groupie",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -300,9 +300,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "groupCode" to "",
-              "groupName" to ""
-            )
-          )
+              "groupName" to "",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -323,8 +323,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "groupCode" to "12345".repeat(6) + "x",
               "groupName" to "12345".repeat(20) + "y",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -345,8 +345,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "groupCode" to "x",
               "groupName" to "123",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -367,8 +367,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "groupCode" to "a-b",
               "groupName" to "a\$here",
-            )
-          )
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -388,9 +388,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "groupCode" to "CG3",
-              "groupName" to " groupie 3"
-            )
-          )
+              "groupName" to " groupie 3",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -398,7 +398,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
       {"userMessage":"Denied","developerMessage":"Denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -411,9 +411,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "groupCode" to "CG1",
-              "groupName" to " groupie 1"
-            )
-          )
+              "groupName" to " groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -425,9 +425,9 @@ class GroupsControllerIntTest : IntegrationTestBase() {
           BodyInserters.fromValue(
             mapOf(
               "groupCode" to "CG1",
-              "groupName" to " groupie 1"
-            )
-          )
+              "groupName" to " groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
@@ -440,8 +440,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "Group already exists: Unable to create group: CG1 with reason: group code already exists",
-              "developerMessage" to "Unable to create group: CG1 with reason: group code already exists"
-            )
+              "developerMessage" to "Unable to create group: CG1 with reason: group code already exists",
+            ),
           )
         }
     }
@@ -487,8 +487,8 @@ class GroupsControllerIntTest : IntegrationTestBase() {
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exists",
-              "developerMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exists"
-            )
+              "developerMessage" to "Unable to delete group: GC_DEL_3 with reason: child group exists",
+            ),
           )
         }
     }
@@ -503,7 +503,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
       {"userMessage":"Denied","developerMessage":"Denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 

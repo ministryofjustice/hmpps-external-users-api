@@ -27,7 +27,7 @@ import javax.validation.constraints.NotEmpty
 @RestController
 @Tag(name = "/users/{userId}/roles", description = "User Roles Controller")
 class UserRoleController(
-  private val userRoleService: UserRoleService
+  private val userRoleService: UserRoleService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -37,13 +37,13 @@ class UserRoleController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get roles for user.",
-    description = "Get roles for user."
+    description = "Get roles for user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -51,9 +51,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -61,9 +61,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -71,16 +71,16 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun rolesByUserId(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
-    userId: UUID
+    userId: UUID,
   ): Set<UserRoleDto> =
     userRoleService.getUserRoles(userId)
       ?.map { role -> UserRoleDto(role) }?.toSet()
@@ -91,13 +91,13 @@ class UserRoleController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Remove role from user.",
-    description = "Remove role from user."
+    description = "Remove role from user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Removed."
+        description = "Removed.",
       ),
       ApiResponse(
         responseCode = "400",
@@ -105,9 +105,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -115,9 +115,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -125,9 +125,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -135,11 +135,11 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun removeRoleByUserId(
     @Parameter(description = "The userId of the user.", required = true)
@@ -158,13 +158,13 @@ class UserRoleController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add roles to user.",
-    description = "Add role to user, post version taking multiple roles"
+    description = "Add role to user, post version taking multiple roles",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "204",
-        description = "Added."
+        description = "Added.",
       ),
       ApiResponse(
         responseCode = "400",
@@ -172,9 +172,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -182,9 +182,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -192,9 +192,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -202,9 +202,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -212,11 +212,11 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun addRolesByUserId(
     @Parameter(description = "The userId of the user.", required = true)
@@ -225,7 +225,7 @@ class UserRoleController(
     @Parameter(description = "List of roles to be assigned.", required = true)
     @RequestBody
     @NotEmpty
-    roles: List<String>
+    roles: List<String>,
   ) {
     userRoleService.addRolesByUserId(userId, roles)
     log.info("Add role succeeded for userId {} and roles {}", userId, roles.toString())
@@ -234,13 +234,13 @@ class UserRoleController(
   @GetMapping("/users/{userId}/assignable-roles")
   @Operation(
     summary = "Get list of assignable roles.",
-    description = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role"
+    description = "Get list of roles that can be assigned by the current user.  This is dependent on the group membership, although super users can assign any role",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -248,9 +248,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -258,11 +258,11 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun assignableRoles(
     @Parameter(description = "The userId of the user.", required = true)
@@ -276,13 +276,13 @@ class UserRoleController(
   @GetMapping("/users/me/searchable-roles")
   @Operation(
     summary = "Get list of searchable roles.",
-    description = "Get list of roles that can be search for by the current user."
+    description = "Get list of roles that can be search for by the current user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -290,11 +290,11 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun searchableRoles(): List<UserRoleDto> {
     val roles = userRoleService.getAllAssignableRoles()

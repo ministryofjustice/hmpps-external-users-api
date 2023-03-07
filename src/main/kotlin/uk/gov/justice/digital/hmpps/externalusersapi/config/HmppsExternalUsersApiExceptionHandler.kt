@@ -48,8 +48,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -62,8 +62,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -76,8 +76,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -90,17 +90,17 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
   @ExceptionHandler(WebExchangeBindException::class)
   fun handleWebExchangeBindException(e: WebExchangeBindException): ResponseEntity<ErrorResponse> {
     log.info("Validation exception: {}", e.message)
-    val message = if (e.hasFieldErrors())
+    val message = if (e.hasFieldErrors()) {
       e.fieldErrors.joinToString("; ") { fieldError -> fieldError.field + ": " + fieldError.defaultMessage }
-    else { e.message }
+    } else { e.message }
 
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -108,8 +108,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: $message",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -122,8 +122,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Parameter conversion failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -136,8 +136,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = INTERNAL_SERVER_ERROR,
           userMessage = "Unexpected error: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -150,8 +150,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Unable to add role: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -164,8 +164,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Unable to add email domain: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -178,8 +178,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Unable to find email domain: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -192,8 +192,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Group Not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -206,8 +206,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "User not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -220,8 +220,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Child group not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -234,8 +234,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = "User not within your groups: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -248,8 +248,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "User not found: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -262,8 +262,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = "Group not within your groups: ${e.message}",
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -276,8 +276,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = FORBIDDEN,
           userMessage = e.message,
-          developerMessage = e.message ?: "Error message not set"
-        )
+          developerMessage = e.message ?: "Error message not set",
+        ),
       )
   }
 
@@ -290,8 +290,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = NOT_FOUND,
           userMessage = "Unable to find role: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -304,8 +304,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "User role error: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -318,8 +318,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "User role error: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -332,8 +332,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Validation failure: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -346,8 +346,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Group already exists: ${e.message}",
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -360,8 +360,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -374,8 +374,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -388,8 +388,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -402,8 +402,8 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = e.message,
-          developerMessage = e.message
-        )
+          developerMessage = e.message,
+        ),
       )
   }
 
@@ -417,14 +417,14 @@ data class ErrorResponse(
   val errorCode: Int? = null,
   val userMessage: String? = null,
   val developerMessage: String? = null,
-  val moreInfo: String? = null
+  val moreInfo: String? = null,
 ) {
   constructor(
     status: HttpStatus,
     errorCode: Int? = null,
     userMessage: String? = null,
     developerMessage: String? = null,
-    moreInfo: String? = null
+    moreInfo: String? = null,
   ) :
     this(status.value(), errorCode, userMessage, developerMessage, moreInfo)
 }

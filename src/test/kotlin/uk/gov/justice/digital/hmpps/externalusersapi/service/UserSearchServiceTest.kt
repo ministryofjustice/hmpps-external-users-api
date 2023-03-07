@@ -131,7 +131,6 @@ class UserSearchServiceTest {
   inner class FindUsersByUserName {
     @Test
     fun shouldFailWithUserException(): Unit = runBlocking {
-
       Assertions.assertThatThrownBy {
         runBlocking {
           userSearchService.getUserByUsername("   bob   ")
@@ -164,13 +163,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         name = "someName",
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
       assertThat(users.content).isEqualTo(listOf(user))
     }
@@ -186,13 +185,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         name = "someName",
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
 
       assertThat(users.content).isEqualTo(listOf(user))
@@ -239,13 +238,13 @@ class UserSearchServiceTest {
         roleCodes = listOf("someRole"),
         groupCodes = listOf("someGroup"),
         status = UserFilter.Status.ACTIVE,
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
 
@@ -260,13 +259,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         name = "someName",
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
 
@@ -281,13 +280,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         roleCodes = listOf("AUDIT_VIEWER"),
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
 
@@ -302,13 +301,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("INT_SP_HARMONY_LIVING"),
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
 
@@ -319,7 +318,7 @@ class UserSearchServiceTest {
         listOf(
           Group("SITE_1_GROUP_1", "desc"),
           Group("SITE_1_GROUP_2", "desc"),
-        )
+        ),
       )
       whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(user))
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
@@ -329,13 +328,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("SITE_1_GROUP_1", "SITE_1_GROUP_2"),
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
 
@@ -346,7 +345,7 @@ class UserSearchServiceTest {
         listOf(
           Group("SITE_1_GROUP_1", "desc"),
           Group("SITE_1_GROUP_2", "desc"),
-        )
+        ),
       )
       whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(user))
       whenever(userSearchRepository.countAllBy(any())).thenReturn(20)
@@ -356,13 +355,13 @@ class UserSearchServiceTest {
 
       val expectedFilter = UserFilter(
         groupCodes = listOf("SITE_1_GROUP_1"),
-        pageable = pageDetails
+        pageable = pageDetails,
       )
 
       verify(userSearchRepository).searchForUsers(
         org.mockito.kotlin.check {
           assertThat(it).extracting("sql").isEqualTo(expectedFilter.sql)
-        }
+        },
       )
     }
   }

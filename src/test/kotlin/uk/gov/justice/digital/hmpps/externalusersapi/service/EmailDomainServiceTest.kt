@@ -37,7 +37,7 @@ class EmailDomainServiceTest {
         EmailDomain(id = randomUUID, name = "acc.com", description = "description"),
         EmailDomain(id = randomUUID2, name = "%adc.com", description = "description"),
         EmailDomain(id = randomUUID3, name = "%.abc.com", description = "description"),
-      )
+      ),
     )
 
     val actualEmailDomainList = service.domainList()
@@ -56,8 +56,8 @@ class EmailDomainServiceTest {
     whenever(emailDomainRepository.findByName("%" + newDomain.name)).thenReturn(
       EmailDomain(
         name = newDomain.name,
-        description = newDomain.description
-      )
+        description = newDomain.description,
+      ),
     )
 
     assertThatThrownBy { runBlocking { service.addDomain(newDomain) } }
@@ -80,7 +80,6 @@ class EmailDomainServiceTest {
 
   @Test
   fun shouldPersistDomainWithAddedPercentPrefixWhenDomainNotAlreadyPresentOrExcluded(): Unit = runBlocking {
-
     whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), newDomain.name, newDomain.description))
     service.addDomain(newDomain)
 
@@ -94,7 +93,6 @@ class EmailDomainServiceTest {
 
   @Test
   fun shouldNotAddPercentPrefixWhenDomainNameAlreadyHasPercentPrefix(): Unit = runBlocking {
-
     val domain = CreateEmailDomainDto("%123.co.uk", "test")
     whenever(emailDomainRepository.save(any())).thenReturn(EmailDomain(UUID.randomUUID(), domain.name, domain.description))
     service.addDomain(domain)

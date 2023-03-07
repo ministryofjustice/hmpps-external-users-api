@@ -54,7 +54,7 @@ class UserService(
       firstName = user.getFirstName(),
       username = user.getUserName(),
       email = user.email,
-      admin = authenticationFacade.getUsername()
+      admin = authenticationFacade.getUsername(),
     )
   }
 

@@ -13,7 +13,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
 @Service
 class MaintainUserCheck(
   private val authenticationFacade: AuthenticationFacade,
-  private val groupRepository: GroupRepository
+  private val groupRepository: GroupRepository,
 ) {
   companion object {
     fun canMaintainUsers(authorities: Collection<GrantedAuthority>): Boolean =
@@ -39,7 +39,6 @@ class MaintainUserCheck(
 
   @Throws(UserGroupRelationshipException::class)
   suspend fun ensureUserLoggedInUserRelationship(userName: String) = coroutineScope {
-
     // All good if user holds maintain privilege
     if (!canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
       // Otherwise, group managers must have a group in common for maintenance

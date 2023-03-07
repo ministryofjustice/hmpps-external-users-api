@@ -52,11 +52,12 @@ class GroupsControllerTest {
       groupsController.createGroup(childGroup)
       verify(groupsService).createGroup(childGroup)
     }
+
     @Test
     fun `create - group already exist exception`(): Unit = runBlocking {
       doThrow(GroupExistsException("_code", "group code already exists")).whenever(groupsService)
         .createGroup(
-          any()
+          any(),
         )
 
       assertThatThrownBy { runBlocking { groupsController.createGroup(CreateGroupDto(groupCode = "g", groupName = "name")) } }
@@ -66,14 +67,13 @@ class GroupsControllerTest {
 
     @Test
     fun `get group details`(): Unit = runBlocking {
-
       val assignableRole = listOf(UserAssignableRoleDto(roleName = "Role1", roleCode = "RO1", automatic = true))
       val childGroup = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
       val groupDetail = GroupDetails(groupCode = "FRED", groupName = "desc", assignableRoles = assignableRole, children = childGroup)
       whenever(
         groupsService.getGroupDetail(
-          groupCode = anyString()
-        )
+          groupCode = anyString(),
+        ),
       ).thenReturn(groupDetail)
 
       val groupDetails = groupsController.getGroupDetails("group1")
@@ -85,20 +85,19 @@ class GroupsControllerTest {
             UserAssignableRoleDto(
               roleCode = "RO1",
               roleName = "Role1",
-              automatic = true
-            )
+              automatic = true,
+            ),
           ),
-          children = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc"))
-        )
+          children = listOf(UserGroupDto(groupCode = "BOB", groupName = "desc")),
+        ),
       )
     }
 
     @Test
     fun `Group Not Found`(): Unit = runBlocking {
-
       doThrow(GroupNotFoundException("find", "NotGroup", "not found")).whenever(groupsService)
         .getGroupDetail(
-          anyString()
+          anyString(),
         )
 
       assertThatThrownBy { runBlocking { groupsController.getGroupDetails("NotGroup") } }

@@ -19,7 +19,7 @@ interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssigna
             on  g.group_id = gs.group_id 
          inner join roles r 
            on r.role_id=gs.role_id 
-          where g.group_code = :groupCode """
+          where g.group_code = :groupCode """,
   )
   fun findGroupAssignableRoleByGroupCode(groupCode: String): Flow<UserAssignableRoleDto>
 }

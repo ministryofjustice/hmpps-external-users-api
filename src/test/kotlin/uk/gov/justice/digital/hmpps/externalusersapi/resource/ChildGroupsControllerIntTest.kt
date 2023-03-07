@@ -118,8 +118,8 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
               "errorCode" to null,
               "moreInfo" to null,
               "userMessage" to "Child group not found: Unable to get child group: UNKNOWN with reason: notfound",
-              "developerMessage" to "Unable to get child group: UNKNOWN with reason: notfound"
-            )
+              "developerMessage" to "Unable to get child group: UNKNOWN with reason: notfound",
+            ),
           )
         }
     }
@@ -145,9 +145,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG",
-              "groupName" to "Child groupie"
-            )
-          )
+              "groupName" to "Child groupie",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -163,9 +163,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
-              "groupName" to ""
-            )
-          )
+              "groupName" to "",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -181,9 +181,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG3",
-              "groupName" to "Child groupie 3"
-            )
-          )
+              "groupName" to "Child groupie 3",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isForbidden
@@ -191,7 +191,7 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
         .json(
           """
      {"userMessage":"Denied","developerMessage":"Denied"}
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -205,9 +205,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "",
               "groupCode" to "",
-              "groupName" to ""
-            )
-          )
+              "groupName" to "",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isBadRequest
@@ -228,9 +228,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG1",
-              "groupName" to "Child groupie 1"
-            )
-          )
+              "groupName" to "Child groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isOk
@@ -243,9 +243,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "SITE_9_GROUP_1",
               "groupCode" to "CG1",
-              "groupName" to "Child groupie 1"
-            )
-          )
+              "groupName" to "Child groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
@@ -258,15 +258,14 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
               "userMessage" to "Unable to create child group: CG1 with reason: Child group code already exists",
               "errorCode" to null,
               "moreInfo" to null,
-              "status" to HttpStatus.CONFLICT.value()
-            )
+              "status" to HttpStatus.CONFLICT.value(),
+            ),
           )
         }
     }
 
     @Test
     fun `Create child group - parent group doesnt exist`() {
-
       webTestClient
         .post().uri("/groups/child")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -275,9 +274,9 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
             mapOf(
               "parentGroupCode" to "pg",
               "groupCode" to "CG1",
-              "groupName" to "Child groupie 1"
-            )
-          )
+              "groupName" to "Child groupie 1",
+            ),
+          ),
         )
         .exchange()
         .expectStatus().isNotFound
@@ -290,8 +289,8 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
               "userMessage" to "Group Not found: Unable to create group: CG1 with reason: ParentGroupNotFound",
               "errorCode" to null,
               "moreInfo" to null,
-              "status" to HttpStatus.NOT_FOUND.value()
-            )
+              "status" to HttpStatus.NOT_FOUND.value(),
+            ),
           )
         }
     }
@@ -338,8 +337,8 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Unable to get child group: bob with reason: notfound",
               "userMessage" to "Child group not found: Unable to get child group: bob with reason: notfound",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -357,8 +356,8 @@ class ChildGroupsControllerIntTest : IntegrationTestBase() {
           Assertions.assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf(
               "groupCode" to "CHILD_2",
-              "groupName" to "Child - Site 2 - Group 1"
-            )
+              "groupName" to "Child - Site 2 - Group 1",
+            ),
           )
         }
     }

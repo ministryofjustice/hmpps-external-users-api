@@ -55,8 +55,8 @@ internal class UserRoleServiceTest {
       whenever(roleRepository.findRolesByUserId(any())).thenReturn(
         flowOf(
           Authority(UUID.randomUUID(), "ROLE_ONE", "Role One info", adminType = "EXT_ADM"),
-          Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", "EXT_ADM")
-        )
+          Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", "EXT_ADM"),
+        ),
       )
 
       val roles = service.getUserRoles(id)
@@ -82,11 +82,11 @@ internal class UserRoleServiceTest {
         runBlocking {
           service.addRolesByUserId(
             UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
-            listOf("ROLE_CODE")
+            listOf("ROLE_CODE"),
           )
         }
       }.isInstanceOf(
-        UsernameNotFoundException::class.java
+        UsernameNotFoundException::class.java,
       ).hasMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
     }
 
@@ -102,11 +102,11 @@ internal class UserRoleServiceTest {
         runBlocking {
           service.addRolesByUserId(
             userId,
-            listOf("        ")
+            listOf("        "),
           )
         }
       }.isInstanceOf(
-        UserRoleException::class.java
+        UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: role.notfound")
     }
 
@@ -128,7 +128,7 @@ internal class UserRoleServiceTest {
           )
         }
       }.isInstanceOf(
-        UserRoleException::class.java
+        UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
     }
 
@@ -143,7 +143,7 @@ internal class UserRoleServiceTest {
           service.addRolesByUserId(UUID.randomUUID(), listOf("BOB"))
         }
       }.isInstanceOf(
-        UserGroupRelationshipException::class.java
+        UserGroupRelationshipException::class.java,
       ).hasMessage("Unable to maintain user: user with reason: User not with your groups")
     }
 
@@ -160,9 +160,10 @@ internal class UserRoleServiceTest {
           Authority(
             UUID.randomUUID(),
             "FRED",
-            "Role Fred", adminType = "EXT_ADM"
-          )
-        )
+            "Role Fred",
+            adminType = "EXT_ADM",
+          ),
+        ),
       )
       whenever(roleRepository.findRolesByUserId(any()))
         .thenReturn(flowOf(Authority(UUID.randomUUID(), "JOE", "bloggs", adminType = "EXT_ADM")))
@@ -175,7 +176,7 @@ internal class UserRoleServiceTest {
           )
         }
       }.isInstanceOf(
-        UserRoleException::class.java
+        UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
     }
 
@@ -193,7 +194,7 @@ internal class UserRoleServiceTest {
       assertThatThrownBy {
         runBlocking { service.addRolesByUserId(UUID.randomUUID(), listOf("BOB")) }
       }.isInstanceOf(
-        UserRoleException::class.java
+        UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
     }
 
@@ -217,7 +218,7 @@ internal class UserRoleServiceTest {
           )
         }
       }.isInstanceOf(
-        UserRoleException::class.java
+        UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: role.exists")
     }
 
@@ -238,7 +239,7 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "TO_ADD", "admin" to "admin"),
-        null
+        null,
       )
     }
 
@@ -259,7 +260,7 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
-        null
+        null,
       )
     }
 
@@ -282,12 +283,12 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
-        null
+        null,
       )
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "OTHER", "admin" to "admin"),
-        null
+        null,
       )
     }
 
@@ -307,12 +308,13 @@ internal class UserRoleServiceTest {
         .thenReturn(flowOf(Authority(UUID.randomUUID(), "JOE", "bloggs", adminType = "EXT_ADM")))
 
       service.addRolesByUserId(
-        userId, listOf("ROLE_LICENCE_VARY"),
+        userId,
+        listOf("ROLE_LICENCE_VARY"),
       )
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
-        null
+        null,
       )
     }
   }
@@ -341,7 +343,7 @@ internal class UserRoleServiceTest {
         runBlocking {
           service.removeRoleByUserId(
             UUID.randomUUID(),
-            "BOB"
+            "BOB",
           )
         }
       }.isInstanceOf(UserRoleException::class.java)
@@ -383,7 +385,7 @@ internal class UserRoleServiceTest {
           service.removeRoleByUserId(UUID.randomUUID(), "R")
         }
       }.isInstanceOf(
-        UserGroupRelationshipException::class.java
+        UserGroupRelationshipException::class.java,
       ).hasMessage("Unable to maintain user: user with reason: User not with your groups")
       verifyNoInteractions(telemetryClient)
     }
@@ -415,7 +417,7 @@ internal class UserRoleServiceTest {
 
       assertThatThrownBy {
         runBlocking {
-          service.removeRoleByUserId(UUID.randomUUID(), "BOB",)
+          service.removeRoleByUserId(UUID.randomUUID(), "BOB")
         }
       }.isInstanceOf(UserRoleException::class.java)
         .hasMessage("Modify role failed for field role with reason: role.notfound")
@@ -441,7 +443,7 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleRemoveSuccess",
         mapOf("userId" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
-        null
+        null,
       )
     }
 
@@ -464,7 +466,7 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleRemoveSuccess",
         mapOf("userId" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "groupmanager"),
-        null
+        null,
       )
     }
   }
@@ -485,7 +487,7 @@ internal class UserRoleServiceTest {
       whenever(roleRepository.findRolesByUserId(any())).thenReturn(flowOf(fred, joe))
 
       assertThat(
-        service.getAssignableRolesByUserId(UUID.randomUUID())
+        service.getAssignableRolesByUserId(UUID.randomUUID()),
       ).containsExactly(first, second)
     }
 
@@ -540,7 +542,6 @@ internal class UserRoleServiceTest {
   inner class AllAssignableRoles {
     @Test
     fun `all assignable roles for group manager`(): Unit = runBlocking {
-
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")
@@ -555,7 +556,6 @@ internal class UserRoleServiceTest {
 
     @Test
     fun `all assignable roles for Super User`(): Unit = runBlocking {
-
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val first = Authority(UUID.randomUUID(), "FIRST", "Role First", adminType = "EXT_ADM")

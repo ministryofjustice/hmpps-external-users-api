@@ -89,7 +89,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
               "developerMessage":"Add group failed for field group with reason: managerNotMember"
               }
           """
-            .trimIndent()
+            .trimIndent(),
         )
 
       callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA02C")
@@ -116,7 +116,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
               "developerMessage":"Unable to maintain user: AUTH_RO_USER_TEST4 with reason: User not with your groups"
               }
         """
-            .trimIndent()
+            .trimIndent(),
         )
 
       callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA44A")
@@ -135,6 +135,12 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
+
+      webTestClient
+        .put().uri("/users/7CA04ED7-8275-45B2-AFB4-4FF51432D1EC/groups/site_1_group_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
     }
 
     @Test
@@ -142,6 +148,12 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
       webTestClient
         .delete().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02F/groups/SITE_1_GROUP_1")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient
+        .put().uri("/users/90F930E1-2195-4AFD-92CE-0EB5672DA02F/groups/SITE_1_GROUP_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
     }
@@ -205,8 +217,8 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.NOT_FOUND.value(),
               "developerMessage" to "User 12345678-1234-1234-1234-123456789101 not found",
-              "userMessage" to "User not found: User 12345678-1234-1234-1234-123456789101 not found"
-            )
+              "userMessage" to "User not found: User 12345678-1234-1234-1234-123456789101 not found",
+            ),
           )
         }
     }
@@ -224,7 +236,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
           {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}
         ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -241,7 +253,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
           {"groupCode":"SITE_1_GROUP_2","groupName":"Site 1 - Group 2"}
         ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -258,7 +270,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
           {"groupCode":"CHILD_1","groupName":"Child - Site 1 - Group 2"}
         ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -275,7 +287,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
           {"groupCode":"CHILD_1","groupName":"Child - Site 1 - Group 2"}
         ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -292,8 +304,8 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
             mapOf(
               "status" to HttpStatus.FORBIDDEN.value(),
               "developerMessage" to "Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups",
-              "userMessage" to "User not within your groups: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups"
-            )
+              "userMessage" to "User not within your groups: Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups",
+            ),
           )
         }
     }
@@ -306,7 +318,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
           {"groupCode":"SITE_1_GROUP_1","groupName":"Site 1 - Group 1"},
           {"groupCode":"CHILD_1","groupName":"Child - Site 1 - Group 2"}
         ]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 
@@ -321,7 +333,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
 
   private fun callGetGroups(
     userId: String = "7CA04ED7-8275-45B2-AFB4-4FF51432D1EA",
-    children: Boolean = false
+    children: Boolean = false,
   ): BodyContentSpec = webTestClient
     .get().uri("/users/$userId/groups?children=$children")
     .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))

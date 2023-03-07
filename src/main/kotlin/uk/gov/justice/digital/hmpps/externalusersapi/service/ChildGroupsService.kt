@@ -16,7 +16,7 @@ class ChildGroupsService(
   private val childGroupRepository: ChildGroupRepository,
   private val groupRepository: GroupRepository,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade
+  private val authenticationFacade: AuthenticationFacade,
 ) {
 
   @Throws(ChildGroupNotFoundException::class)
@@ -40,9 +40,9 @@ class ChildGroupsService(
       mapOf(
         "username" to authenticationFacade.getUsername(),
         "childGroupCode" to groupCode,
-        "newChildGroupName" to groupAmendment.groupName
+        "newChildGroupName" to groupAmendment.groupName,
       ),
-      null
+      null,
     )
   }
 
@@ -55,7 +55,7 @@ class ChildGroupsService(
     telemetryClient.trackEvent(
       "GroupChildDeleteSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "childGroupCode" to groupCode),
-      null
+      null,
     )
   }
 
@@ -81,9 +81,9 @@ class ChildGroupsService(
         "username" to authenticationFacade.getUsername(),
         "groupCode" to parentGroupDetails.groupCode,
         "childGroupCode" to groupCode,
-        "childGroupName" to groupName
+        "childGroupName" to groupName,
       ),
-      null
+      null,
     )
   }
 

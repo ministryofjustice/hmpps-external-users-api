@@ -17,12 +17,12 @@ data class GroupDetails(
   val assignableRoles: List<UserAssignableRoleDto>,
 
   @Schema(required = true, description = "Child Groups")
-  val children: List<UserGroupDto>
+  val children: List<UserGroupDto>,
 ) {
-  constructor(g: Group, children: List<ChildGroup>, assignableRoles: List<UserAssignableRoleDto>,) : this(
+  constructor(g: Group, children: List<ChildGroup>, assignableRoles: List<UserAssignableRoleDto>) : this(
     g.groupCode,
     g.groupName,
     assignableRoles,
-    children.map { UserGroupDto(it) }.sortedBy { it.groupName }
+    children.map { UserGroupDto(it) }.sortedBy { it.groupName },
   )
 }

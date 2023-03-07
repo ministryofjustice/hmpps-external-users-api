@@ -23,7 +23,7 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
         inner join user_role ur on r.role_id = ur.role_id
       where
         ur.user_id = :userId
-     """
+     """,
   )
   fun findRolesByUserId(userId: UUID): Flow<Authority>
 
@@ -37,7 +37,7 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
          inner join roles r 
            on r.role_id = gs.role_id 
           where g.group_code = :groupCode
-    """
+    """,
   )
   fun findRolesByGroupCode(groupCode: String): Flow<Authority>
 
@@ -51,7 +51,7 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
         inner join roles r on r.role_id = gar.role_id 
       where
         u.user_id = :userId order by r.role_name
-    """
+    """,
   )
   fun findByGroupAssignableRolesForUserId(userId: UUID): Flow<Authority>
 
@@ -65,7 +65,7 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
         inner join roles r on r.role_id = gar.role_id 
       where
         u.username = :userName order by r.role_name
-    """
+    """,
   )
   fun findByGroupAssignableRolesForUserName(userName: String): Flow<Authority>
 }

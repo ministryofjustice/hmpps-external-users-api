@@ -48,7 +48,7 @@ class GroupsServiceTest {
     userRepository,
     userGroupService,
     groupAssignableRoleRepository,
-    maintainUserCheck
+    maintainUserCheck,
   )
 
   @BeforeEach
@@ -86,7 +86,7 @@ class GroupsServiceTest {
       verify(telemetryClient).trackEvent(
         "GroupCreateSuccess",
         mapOf("username" to "username", "groupCode" to "CG", "groupName" to "Group"),
-        null
+        null,
       )
     }
 
@@ -116,7 +116,7 @@ class GroupsServiceTest {
       verify(telemetryClient).trackEvent(
         "GroupUpdateSuccess",
         mapOf("username" to "username", "groupCode" to "bob", "newGroupName" to "Joe"),
-        null
+        null,
       )
     }
 

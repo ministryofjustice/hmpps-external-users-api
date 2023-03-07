@@ -41,7 +41,7 @@ class MaintainUserCheckTest {
         runBlocking {
           maintainUserCheck.ensureMaintainerGroupRelationship(
             "groupManager",
-            "group1"
+            "group1",
           )
         }
       }.doesNotThrowAnyException()
@@ -56,7 +56,7 @@ class MaintainUserCheckTest {
         runBlocking {
           maintainUserCheck.ensureMaintainerGroupRelationship(
             "groupManager",
-            "group3"
+            "group3",
           )
         }
       }.isInstanceOf(GroupRelationshipException::class.java)

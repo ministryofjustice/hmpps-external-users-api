@@ -43,7 +43,7 @@ class ChildGroupsServiceTest {
       verify(telemetryClient).trackEvent(
         "GroupChildDeleteSuccess",
         mapOf("username" to "username", "childGroupCode" to "CG"),
-        null
+        null,
       )
     }
 
@@ -73,7 +73,7 @@ class ChildGroupsServiceTest {
       verify(telemetryClient).trackEvent(
         "GroupChildUpdateSuccess",
         mapOf("username" to "username", "childGroupCode" to "bob", "newChildGroupName" to "Joe"),
-        null
+        null,
       )
     }
   }

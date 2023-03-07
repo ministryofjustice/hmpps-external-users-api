@@ -45,8 +45,8 @@ class UserGroupControllerTest {
       whenever(userGroupService.getParentGroups(userId)).thenReturn(
         mutableListOf(
           group1,
-          group2
-        )
+          group2,
+        ),
       )
 
       val responseEntity =
@@ -63,7 +63,7 @@ class UserGroupControllerTest {
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
 
       whenever(userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)).thenReturn(
-        mutableListOf(group1, group2, childGroup)
+        mutableListOf(group1, group2, childGroup),
       )
 
       val responseEntity = userGroupController.groupsByUserId(userId)
@@ -71,7 +71,7 @@ class UserGroupControllerTest {
       assertThat(responseEntity).containsOnly(
         UserGroupDto(group1),
         UserGroupDto(group2),
-        UserGroupDto(childGroup)
+        UserGroupDto(childGroup),
       )
     }
 
@@ -83,7 +83,7 @@ class UserGroupControllerTest {
       val childGroup = ChildGroup("CHILD_1", "child 1", UUID.randomUUID())
 
       whenever(userGroupService.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)).thenReturn(
-        mutableListOf(group1, group2, childGroup)
+        mutableListOf(group1, group2, childGroup),
       )
 
       val responseEntity = userGroupController.groupsByUserId(userId, true)
@@ -91,7 +91,7 @@ class UserGroupControllerTest {
       assertThat(responseEntity).containsOnly(
         UserGroupDto(group1),
         UserGroupDto(group2),
-        UserGroupDto(childGroup)
+        UserGroupDto(childGroup),
       )
     }
   }

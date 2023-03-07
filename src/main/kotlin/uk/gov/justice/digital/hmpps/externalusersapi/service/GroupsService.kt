@@ -59,9 +59,9 @@ class GroupsService(
       mapOf(
         "username" to authenticationFacade.getUsername(),
         "groupCode" to groupCode,
-        "newGroupName" to groupAmendment.groupName
+        "newGroupName" to groupAmendment.groupName,
       ),
-      null
+      null,
     )
   }
 
@@ -79,7 +79,7 @@ class GroupsService(
     telemetryClient.trackEvent(
       "GroupCreateSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode, "groupName" to groupName),
-      null
+      null,
     )
   }
 
@@ -95,14 +95,14 @@ class GroupsService(
             removeUsersFromGroup(
               groupCode,
               authenticationFacade.getUsername(),
-              authenticationFacade.getAuthentication().authorities
+              authenticationFacade.getAuthentication().authorities,
             )
             groupRepository.delete(group)
 
             telemetryClient.trackEvent(
               "GroupDeleteSuccess",
               mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode),
-              null
+              null,
             )
           }
           else -> {

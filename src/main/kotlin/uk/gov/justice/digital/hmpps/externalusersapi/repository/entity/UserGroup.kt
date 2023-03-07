@@ -6,7 +6,7 @@ import java.util.UUID
 @Table(name = "user_group")
 data class UserGroup(
   var userId: UUID?,
-  var groupId: UUID?
+  var groupId: UUID?,
 ) {
 
   override fun equals(other: Any?): Boolean {

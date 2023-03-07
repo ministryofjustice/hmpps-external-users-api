@@ -28,7 +28,7 @@ class EmailDomainService(
       EmailDomainDto(
         emailDomain.id.toString(),
         cleanDomainNameForDisplay(emailDomain.name),
-        emailDomain.description.toString()
+        emailDomain.description.toString(),
       )
     }
     return emailDomainDtoList.toList().sortedWith(compareBy { it.domain })
@@ -63,7 +63,7 @@ class EmailDomainService(
   private fun toDto(emailDomain: EmailDomain): EmailDomainDto = EmailDomainDto(
     emailDomain.id.toString(),
     cleanDomainNameForDisplay(emailDomain.name),
-    emailDomain.description.toString()
+    emailDomain.description.toString(),
   )
 
   private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain =

@@ -126,7 +126,7 @@ class RoleControllerTest {
         roleCode = "RO1",
         roleName = "Role1",
         roleDescription = "First Role",
-        adminType = "DPS_ADM"
+        adminType = "DPS_ADM",
       )
 
       whenever(roleService.getRoleDetails(any())).thenReturn(RoleDetailsDto(role))
@@ -137,8 +137,8 @@ class RoleControllerTest {
           roleCode = "RO1",
           roleName = "Role1",
           roleDescription = "First Role",
-          adminType = listOf(DPS_ADM)
-        )
+          adminType = listOf(DPS_ADM),
+        ),
       )
     }
 
@@ -149,8 +149,8 @@ class RoleControllerTest {
           RoleNotFoundException(
             "find",
             "NoRole",
-            "not found"
-          )
+            "not found",
+          ),
         )
       }
 
@@ -176,8 +176,8 @@ class RoleControllerTest {
           RoleNotFoundException(
             "find",
             "NoRole",
-            "not found"
-          )
+            "not found",
+          ),
         )
       }
       val roleAmendment = RoleNameAmendmentDto("role")

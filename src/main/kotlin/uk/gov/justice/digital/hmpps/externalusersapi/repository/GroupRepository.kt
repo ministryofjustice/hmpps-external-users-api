@@ -19,7 +19,7 @@ interface GroupRepository : CoroutineSortingRepository<Group, String> {
         inner join user_group ug on g.group_id = ug.group_id 
         where
         ug.user_id = :userId
-     """
+     """,
   )
   fun findGroupsByUserId(userId: UUID): Flow<Group>
 
@@ -31,7 +31,7 @@ interface GroupRepository : CoroutineSortingRepository<Group, String> {
         inner join users u on u.user_id = ug.user_id
         where
         u.username = :username
-     """
+     """,
   )
   fun findGroupsByUsername(username: String): Flow<Group>
 }

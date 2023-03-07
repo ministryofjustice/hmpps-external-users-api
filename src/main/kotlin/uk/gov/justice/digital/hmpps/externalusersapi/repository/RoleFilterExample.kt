@@ -14,7 +14,7 @@ import java.util.regex.Pattern
 class RoleFilterExample(
   roleName: String? = null,
   roleCode: String? = null,
-  adminTypes: List<AdminType>? = null
+  adminTypes: List<AdminType>? = null,
 ) {
 
   private val whiteSpace = Pattern.compile("\\s+")
@@ -46,7 +46,8 @@ class RoleFilterExample(
     }
 
     roleByExample = Example.of(
-      Authority(roleCode = roleCodeProbe, roleName = roleNameProbe, roleDescription = roleDescription, adminType = adminTypeProbe), matcher
+      Authority(roleCode = roleCodeProbe, roleName = roleNameProbe, roleDescription = roleDescription, adminType = adminTypeProbe),
+      matcher,
     )
   }
 

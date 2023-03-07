@@ -40,18 +40,18 @@ class UserRoleControllerTest {
         "GLOBAL_SEARCH",
         "Global Search",
         "Allow user to search globally for a user",
-        adminType = "DPS_ADM"
+        adminType = "DPS_ADM",
       )
       whenever(userRoleService.getUserRoles(any())).thenReturn(
         mutableListOf(
           role1,
-          role2
-        )
+          role2,
+        ),
       )
       val responseEntity = userRoleController.rolesByUserId(UUID.randomUUID())
       assertThat(responseEntity).containsOnly(
         UserRoleDto(role1),
-        UserRoleDto(role2)
+        UserRoleDto(role2),
 
       )
     }

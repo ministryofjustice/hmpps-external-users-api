@@ -49,7 +49,7 @@ class RoleServiceTest {
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableSetOf(EXT_ADM)
+        adminType = mutableSetOf(EXT_ADM),
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
       whenever(authenticationFacade.getUsername()).thenReturn("user")
@@ -65,9 +65,9 @@ class RoleServiceTest {
           "roleCode" to "ROLE",
           "roleName" to "Role Name",
           "roleDescription" to "Role description",
-          "adminType" to "EXT_ADM"
+          "adminType" to "EXT_ADM",
         ),
-        null
+        null,
       )
     }
 
@@ -77,7 +77,7 @@ class RoleServiceTest {
         roleCode = "ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableSetOf(DPS_LSA)
+        adminType = mutableSetOf(DPS_LSA),
       )
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(null)
       whenever(authenticationFacade.getUsername()).thenReturn("user")
@@ -94,9 +94,9 @@ class RoleServiceTest {
           "roleCode" to "ROLE",
           "roleName" to "Role Name",
           "roleDescription" to "Role description",
-          "adminType" to "DPS_LSA,DPS_ADM"
+          "adminType" to "DPS_LSA,DPS_ADM",
         ),
-        null
+        null,
       )
     }
 
@@ -106,7 +106,7 @@ class RoleServiceTest {
         roleCode = "NEW_ROLE",
         roleName = "Role Name",
         roleDescription = "Role description",
-        adminType = mutableSetOf(DPS_LSA)
+        adminType = mutableSetOf(DPS_LSA),
       )
       runBlocking {
         whenever(roleRepository.findByRoleCode(anyString())).thenReturn(
@@ -114,8 +114,8 @@ class RoleServiceTest {
             roleCode = "NEW_ROLE",
             roleName = "Role Name",
             roleDescription = "Role description",
-            adminType = DPS_LSA.adminTypeCode
-          )
+            adminType = DPS_LSA.adminTypeCode,
+          ),
         )
       }
 
@@ -263,7 +263,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleNameUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleName" to "UpdatedName"),
-        null
+        null,
       )
     }
   }
@@ -287,8 +287,11 @@ class RoleServiceTest {
     @Test
     fun `update role description successfully`(): Unit = runBlocking {
       val dbRole = Authority(
-        id = UUID.randomUUID(), roleCode = "RO1", roleName = "Role Name",
-        roleDescription = "Role Desc", adminType = "DPS_ADM"
+        id = UUID.randomUUID(),
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "DPS_ADM",
       )
       val roleAmendment = RoleDescriptionAmendmentDto("UpdatedDescription")
       whenever(authenticationFacade.getUsername()).thenReturn("user")
@@ -300,7 +303,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleDescriptionUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleDescription" to "UpdatedDescription"),
-        null
+        null,
       )
     }
   }
@@ -326,8 +329,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -338,7 +343,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_ADM"),
-        null
+        null,
       )
     }
 
@@ -347,8 +352,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_LSA))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -359,7 +366,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_LSA,DPS_ADM"),
-        null
+        null,
       )
     }
 
@@ -369,8 +376,10 @@ class RoleServiceTest {
 
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_LSA))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -381,7 +390,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_LSA,DPS_ADM"),
-        null
+        null,
       )
     }
 
@@ -390,8 +399,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -402,7 +413,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_ADM"),
-        null
+        null,
       )
     }
 
@@ -411,8 +422,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -423,7 +436,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "DPS_ADM,EXT_ADM"),
-        null
+        null,
       )
     }
 
@@ -432,8 +445,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM, DPS_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -444,7 +459,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_ADM"),
-        null
+        null,
       )
     }
 
@@ -453,8 +468,10 @@ class RoleServiceTest {
       whenever(authenticationFacade.getUsername()).thenReturn("user")
       val dbRole = Authority(
         id = UUID.randomUUID(),
-        roleCode = "RO1", roleName = "Role Name", roleDescription = "Role Desc",
-        adminType = "EXT_ADM,DPS_ADM,DPS_LSA"
+        roleCode = "RO1",
+        roleName = "Role Name",
+        roleDescription = "Role Desc",
+        adminType = "EXT_ADM,DPS_ADM,DPS_LSA",
       )
       val roleAmendment = RoleAdminTypeAmendmentDto(mutableSetOf(EXT_ADM))
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(dbRole)
@@ -465,7 +482,7 @@ class RoleServiceTest {
       verify(telemetryClient).trackEvent(
         "RoleAdminTypeUpdateSuccess",
         mapOf("username" to "user", "roleCode" to "RO1", "newRoleAdminType" to "EXT_ADM,DPS_ADM"),
-        null
+        null,
       )
     }
   }

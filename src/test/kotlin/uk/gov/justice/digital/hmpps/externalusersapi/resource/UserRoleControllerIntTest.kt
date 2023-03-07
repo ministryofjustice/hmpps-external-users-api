@@ -75,7 +75,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
               "developerMessage":"Unable to maintain user: AUTH_MFA_EXPIRED with reason: User not with your groups"
               }
           """
-            .trimIndent()
+            .trimIndent(),
         )
     }
   }
@@ -115,7 +115,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -135,7 +135,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Modify role failed for field role with reason: role.notfound"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -155,7 +155,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Modify role failed for field role with reason: role.exists"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -175,7 +175,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Unable to maintain user: AUTH_ADM with reason: User not with your groups"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -238,7 +238,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Denied"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -257,7 +257,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -276,7 +276,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Modify role failed for field role with reason: role.notfound"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -295,7 +295,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Modify role failed for field role with reason: role.missing"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -314,7 +314,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"Unable to maintain user: AUTH_ADM with reason: User not with your groups"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -383,7 +383,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
                "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
              }
             """
-            .trimIndent()
+            .trimIndent(),
         )
     }
 
@@ -440,7 +440,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         .json(
           """
        [{"roleCode":"PF_POLICE","roleName":"Pathfinder Police"}]
-          """.trimIndent()
+          """.trimIndent(),
         )
     }
 

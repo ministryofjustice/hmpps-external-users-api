@@ -31,20 +31,20 @@ import javax.validation.constraints.Size
 @Validated
 @RestController
 class GroupsController(
-  private val groupsService: GroupsService
+  private val groupsService: GroupsService,
 ) {
 
   @GetMapping("/groups")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get all possible groups.",
-    description = "Get all groups."
+    description = "Get all groups.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -52,11 +52,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun allGroups() = groupsService.getAllGroups().map { UserGroupDto(it) }
 
@@ -64,13 +64,13 @@ class GroupsController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Group detail.",
-    description = "return Group Details"
+    description = "return Group Details",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -78,9 +78,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -88,29 +88,29 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun getGroupDetails(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
-    group: String
+    group: String,
   ): GroupDetails = groupsService.getGroupDetail(group)
 
   @PutMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend group name.",
-    description = "AmendGroupName"
+    description = "AmendGroupName",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -118,9 +118,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -128,11 +128,11 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun amendGroupName(
     @Parameter(description = "The group code of the group.", required = true)
@@ -140,9 +140,9 @@ class GroupsController(
     group: String,
     @Parameter(
       description = "Details of the group to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendmentDto
+    groupAmendment: GroupAmendmentDto,
 
   ) = groupsService.updateGroup(group, groupAmendment)
 
@@ -150,13 +150,13 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create group.",
-    description = "Create a Group"
+    description = "Create a Group",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -164,9 +164,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -174,30 +174,31 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @Throws(GroupExistsException::class, GroupNotFoundException::class)
   suspend fun createGroup(
     @Parameter(description = "Details of the group to be created.", required = true)
-    @Valid @RequestBody
-    createGroup: CreateGroupDto
+    @Valid
+    @RequestBody
+    createGroup: CreateGroupDto,
   ) = groupsService.createGroup(createGroup)
 
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete group.",
-    description = "Delete a Group"
+    description = "Delete a Group",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -205,9 +206,9 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -215,17 +216,17 @@ class GroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
   suspend fun deleteGroup(
     @Parameter(description = "The group code of the group.", required = true)
     @PathVariable
-    group: String
+    group: String,
   ) = groupsService.deleteGroup(group)
 }
 
@@ -234,7 +235,7 @@ data class GroupAmendmentDto(
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
   @field:NotBlank(message = "parent group code must be supplied")
   @field:Size(min = 4, max = 100)
-  val groupName: String
+  val groupName: String,
 )
 
 @Schema(description = "User Role")
@@ -246,7 +247,7 @@ data class UserAssignableRoleDto(
   val roleName: String,
 
   @Schema(required = true, description = "automatic", example = "TRUE")
-  val automatic: Boolean
+  val automatic: Boolean,
 )
 
 data class CreateGroupDto(
@@ -260,5 +261,5 @@ data class CreateGroupDto(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String
+  val groupName: String,
 )
