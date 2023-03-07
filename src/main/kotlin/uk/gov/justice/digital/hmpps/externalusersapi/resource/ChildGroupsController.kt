@@ -28,20 +28,20 @@ import javax.validation.constraints.Size
 @Validated
 @RestController
 class ChildGroupsController(
-  private val childGroupsService: ChildGroupsService
+  private val childGroupsService: ChildGroupsService,
 ) {
 
   @GetMapping("/groups/child/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
-    description = "get Child Group Details"
+    description = "get Child Group Details",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -49,9 +49,9 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -59,11 +59,11 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun getChildGroupDetail(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -79,13 +79,13 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend child group name.",
-    description = "Amend a Child Group Name"
+    description = "Amend a Child Group Name",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -93,9 +93,9 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -103,11 +103,11 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun amendChildGroupName(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -115,9 +115,9 @@ class ChildGroupsController(
     group: String,
     @Parameter(
       description = "Details of the child group to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    groupAmendment: GroupAmendmentDto
+    groupAmendment: GroupAmendmentDto,
 
   ) = childGroupsService.updateChildGroup(group, groupAmendment)
 
@@ -125,13 +125,13 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",
-    description = "Delete a Child Group"
+    description = "Delete a Child Group",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -139,9 +139,9 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -149,11 +149,11 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun deleteChildGroup(
     @Parameter(description = "The group code of the child group.", required = true)
@@ -167,13 +167,13 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
-    description = "Create a Child Group"
+    description = "Create a Child Group",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -181,9 +181,9 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -191,17 +191,18 @@ class ChildGroupsController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @Throws(ChildGroupExistsException::class, GroupNotFoundException::class)
   suspend fun createChildGroup(
     @Schema(description = "Details of the child group to be created.", required = true)
-    @Valid @RequestBody
-    createChildGroup: CreateChildGroupDto
+    @Valid
+    @RequestBody
+    createChildGroup: CreateChildGroupDto,
   ) {
     childGroupsService.createChildGroup(createChildGroup)
   }
@@ -213,7 +214,7 @@ data class ChildGroupDetailsDto(
   val groupCode: String,
 
   @Schema(required = true, description = "Group Name", example = "HDC NPS North East")
-  val groupName: String
+  val groupName: String,
 ) {
   constructor(g: ChildGroup) : this(g.groupCode, g.groupName)
 }
@@ -235,5 +236,5 @@ data class CreateChildGroupDto(
   @field:NotBlank(message = "group name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val groupName: String
+  val groupName: String,
 )

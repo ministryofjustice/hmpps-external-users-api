@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.EmailDomainRepos
 @Service
 @Transactional(readOnly = true)
 class VerifyEmailDomainService(
-  private val emailDomainRepository: EmailDomainRepository
+  private val emailDomainRepository: EmailDomainRepository,
 ) {
   suspend fun isValidEmailDomain(domain: String): Boolean = emailDomainRepository.countMatching(domain.lowercase()) > 0
 }

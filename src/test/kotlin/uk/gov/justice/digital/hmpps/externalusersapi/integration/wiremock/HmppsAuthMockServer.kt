@@ -23,9 +23,9 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
                     "token_type": "bearer",
                     "access_token": "ABCDE"
                 }
-              """.trimIndent()
-            )
-        )
+              """.trimIndent(),
+            ),
+        ),
     )
   }
 }

@@ -239,7 +239,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "locked" to false,
               "enabled" to true,
               "verified" to true,
-            )
+            ),
           )
         }
     }
@@ -275,16 +275,24 @@ class UserControllerIntTest : IntegrationTestBase() {
               "locked" to false,
               "enabled" to true,
               "verified" to true,
-            )
+            ),
           )
         }
 
-      // remove role so that tests can be rerun
+      // reset user so that tests can be rerun
       webTestClient
         .delete().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/site_1_group_2")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
+
+      val reason = DeactivateReason("left department")
+      webTestClient
+        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/disable")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .bodyValue(reason)
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -302,8 +310,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "userMessage" to "User not within your groups: Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
               "developerMessage" to "Unable to maintain user: AUTH_STATUS2 with reason: User not with your groups",
               "moreInfo" to null,
-              "errorCode" to null
-            )
+              "errorCode" to null,
+            ),
           )
         }
     }
@@ -323,8 +331,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "userMessage" to "User not found: User fc494152-f9ad-48a0-a87c-9adc8bd75333 not found",
               "developerMessage" to "User fc494152-f9ad-48a0-a87c-9adc8bd75333 not found",
               "moreInfo" to null,
-              "errorCode" to null
-            )
+              "errorCode" to null,
+            ),
           )
         }
     }
@@ -344,8 +352,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Denied",
               "userMessage" to "Denied",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -365,8 +373,8 @@ class UserControllerIntTest : IntegrationTestBase() {
               "developerMessage" to "Denied",
               "userMessage" to "Denied",
               "errorCode" to null,
-              "moreInfo" to null
-            )
+              "moreInfo" to null,
+            ),
           )
         }
     }
@@ -464,7 +472,7 @@ class UserControllerIntTest : IntegrationTestBase() {
               "locked" to false,
               "enabled" to false,
               "verified" to true,
-            )
+            ),
           )
         }
 
@@ -479,13 +487,13 @@ class UserControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Group manager Disable by userId endpoint disables user`() {
       webTestClient
-        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/groups/SITE_1_GROUP_2")
+        .put().uri("/users/FC494152-F9AD-48A0-A87C-9ADC8BD75266/groups/SITE_1_GROUP_2")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent
 
       webTestClient
-        .put().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/disable")
+        .put().uri("/users/FC494152-F9AD-48A0-A87C-9ADC8BD75266/disable")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .bodyValue(DeactivateReason("left department"))
         .exchange()
@@ -506,15 +514,15 @@ class UserControllerIntTest : IntegrationTestBase() {
               "firstName" to "Auth",
               "lastName" to "Status2",
               "locked" to false,
-              "enabled" to true,
+              "enabled" to false,
               "verified" to true,
-            )
+            ),
           )
         }
 
-      // remove role so that tests can be rerun
+      // remove group so that tests can be rerun
       webTestClient
-        .delete().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75288/groups/site_1_group_2")
+        .delete().uri("/users/fc494152-f9ad-48a0-a87c-9adc8bd75266/groups/site_1_group_2")
         .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNoContent

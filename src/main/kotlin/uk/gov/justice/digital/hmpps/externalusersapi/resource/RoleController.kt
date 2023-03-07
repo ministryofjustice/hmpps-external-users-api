@@ -43,7 +43,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Create role.",
-    description = "Create a Role"
+    description = "Create a Role",
   )
   @ApiResponses(
     value = [
@@ -53,9 +53,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "409",
@@ -63,31 +63,32 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @ResponseStatus(HttpStatus.CREATED)
   @Throws(RoleService.RoleExistsException::class)
   suspend fun createRole(
     @Parameter(description = "Details of the role to be created.", required = true)
-    @Valid @RequestBody
-    createRole: CreateRoleDto
+    @Valid
+    @RequestBody
+    createRole: CreateRoleDto,
   ) = roleService.createRole(createRole)
 
   @GetMapping("/roles")
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all Roles",
-    description = "Get all Roles"
+    description = "Get all Roles",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -95,29 +96,29 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun getRoles(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(required = false)
-    adminTypes: List<AdminType>?
+    adminTypes: List<AdminType>?,
   ) = roleService.getRoles(adminTypes).map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/paged")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Get all paged Roles.",
-    description = "getAllPagedRoles"
+    description = "getAllPagedRoles",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -125,9 +126,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -135,11 +136,11 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun getRoles(
     @Parameter(description = "Role name or partial of a role name")
@@ -151,13 +152,13 @@ class RoleController(
     @Parameter(description = "Role admin type to find EXT_ADM, DPS_ADM, DPS_LSA.")
     @RequestParam(required = false)
     adminTypes: List<AdminType>?,
-    @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable
+    @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
   ): Page<RoleDetailsDto> =
     roleService.getRoles(
       roleName,
       roleCode,
       adminTypes,
-      pageable
+      pageable,
     )
       .map { RoleDetailsDto(it) }
 
@@ -165,13 +166,13 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Role detail.",
-    description = "Get Role Details"
+    description = "Get Role Details",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -179,9 +180,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -189,29 +190,29 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun getRoleDetails(
     @Parameter(description = "The Role code of the role.", required = true)
     @PathVariable
-    role: String
+    role: String,
   ): RoleDetailsDto = roleService.getRoleDetails(role)
 
   @PutMapping("/roles/{role}")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role name.",
-    description = "AmendRoleName"
+    description = "AmendRoleName",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -219,9 +220,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -229,11 +230,11 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun amendRoleName(
     @Parameter(description = "The role code of the role.", required = true)
@@ -241,22 +242,22 @@ class RoleController(
     role: String,
     @Parameter(
       description = "Details of the role to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    roleAmendment: RoleNameAmendmentDto
+    roleAmendment: RoleNameAmendmentDto,
   ) = roleService.updateRoleName(role, roleAmendment)
 
   @PutMapping("/roles/{role}/description")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role description.",
-    description = "Amend role description."
+    description = "Amend role description.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -264,9 +265,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -274,11 +275,11 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun amendRoleDescription(
     @Parameter(description = "The role code of the role.", required = true)
@@ -286,22 +287,22 @@ class RoleController(
     role: String,
     @Parameter(
       description = "Details of the role to be updated.",
-      required = true
+      required = true,
     ) @Valid @RequestBody
-    roleAmendment: RoleDescriptionAmendmentDto
+    roleAmendment: RoleDescriptionAmendmentDto,
   ) = roleService.updateRoleDescription(role, roleAmendment)
 
   @PutMapping("/roles/{roleCode}/admintype")
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role admin type.",
-    description = "Amend role admin type."
+    description = "Amend role admin type.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -309,9 +310,9 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -319,11 +320,11 @@ class RoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun amendRoleAdminType(
     @Parameter(description = "The role code of the role.", required = true)
@@ -331,9 +332,11 @@ class RoleController(
     roleCode: String,
     @Parameter(
       description = "Details of the role to be updated.",
-      required = true
+      required = true,
     )
-    @Valid @RequestBody roleAmendment: RoleAdminTypeAmendmentDto
+    @Valid
+    @RequestBody
+    roleAmendment: RoleAdminTypeAmendmentDto,
   ) = roleService.updateRoleAdminType(roleCode, roleAmendment)
 }
 
@@ -348,16 +351,16 @@ data class RoleDetailsDto(
   @Schema(
     required = true,
     description = "Role Description",
-    example = "Allow Group Manager to administer the account within their groups"
+    example = "Allow Group Manager to administer the account within their groups",
   )
   val roleDescription: String?,
 
   @Schema(
     required = true,
     description = "Administration Type",
-    example = "{\"adminTypeCode\": \"EXT_ADM\",\"adminTypeName\": \"External Administrator\"}"
+    example = "{\"adminTypeCode\": \"EXT_ADM\",\"adminTypeName\": \"External Administrator\"}",
   )
-  val adminType: List<AdminType>
+  val adminType: List<AdminType>,
 ) {
   constructor(r: Authority) : this(
     r.roleCode,
@@ -366,7 +369,7 @@ data class RoleDetailsDto(
     r.adminType.split(",").map {
       it.trim()
       AdminType.valueOf(it)
-    }
+    },
   )
 }
 
@@ -386,7 +389,7 @@ data class CreateRoleDto(
   @Schema(
     required = false,
     description = "roleDescription",
-    example = "Allow Group Manager to administer the account within their groups"
+    example = "Allow Group Manager to administer the account within their groups",
   )
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
@@ -395,10 +398,10 @@ data class CreateRoleDto(
   @Schema(
     required = true,
     description = "adminType, can be used if multiple admin types required",
-    example = "[\"EXT_ADM\", \"DPS_ADM\"]"
+    example = "[\"EXT_ADM\", \"DPS_ADM\"]",
   )
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: Set<AdminType>
+  val adminType: Set<AdminType>,
 )
 
 @Schema(description = "Role Name")
@@ -407,7 +410,7 @@ data class RoleNameAmendmentDto(
   @field:NotBlank(message = "Role name must be supplied")
   @field:Size(min = 4, max = 100)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&]*\$")
-  val roleName: String
+  val roleName: String,
 )
 
 @Schema(description = "Role Description")
@@ -415,12 +418,12 @@ data class RoleDescriptionAmendmentDto(
   @Schema(required = true, description = "Role Description", example = "Maintaining admin users")
   @field:Size(max = 1024)
   @field:Pattern(regexp = "^[0-9A-Za-z- ,.()'&\r\n]*\$")
-  val roleDescription: String?
+  val roleDescription: String?,
 )
 
 @Schema(description = "Role Administration Types")
 data class RoleAdminTypeAmendmentDto(
   @Schema(required = true, description = "Role Administration Types", example = "[\"DPS_ADM\"]")
   @field:NotEmpty(message = "Admin type cannot be empty")
-  val adminType: Set<AdminType>
+  val adminType: Set<AdminType>,
 )

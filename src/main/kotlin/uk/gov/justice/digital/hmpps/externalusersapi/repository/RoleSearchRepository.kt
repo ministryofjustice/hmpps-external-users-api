@@ -19,7 +19,7 @@ class RoleSearchRepository(private val databaseClient: DatabaseClient) {
       roleCode = row.get("role_code", String::class.java) as String,
       roleName = row.get("role_name", String::class.java) as String,
       roleDescription = row.get("role_description", String::class.java),
-      adminType = row.get("admin_type", String::class.java) as String
+      adminType = row.get("admin_type", String::class.java) as String,
     )
   }
 

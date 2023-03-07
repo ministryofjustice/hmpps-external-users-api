@@ -25,7 +25,7 @@ class RoleRepositoryTest {
     @Test
     fun `findByAdminTypeContainingOrderByRoleName EXT_ADM`(): Unit = runBlocking {
       assertThat(
-        repository.findByAdminTypeContainingOrderByRoleName(AdminType.EXT_ADM.adminTypeCode).toList()
+        repository.findByAdminTypeContainingOrderByRoleName(AdminType.EXT_ADM.adminTypeCode).toList(),
       )
         .extracting<String>
         { obj: Authority -> obj.roleCode }

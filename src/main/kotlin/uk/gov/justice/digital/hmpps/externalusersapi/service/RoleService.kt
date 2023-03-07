@@ -27,7 +27,7 @@ class RoleService(
   private val roleSearchRepository: RoleSearchRepository,
   private val roleRepository: RoleRepository,
   private val telemetryClient: TelemetryClient,
-  private val authenticationFacade: AuthenticationFacade
+  private val authenticationFacade: AuthenticationFacade,
 ) {
   @Transactional
   @Throws(RoleExistsException::class)
@@ -51,9 +51,9 @@ class RoleService(
         "roleCode" to roleCode,
         "roleName" to roleName,
         "roleDescription" to roleDescription,
-        "adminType" to adminType
+        "adminType" to adminType,
       ),
-      null
+      null,
     )
   }
 
@@ -70,7 +70,7 @@ class RoleService(
         roleName = roleName,
         adminTypes = adminTypes,
         roleCode = roleCode,
-        pageable = pageable
+        pageable = pageable,
       )
 
       val roles = async {
@@ -84,7 +84,7 @@ class RoleService(
       PageImpl(
         roles.await().toList(),
         pageable,
-        count.await()
+        count.await(),
       )
     }
 
@@ -106,7 +106,7 @@ class RoleService(
     telemetryClient.trackEvent(
       "RoleNameUpdateSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleName" to roleAmendment.roleName),
-      null
+      null,
     )
   }
 
@@ -121,7 +121,7 @@ class RoleService(
     telemetryClient.trackEvent(
       "RoleDescriptionUpdateSuccess",
       mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleDescription" to roleAmendment.roleDescription),
-      null
+      null,
     )
   }
 
@@ -139,7 +139,7 @@ class RoleService(
         telemetryClient.trackEvent(
           "RoleAdminTypeUpdateSuccess",
           mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to role.adminType),
-          null
+          null,
         )
       }
       ?: throw RoleNotFoundException("maintain", roleCode, "notfound")

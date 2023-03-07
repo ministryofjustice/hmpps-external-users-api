@@ -55,18 +55,18 @@ class UserServiceTest {
         doThrow(
           UserGroupRelationshipException(
             "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
-            "User not with your groups"
-          )
+            "User not with your groups",
+          ),
         ).whenever(maintainUserCheck)
           .ensureUserLoggedInUserRelationship(anyString())
         assertThatThrownBy {
           runBlocking {
             userService.enableUserByUserId(
-              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
             )
           }
         }.isInstanceOf(
-          UserGroupRelationshipException::class.java
+          UserGroupRelationshipException::class.java,
         )
           .hasMessage("Unable to maintain user: 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a with reason: User not with your groups")
       }
@@ -86,7 +86,7 @@ class UserServiceTest {
         assertThatThrownBy {
           runBlocking {
             userService.enableUserByUserId(
-              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
             )
           }
         }.isInstanceOf(UserNotFoundException::class.java)
@@ -102,7 +102,7 @@ class UserServiceTest {
         userService.enableUserByUserId(fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"))
         assertThat(userToCheck.lastLoggedIn).isBetween(
           LocalDateTime.now().minusDays(84),
-          LocalDateTime.now().minusDays(82)
+          LocalDateTime.now().minusDays(82),
         )
       }
 
@@ -123,7 +123,7 @@ class UserServiceTest {
         verify(telemetryClient).trackEvent(
           "ExternalUserEnabled",
           mapOf("username" to "someuser", "admin" to "adminuser"),
-          null
+          null,
         )
       }
     }
@@ -145,18 +145,19 @@ class UserServiceTest {
         doThrow(
           UserGroupRelationshipException(
             "00000000-aaaa-0000-aaaa-0a0a0a0a0a0a",
-            "User not with your groups"
-          )
+            "User not with your groups",
+          ),
         ).whenever(maintainUserCheck)
           .ensureUserLoggedInUserRelationship(anyString())
         assertThatThrownBy {
           runBlocking {
             userService.disableUserByUserId(
-              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "A Reason"
+              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
+              "A Reason",
             )
           }
         }.isInstanceOf(
-          UserGroupRelationshipException::class.java
+          UserGroupRelationshipException::class.java,
         )
           .hasMessage("Unable to maintain user: 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a with reason: User not with your groups")
       }
@@ -177,7 +178,7 @@ class UserServiceTest {
         verify(telemetryClient).trackEvent(
           "ExternalUserDisabled",
           mapOf("username" to "someuser", "admin" to "adminuser"),
-          null
+          null,
         )
       }
 
@@ -186,7 +187,8 @@ class UserServiceTest {
         assertThatThrownBy {
           runBlocking {
             userService.disableUserByUserId(
-              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "A Reason"
+              fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
+              "A Reason",
             )
           }
         }.isInstanceOf(UserNotFoundException::class.java)

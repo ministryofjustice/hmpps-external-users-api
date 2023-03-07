@@ -32,8 +32,8 @@ class ChildGroupsControllerTest {
         ChildGroup(
           childGroupCode,
           childGroupName,
-          uuid
-        )
+          uuid,
+        ),
       )
       val actualChildGroupDetail = childGroupsController.getChildGroupDetail(childGroupCode)
 
@@ -69,7 +69,7 @@ class ChildGroupsControllerTest {
     fun `create - group already exist exception`(): Unit = runBlocking {
       doThrow(ChildGroupExistsException("child_code", "group code already exists")).whenever(childGroupsService)
         .createChildGroup(
-          any()
+          any(),
         )
 
       val childGroup = CreateChildGroupDto("parent_code", "child_code", "Child group")
@@ -82,7 +82,7 @@ class ChildGroupsControllerTest {
     fun `create - parent group not found exception`(): Unit = runBlocking {
       doThrow(GroupNotFoundException("create", "NotGroup", "ParentGroupNotFound")).whenever(childGroupsService)
         .createChildGroup(
-          any()
+          any(),
         )
 
       val childGroup = CreateChildGroupDto("parent_code", "child_code", "Child group")

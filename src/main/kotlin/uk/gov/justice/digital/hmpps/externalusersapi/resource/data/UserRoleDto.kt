@@ -12,7 +12,7 @@ data class UserRoleDto(
   val roleName: String,
 
   @Schema(required = true, description = "Role Description", example = "Responsible for licences")
-  val roleDescription: String?
+  val roleDescription: String?,
 ) {
   constructor(a: Authority) : this(a.roleCode, a.roleName, a.roleDescription)
 }

@@ -95,7 +95,7 @@ class UserFilter(
   roleCodes: List<String>? = null,
   groupCodes: List<String>? = null,
   status: Status = Status.ALL,
-  pageable: Pageable
+  pageable: Pageable,
 ) {
   private val whiteSpace = Pattern.compile("\\s+")
 

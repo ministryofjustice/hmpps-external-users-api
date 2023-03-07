@@ -174,7 +174,7 @@ class UserGroupServiceTest {
             "user",
             "BOB",
             "admin",
-            listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+            listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")),
           )
         }
       }.isInstanceOf(UserGroupException::class.java)
@@ -195,7 +195,7 @@ class UserGroupServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserGroupRemoveSuccess",
         mapOf("username" to "user", "group" to "licence_vary", "admin" to "admin"),
-        null
+        null,
       )
     }
 
@@ -205,8 +205,8 @@ class UserGroupServiceTest {
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
-          Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID())
-        )
+          Group("GROUP_LICENCE_VARY", "desc2", UUID.randomUUID()),
+        ),
       )
 
       whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(user)
@@ -218,7 +218,7 @@ class UserGroupServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserGroupRemoveSuccess",
         mapOf("username" to "user", "group" to "group_licence_vary", "admin" to "MANAGER"),
-        null
+        null,
       )
     }
 
@@ -226,7 +226,7 @@ class UserGroupServiceTest {
     fun removeGroup_failure_lastgroup_groupManager(): Unit = runBlocking {
       val user = createSampleUser(username = "user", id = UUID.randomUUID())
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
-        flowOf(Group("GROUP_LICENCE_VARY", "desc2"))
+        flowOf(Group("GROUP_LICENCE_VARY", "desc2")),
       )
       whenever(userRepository.findByUsernameAndSource("user", AuthSource.auth)).thenReturn(user)
 
@@ -262,8 +262,8 @@ class UserGroupServiceTest {
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
-          Group("LICENCE_VARY", "desc2")
-        )
+          Group("LICENCE_VARY", "desc2"),
+        ),
       )
 
       val groups = service.getAssignableGroups(" BOB ", setOf())
@@ -275,8 +275,8 @@ class UserGroupServiceTest {
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
         flowOf(
           Group("JOE", "desc"),
-          Group("LICENCE_VARY", "desc2")
-        )
+          Group("LICENCE_VARY", "desc2"),
+        ),
       )
       val groups = service.getAssignableGroups(" BOB ", setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
@@ -300,8 +300,8 @@ class UserGroupServiceTest {
       whenever(groupRepository.findGroupsByUsername(any())).thenReturn(
         flowOf(
           Group("JOE", "desc"),
-          Group("LICENCE_VARY", "desc2")
-        )
+          Group("LICENCE_VARY", "desc2"),
+        ),
       )
 
       val groups = service.getMyAssignableGroups()
@@ -314,8 +314,8 @@ class UserGroupServiceTest {
       whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
         flowOf(
           Group("JOE", "desc"),
-          Group("LICENCE_VARY", "desc2")
-        )
+          Group("LICENCE_VARY", "desc2"),
+        ),
       )
 
       val groups = service.getMyAssignableGroups()
@@ -334,10 +334,10 @@ class UserGroupServiceTest {
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
         Group("JOE", "desc", groupId1),
-        Group("LICENCE_VARY", "desc2", groupId2)
+        Group("LICENCE_VARY", "desc2", groupId2),
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(
-        group
+        group,
       )
 
       val user = createSampleUser(username = "user")
@@ -357,7 +357,7 @@ class UserGroupServiceTest {
       val groupId2 = UUID.randomUUID()
       val group = flowOf(
         Group("JOE", "desc", groupId1),
-        Group("LICENCE_VARY", "desc2", groupId2)
+        Group("LICENCE_VARY", "desc2", groupId2),
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(group)
       val userId = UUID.randomUUID()
@@ -375,7 +375,7 @@ class UserGroupServiceTest {
       val groupId2 = UUID.randomUUID()
       val groups = flowOf(
         Group("JOE", "desc", UUID.randomUUID()),
-        Group("GROUP_LICENCE_VARY", "desc2", groupId2)
+        Group("GROUP_LICENCE_VARY", "desc2", groupId2),
       )
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(groups)
       whenever(groupRepository.findGroupsByUsername("MANAGER")).thenReturn(groups)
@@ -384,7 +384,7 @@ class UserGroupServiceTest {
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(userId)).thenReturn(user)
       val manager = createSampleUser(
-        username = "user"
+        username = "user",
       )
       whenever(userRepository.findByUsernameAndSource("MANAGER", AuthSource.auth)).thenReturn(manager)
       whenever(userGroupRepository.deleteUserGroup(anyOrNull(), anyOrNull())).thenReturn(1)
@@ -428,7 +428,7 @@ class UserGroupServiceTest {
         runBlocking {
           service.addGroupByUserId(
             UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
-            "        "
+            "        ",
           )
         }
       }.isInstanceOf(UserGroupException::class.java)
@@ -446,7 +446,7 @@ class UserGroupServiceTest {
         runBlocking {
           service.addGroupByUserId(
             UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
-            "LICENCE_VARY"
+            "LICENCE_VARY",
           )
         }
       }.isInstanceOf(UserGroupException::class.java)
@@ -474,7 +474,7 @@ class UserGroupServiceTest {
       verify(telemetryClient).trackEvent(
         eq("AuthUserGroupAddSuccess"),
         eq(expectedTelemetryDetails),
-        isNull()
+        isNull(),
       )
     }
 
@@ -487,7 +487,7 @@ class UserGroupServiceTest {
       whenever(userRepository.findById(userId)).thenReturn(user)
 
       val manager = createSampleUser(
-        username = "user"
+        username = "user",
       )
       whenever(userRepository.findByUsernameAndSource("MANAGER")).thenReturn(manager)
 

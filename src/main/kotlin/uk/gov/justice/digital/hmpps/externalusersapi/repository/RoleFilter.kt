@@ -66,12 +66,12 @@ class RoleFilter(
   roleName: String? = null,
   roleCode: String? = null,
   adminTypes: List<AdminType>? = null,
-  pageable: Pageable? = null
+  pageable: Pageable? = null,
 ) {
 
   private val sortFieldsMap = hashMapOf(
     "roleName" to "r.role_name",
-    "roleCode" to "r.role_code"
+    "roleCode" to "r.role_code",
   )
 
   private val whiteSpace = Pattern.compile("\\s+")

@@ -35,7 +35,10 @@ class EmailDomainController(
   @PostMapping("/email-domains")
   @ResponseStatus(HttpStatus.CREATED)
   @PreAuthorize("hasRole('ROLE_MAINTAIN_EMAIL_DOMAINS')")
-  suspend fun addEmailDomain(@RequestBody @Valid emailDomain: CreateEmailDomainDto): EmailDomainDto {
+  suspend fun addEmailDomain(
+    @RequestBody @Valid
+    emailDomain: CreateEmailDomainDto,
+  ): EmailDomainDto {
     val emailDomainDto = emailDomainService.addDomain(emailDomain)
     recordEmailDomainStateChangeEvent("EmailDomainCreateSuccess", "domain", emailDomain.name)
     return emailDomainDto
@@ -51,7 +54,7 @@ class EmailDomainController(
   private fun recordEmailDomainStateChangeEvent(
     eventName: String,
     identifierName: String,
-    identifierValue: String?
+    identifierValue: String?,
   ) {
     val data = mapOf("username" to securityUserContext.principal, identifierName to identifierValue)
     telemetryClient.trackEvent(eventName, data, null)
@@ -65,7 +68,7 @@ data class CreateEmailDomainDto(
   @field:Size(
     min = 6,
     max = 100,
-    message = "email domain name must be between 6 and 100 characters in length (inclusive)"
+    message = "email domain name must be between 6 and 100 characters in length (inclusive)",
   )
   val name: String = "",
 

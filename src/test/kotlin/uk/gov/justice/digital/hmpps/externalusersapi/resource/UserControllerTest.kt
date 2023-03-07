@@ -29,7 +29,7 @@ class UserControllerTest {
   fun disableUserByUserId(): Unit = runBlocking {
     userController.disableUserByUserId(
       UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"),
-      DeactivateReason("A Reason")
+      DeactivateReason("A Reason"),
     )
     verify(userService).disableUserByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "A Reason")
   }

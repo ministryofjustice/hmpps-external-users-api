@@ -11,7 +11,6 @@ class UserHelper {
       source: AuthSource = AuthSource.auth,
       id: UUID? = null,
     ): uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User {
-
       val user = uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User(
         username = username,
         source = source,

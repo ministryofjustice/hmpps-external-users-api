@@ -49,6 +49,7 @@ class GroupsRepositoryTest {
       assertThat(group?.groupName).isEqualTo("Site 1 - Group 2")
       assertThat(group?.groupId).isNotNull()
     }
+
     @Test
     fun findAllByOrderByGroupName(): Unit = runBlocking {
       assertThat(repository.findAllByOrderByGroupName().toList()).extracting<String> { it.groupCode }

@@ -46,7 +46,7 @@ class AuthAwareAuthenticationToken(
   jwt: Jwt,
   private val userName: String?,
   private val clientId: String,
-  authorities: Collection<GrantedAuthority>
+  authorities: Collection<GrantedAuthority>,
 ) : JwtAuthenticationToken(jwt, authorities) {
   override fun getPrincipal(): String {
     return userName ?: clientId

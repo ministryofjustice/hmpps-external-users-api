@@ -13,7 +13,7 @@ class ChildGroup(
   @Column(value = "child_group_name")
   override var groupName: String,
   @Column(value = "group_id")
-  var group: UUID?
+  var group: UUID?,
 ) : GroupIdentity, Serializable {
   @Id
   @Column(value = "child_group_id")

@@ -47,13 +47,13 @@ class UserController(
   @GetMapping("/id/{userId}/password/present")
   @Operation(
     summary = "Indicates whether the given user has a password",
-    description = "Returns a single boolean field indicating whether the user has a password"
+    description = "Returns a single boolean field indicating whether the user has a password",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -61,9 +61,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -71,9 +71,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -81,11 +81,11 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   suspend fun hasPassword(@Parameter(description = "The ID of the user.", required = true) @PathVariable userId: UUID) = userService.hasPassword(userId)
@@ -93,13 +93,13 @@ class UserController(
   @GetMapping("/id/{userId}")
   @Operation(
     summary = "User detail.",
-    description = "User detail."
+    description = "User detail.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -107,9 +107,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -117,9 +117,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -127,11 +127,11 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   suspend fun getUserById(
@@ -141,7 +141,7 @@ class UserController(
   @GetMapping
   @Operation(
     summary = "Search for a user.",
-    description = "Search for a user."
+    description = "Search for a user.",
   )
   @ApiResponses(
     value = [
@@ -151,9 +151,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = UserDto::class)
-          )
-        ]
+            schema = Schema(implementation = UserDto::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -161,9 +161,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "204",
@@ -171,15 +171,15 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun searchForUser(
     @Parameter(description = "The email address of the user.", required = true) @RequestParam
-    email: String?
+    email: String?,
   ): ResponseEntity<Any> {
     val users = userSearchService.findUsersByEmail(email).map { UserDto.fromUser(it) }
     return if (users.count() == 0) ResponseEntity.noContent().build() else ResponseEntity.ok(users)
@@ -189,13 +189,13 @@ class UserController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "User detail.",
-    description = "User detail."
+    description = "User detail.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -203,9 +203,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -213,26 +213,26 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun user(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
-    username: String
+    username: String,
   ) = UserDto.fromUser(userSearchService.getUserByUsername(username))
 
   @GetMapping("/search")
   @Operation(
-    summary = "Search for an external user."
+    summary = "Search for an external user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -240,39 +240,43 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @PreAuthorize(
-    "hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')"
+    "hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')",
   )
   suspend fun searchForUser(
     @Parameter(
       description = "The username, email or name of the user.",
-      example = "j smith"
-    ) @RequestParam(required = false)
+      example = "j smith",
+    )
+    @RequestParam(required = false)
     name: String?,
-    @Parameter(description = "The role codes of the user.") @RequestParam(required = false)
+    @Parameter(description = "The role codes of the user.")
+    @RequestParam(required = false)
     roles: List<String>?,
-    @Parameter(description = "The group codes of the user.") @RequestParam(required = false)
+    @Parameter(description = "The group codes of the user.")
+    @RequestParam(required = false)
     groups: List<String>?,
-    @Parameter(description = "Limit to active / inactive / show all users.") @RequestParam(
+    @Parameter(description = "Limit to active / inactive / show all users.")
+    @RequestParam(
       required = false,
-      defaultValue = "ALL"
+      defaultValue = "ALL",
     )
     status: Status,
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
-    @RequestParam(value = "size", defaultValue = "10", required = false) size: Int
+    @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
   ): Page<UserDto> =
     userSearchService.findUsers(
       name,
       roles,
       groups,
       PageRequest.of(page, size),
-      status
+      status,
     )
 
   @PutMapping("/id/{userId}/email")
@@ -280,7 +284,7 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Update email address and username of user.",
-    description = "Update email address and user name of user."
+    description = "Update email address and user name of user.",
   )
   @ApiResponses(
     value = [
@@ -294,9 +298,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -304,9 +308,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -314,16 +318,17 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun updateUserEmailAddressAndUsername(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
-    @Valid @RequestBody emailUpdateDto: EmailUpdateDto
+    @Valid @RequestBody
+    emailUpdateDto: EmailUpdateDto,
   ) = userService.updateUserEmailAndUsername(userId, emailUpdateDto)
 
   @PutMapping("/{userId}/enable")
@@ -331,7 +336,7 @@ class UserController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Enable a user.",
-    description = "Enable a user."
+    description = "Enable a user.",
   )
   @ApiResponses(
     value = [
@@ -341,9 +346,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = EmailNotificationDto::class)
-          )
-        ]
+            schema = Schema(implementation = EmailNotificationDto::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -351,9 +356,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -361,9 +366,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -371,31 +376,31 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun enableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
-    userId: UUID
+    userId: UUID,
   ) = userService.enableUserByUserId(
-    userId
+    userId,
   )
 
   @PutMapping("/{userId}/disable")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Disable a user.",
-    description = "Disable a user."
+    description = "Disable a user.",
   )
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK."
+        description = "OK.",
       ),
       ApiResponse(
         responseCode = "401",
@@ -403,9 +408,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "403",
@@ -413,9 +418,9 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -423,35 +428,35 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun disableUserByUserId(
     @Parameter(description = "The userId of the user.", required = true) @PathVariable
     userId: UUID,
     @Parameter(
       description = "The reason user made inactive.",
-      required = true
+      required = true,
     ) @RequestBody
-    deactivateReason: DeactivateReason
+    deactivateReason: DeactivateReason,
   ) = userService.disableUserByUserId(
     userId,
-    deactivateReason.reason
+    deactivateReason.reason,
   )
 
   @GetMapping("/me/assignable-groups")
   @Operation(
     summary = "Get list of assignable groups.",
-    description = "Get list of groups that can be assigned by the current user."
+    description = "Get list of groups that can be assigned by the current user.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -459,11 +464,11 @@ class UserController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   suspend fun assignableGroups(): List<UserGroupDto> {
     val groups = userGroupService.getMyAssignableGroups()
@@ -475,7 +480,7 @@ data class UserDto(
   @Schema(
     required = true,
     description = "User ID",
-    example = "91229A16-B5F4-4784-942E-A484A97AC865"
+    example = "91229A16-B5F4-4784-942E-A484A97AC865",
   )
   val userId: String? = null,
 
@@ -485,7 +490,7 @@ data class UserDto(
   @Schema(
     required = true,
     description = "Email address",
-    example = "external.user@someagency.justice.gov.uk"
+    example = "external.user@someagency.justice.gov.uk",
   )
   val email: String? = null,
 
@@ -498,7 +503,7 @@ data class UserDto(
   @Schema(
     required = true,
     description = "Account is locked due to incorrect password attempts",
-    example = "true"
+    example = "true",
   )
   val locked: Boolean = false,
 
@@ -512,7 +517,7 @@ data class UserDto(
   val lastLoggedIn: LocalDateTime? = null,
 
   @Schema(required = true, description = "Inactive reason", example = "Left department")
-  val inactiveReason: String? = null
+  val inactiveReason: String? = null,
 ) {
   companion object {
     fun fromUser(user: User): UserDto {
@@ -526,7 +531,7 @@ data class UserDto(
         enabled = user.isEnabled(),
         verified = user.verified,
         lastLoggedIn = user.lastLoggedIn,
-        inactiveReason = user.inactiveReason
+        inactiveReason = user.inactiveReason,
       )
     }
   }
@@ -555,12 +560,13 @@ data class EmailNotificationDto(
   val email: String?,
 
   @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
-  val admin: String
+  val admin: String,
 )
 
 @Schema(description = "Deactivate Reason")
 data class DeactivateReason(
   @Schema(required = true, description = "Deactivate Reason", example = "User has left")
-  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters") @NotBlank
-  val reason: String
+  @field:Size(max = 100, min = 4, message = "Reason must be between 4 and 100 characters")
+  @NotBlank
+  val reason: String,
 )

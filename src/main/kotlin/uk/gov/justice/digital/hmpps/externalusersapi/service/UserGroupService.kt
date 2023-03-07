@@ -69,7 +69,7 @@ class UserGroupService(
   @Throws(
     UserGroupException::class,
     UserGroupManagerException::class,
-    UserGroupRelationshipException::class
+    UserGroupRelationshipException::class,
   )
   suspend fun addGroupByUserId(userId: UUID, groupCode: String) {
     // already checked that user exists
@@ -100,7 +100,7 @@ class UserGroupService(
       telemetryClient.trackEvent(
         "AuthUserGroupAddSuccess",
         mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
-        null
+        null,
       )
     }
   }
@@ -109,9 +109,8 @@ class UserGroupService(
   @Throws(UserGroupException::class, UserGroupManagerException::class, UserLastGroupException::class)
   suspend fun removeGroupByUserId(
     userId: UUID,
-    groupCode: String
+    groupCode: String,
   ) {
-
     userRepository.findById(userId)?.let { user ->
       val groupFormatted = formatGroup(groupCode)
       val userGroup = groupRepository.findGroupsByUserId(userId).toList().toMutableSet()
@@ -131,14 +130,14 @@ class UserGroupService(
         .filter { it.groupCode == groupFormatted }
         .map {
           it.groupId?.let {
-            it1 ->
+              it1 ->
             userGroupRepository.deleteUserGroup(userId, it1)
           }
         }
       telemetryClient.trackEvent(
         "UserGroupRemoveSuccess",
         mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.getUsername()),
-        null
+        null,
       )
     }
   }
@@ -169,14 +168,14 @@ class UserGroupService(
     telemetryClient.trackEvent(
       "ExternalUserGroupRemoveSuccess",
       mapOf("username" to username, "group" to groupCode.trim(), "admin" to modifier),
-      null
+      null,
     )
   }
 
   private suspend fun checkGroupModifier(
     groupCode: String,
     authorities: Collection<GrantedAuthority>,
-    modifier: String?
+    modifier: String?,
   ): Boolean {
     return if (canMaintainUsers(authorities)) {
       true
@@ -200,8 +199,11 @@ class UserGroupService(
   }
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers(authorities)) groupRepository.findAllByOrderByGroupName().toList()
-    else getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
+    if (canMaintainUsers(authorities)) {
+      groupRepository.findAllByOrderByGroupName().toList()
+    } else {
+      getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
+    }
 }
 
 class UserGroupException(action: String = "add", field: String, errorCode: String) :

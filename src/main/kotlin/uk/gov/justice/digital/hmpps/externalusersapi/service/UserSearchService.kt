@@ -32,7 +32,7 @@ class UserSearchService(
   private val userSearchRepository: UserSearchRepository,
   private val userRepository: UserRepository,
   private val maintainUserCheck: MaintainUserCheck,
-  private val authenticationFacade: AuthenticationFacade
+  private val authenticationFacade: AuthenticationFacade,
 ) {
 
   suspend fun findUsers(
@@ -40,15 +40,14 @@ class UserSearchService(
     roleCodes: List<String>?,
     groupCodes: List<String>?,
     pageable: Pageable,
-    status: Status
+    status: Status,
   ): Page<UserDto> = coroutineScope {
-
     val userFilter = UserFilter(
       name = name,
       roleCodes = roleCodes,
       groupCodes = limitGroupSearchCodesByUserAuthority(groupCodes),
       status = status,
-      pageable = pageable
+      pageable = pageable,
     )
 
     val users = async { userSearchRepository.searchForUsers(userFilter) }
@@ -59,9 +58,9 @@ class UserSearchService(
       PageRequest.of(
         pageable.pageNumber,
         pageable.pageSize,
-        Sort.by(defaultSortOrder())
+        Sort.by(defaultSortOrder()),
       ),
-      count.await()
+      count.await(),
     )
   }
 
@@ -87,7 +86,7 @@ class UserSearchService(
   private fun defaultSortOrder(): List<Sort.Order> {
     return listOf(
       Sort.Order.asc("last_name"),
-      Sort.Order.asc("first_name")
+      Sort.Order.asc("first_name"),
     )
   }
 
