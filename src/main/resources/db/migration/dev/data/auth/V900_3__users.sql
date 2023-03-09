@@ -198,6 +198,10 @@ VALUES ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D60', 'AUTH_MFA_PREF_EMAIL', '{bcrypt}
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D78', 'AUTH_USER_LINK_EXPIRED', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_unverified@digital.justice.gov.uk', 'Auth', 'Mfa', false, true, false, 'auth', 'SECONDARY_EMAIL'),
        ('2E285CCD-DCFD-4497-9E22-D6E8E10A2D79', 'AUTH_USER_2ND_EMAIL_LINK_EXP', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_unverified@digital.justice.gov.uk', 'Auth', 'Mfa', false, true, false, 'auth', 'SECONDARY_EMAIL');
 
+-- external users
+INSERT INTO users (user_id, username, password, password_expiry, email, first_name, last_name, verified, enabled, locked, source)
+VALUES ('608955AE-52ED-44CC-884C-011597A70049', 'EXT_USER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'ext_user@digital.justice.gov.uk', 'External', 'User', true, true, false, 'auth');
+
 -- azuread users
 INSERT INTO users (user_id, username, password, password_expiry, email, first_name, last_name, verified, enabled, locked, source, mfa_preference)
 VALUES ('2E285CED-DCFD-4497-9E22-89E8A10A2A6B', '2E285CED-DCFD-4497-9E22-89E8E10A2A6A', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'azureuser@justice.gov.uk', 'Azure', 'User', true, true, false, 'azuread', 'EMAIL');
@@ -355,3 +359,7 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'PRISONER_CONTACT_REGISTRY';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'OFFENDER_CONTACTS';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'PRISON_VISIT_TEST' and role_code = 'MIGRATE_VISITS';
+
+-- Roles added to 'External' User
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'EXT_USER' and role_code = 'ROLES_ADMIN';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'EXT_USER' and role_code = 'AUDIT_VIEWER';

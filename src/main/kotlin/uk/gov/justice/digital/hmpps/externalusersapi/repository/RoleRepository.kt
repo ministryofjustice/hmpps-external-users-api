@@ -68,4 +68,13 @@ interface RoleRepository : CoroutineSortingRepository<Authority, String> {
     """,
   )
   fun findByGroupAssignableRolesForUserName(userName: String): Flow<Authority>
+
+  @Query(
+    """
+      select r.* from  roles r, user_role ur , USERS u 
+      where  r.role_id = ur.role_id and u.user_id = ur.user_id
+      and  u.username = :userName
+    """
+  )
+  fun findByUserRolesForUserName(userName: String): Flow<Authority>
 }
