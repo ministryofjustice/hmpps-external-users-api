@@ -497,6 +497,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isUnauthorized
     }
+
     @Test
     fun `User Roles endpoint returns roles for user`() {
       webTestClient
@@ -510,6 +511,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
           assertThat(it).contains("AUDIT_VIEWER")
         }
     }
+
     @Test
     fun `User Roles endpoint returns roles for user - PF_USER_ADMIN role`() {
       webTestClient
@@ -537,6 +539,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
           assertThat(it).contains("AUDIT_VIEWER")
         }
     }
+
     @Test
     fun `User Roles endpoint returns not found for unknown username`() {
       webTestClient

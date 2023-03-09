@@ -300,16 +300,17 @@ class UserRoleController(
     val roles = userRoleService.getAllAssignableRoles()
     return roles.map { UserRoleDto(it) }
   }
+
   @GetMapping("/users/username/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_PF_USER_ADMIN, ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN."
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_PF_USER_ADMIN, ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
   )
   @ApiResponses(
     value = [
       ApiResponse(
         responseCode = "200",
-        description = "OK"
+        description = "OK",
       ),
       ApiResponse(
         responseCode = "401",
@@ -317,9 +318,9 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
       ),
       ApiResponse(
         responseCode = "404",
@@ -327,15 +328,15 @@ class UserRoleController(
         content = [
           Content(
             mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class)
-          )
-        ]
-      )
-    ]
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
   )
   @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN')")
   suspend fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
-    username: String
+    username: String,
   ): Set<UserRoleDto> = userRoleService.getRolesByUsername(username).map { UserRoleDto(it) }.toSet()
 }
