@@ -338,5 +338,5 @@ class UserRoleController(
   suspend fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String,
-  ): Set<UserRoleDto> = userRoleService.getRolesByUsername(username).map { UserRoleDto(it) }.toSet()
+  ): Set<UserRoleDto> = userRoleService.getRolesByUsername(username.uppercase()).map { UserRoleDto(it) }.toSet()
 }

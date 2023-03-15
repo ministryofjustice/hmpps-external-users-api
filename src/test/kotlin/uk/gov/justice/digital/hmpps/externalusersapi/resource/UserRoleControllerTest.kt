@@ -94,6 +94,15 @@ class UserRoleControllerTest {
     }
 
     @Test
+    fun userRoles_checkUserName_inUpperCase_externalUser(): Unit = runBlocking {
+      val role1 = Authority(UUID.randomUUID(), "FRED", "FRED", adminType = "EXT_ADM")
+      val role2 = Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", adminType = "EXT_ADM")
+      whenever(userRoleService.getRolesByUsername(any())).thenReturn(setOf(role1, role2))
+      assertThat(userRoleController.userRoles("joe")).contains(UserRoleDto(role1), UserRoleDto(role2))
+      verify(userRoleService).getRolesByUsername("JOE")
+    }
+
+    @Test
     fun userRoles_notFound(): Unit = runBlocking {
       whenever(userRoleService.getRolesByUsername(any())).thenThrow(UsernameNotFoundException::class.java)
       assertThatThrownBy { runBlocking { userRoleController.userRoles("JOE") } }
