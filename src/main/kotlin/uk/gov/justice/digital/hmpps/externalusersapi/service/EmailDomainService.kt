@@ -45,11 +45,11 @@ class EmailDomainService(
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
     if (existingDomain != null) {
-      throw EmailDomainAdditionBarredException(newDomain.name, "domain already present in allowed list")
+      throw EmailDomainAdditionBarredException(newDomain.name, "is already present in allowed list")
     }
 
     if (emailDomainExclusions.contains(newDomain.name)) {
-      throw EmailDomainAdditionBarredException(newDomain.name, "domain present in excluded list")
+      throw EmailDomainAdditionBarredException(newDomain.name, "is present in excluded list")
     }
     return toDto(emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description)))
   }
@@ -74,8 +74,8 @@ class EmailDomainService(
     persistedDomainName.removePrefix(PERCENT).removePrefix(".")
 }
 
-class EmailDomainAdditionBarredException(domain: String, errorCode: String) :
-  Exception("Unable to add email domain: $domain to allowed list with reason: $errorCode")
+class EmailDomainAdditionBarredException(domain: String, val reason: String) :
+  Exception("Email domain $domain $reason")
 
 class EmailDomainNotFoundException(action: String, id: UUID, errorCode: String) :
   Exception("Unable to $action email domain id: $id with reason: $errorCode")

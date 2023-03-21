@@ -163,7 +163,7 @@ class HmppsExternalUsersApiExceptionHandler {
       .body(
         ErrorResponse(
           status = CONFLICT,
-          userMessage = "Unable to add email domain: ${e.message}",
+          userMessage = e.message,
           developerMessage = e.message,
         ),
       )
