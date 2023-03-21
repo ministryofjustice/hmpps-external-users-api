@@ -45,11 +45,11 @@ class EmailDomainService(
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
     if (existingDomain != null) {
-      throw EmailDomainAdditionBarredException(newDomain.name, "is already present in allowed list")
+      throw EmailDomainAdditionBarredException(newDomain.name, "is already present in the allowed list")
     }
 
     if (emailDomainExclusions.contains(newDomain.name)) {
-      throw EmailDomainAdditionBarredException(newDomain.name, "is present in excluded list")
+      throw EmailDomainAdditionBarredException(newDomain.name, "is present in the excluded list")
     }
     return toDto(emailDomainRepository.save(EmailDomain(name = domainNameInternal, description = newDomain.description)))
   }
