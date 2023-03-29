@@ -45,7 +45,7 @@ class EmailDomainService(
     val existingDomain = emailDomainRepository.findByName(domainNameInternal)
 
     if (existingDomain != null) {
-      throw EmailDomainAdditionBarredException(newDomain.name, "is already present in the allowed list")
+      throw EmailDomainAdditionBarredException(newDomain.name, "already exists")
     }
 
     if (emailDomainExclusions.contains(newDomain.name)) {
@@ -75,7 +75,7 @@ class EmailDomainService(
 }
 
 class EmailDomainAdditionBarredException(domain: String, val reason: String) :
-  Exception("Email domain $domain $reason")
+  Exception("Unable to add email domain: Email domain $domain $reason")
 
 class EmailDomainNotFoundException(action: String, id: UUID, errorCode: String) :
   Exception("Unable to $action email domain id: $id with reason: $errorCode")

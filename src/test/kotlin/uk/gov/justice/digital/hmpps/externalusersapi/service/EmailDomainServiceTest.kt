@@ -62,7 +62,7 @@ class EmailDomainServiceTest {
 
     assertThatThrownBy { runBlocking { service.addDomain(newDomain) } }
       .isInstanceOf(EmailDomainAdditionBarredException::class.java)
-      .hasMessage("Email domain ${newDomain.name} is already present in the allowed list")
+      .hasMessage("Unable to add email domain: Email domain ${newDomain.name} already exists")
 
     verify(emailDomainRepository, never()).save(any())
     verifyNoInteractions(emailDomainExclusions)
@@ -73,7 +73,7 @@ class EmailDomainServiceTest {
     whenever(emailDomainExclusions.contains(newDomain.name)).thenReturn(true)
     assertThatThrownBy { runBlocking { service.addDomain(newDomain) } }
       .isInstanceOf(EmailDomainAdditionBarredException::class.java)
-      .hasMessage("Email domain ${newDomain.name} is present in the excluded list")
+      .hasMessage("Unable to add email domain: Email domain ${newDomain.name} is present in the excluded list")
 
     verify(emailDomainRepository, never()).save(any())
   }
