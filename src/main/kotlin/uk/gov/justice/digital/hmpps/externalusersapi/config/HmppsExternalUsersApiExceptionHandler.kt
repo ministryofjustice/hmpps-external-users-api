@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.GroupRelationshipE
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.ChildGroupNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.CreateUserException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainAdditionBarredException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.EmailDomainNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
@@ -28,6 +29,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupE
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupManagerException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupException
@@ -69,7 +71,7 @@ class HmppsExternalUsersApiExceptionHandler {
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
   fun handleMethodArgumentTypeMismatchException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.info("Validation exception: {}", e.message)
+    log.info("Validation exception..: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
       .body(
@@ -150,6 +152,34 @@ class HmppsExternalUsersApiExceptionHandler {
         ErrorResponse(
           status = CONFLICT,
           userMessage = "Unable to add role: ${e.message}",
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(CreateUserException::class)
+  fun handleCreateUserException(e: CreateUserException): ResponseEntity<ErrorResponse?>? {
+    log.error("Create User exception caught: {}", e.message)
+    return ResponseEntity
+      .status(BAD_REQUEST)
+      .body(
+        ErrorResponse(
+          status = BAD_REQUEST,
+          userMessage = e.message,
+          developerMessage = e.message,
+        ),
+      )
+  }
+
+  @ExceptionHandler(UserExistsException::class)
+  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
+    log.error("User exists exception caught: {}", e.message)
+    return ResponseEntity
+      .status(CONFLICT)
+      .body(
+        ErrorResponse(
+          status = CONFLICT,
+          userMessage = e.message,
           developerMessage = e.message,
         ),
       )

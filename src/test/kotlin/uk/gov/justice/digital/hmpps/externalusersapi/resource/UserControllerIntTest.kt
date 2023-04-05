@@ -719,4 +719,127 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it.size > 2) }
     }
   }
+
+  data class NewUser(val email: String, val firstName: String, val lastName: String, val groupCodes: Set<String>? = null)
+
+  @Nested
+  inner class CreateExternalUser {
+
+    @Test
+    fun `Create User by email endpoint succeeds to create user data`() {
+      val user = NewUser("bob2@bobdigital.justice.gov.uk", "Bob", "Smith")
+
+      webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/${user.email}")
+        .headers(setAuthorisation("ITAG_USER_ADM"))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it.filter { it.key != "userId" }).containsAllEntriesOf(
+            mapOf("username" to user.email.uppercase(), "enabled" to true, "lastName" to user.lastName, "firstName" to user.firstName),
+          )
+        }
+    }
+
+    @Test
+    fun `Create User by email endpoint fails if user with email already exists and unique is enabled`() {
+      val user = NewUser("auth_test@digital.justice.gov.uk", "Bob", "Smith")
+
+      webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+    }
+
+    @Test
+    fun `Create User by email endpoint succeeds to create user data with group and roles`() {
+      val user = NewUser("bob1@bobdigital.justice.gov.uk", "Bob", "Smith", setOf("SITE_1_GROUP_2"))
+
+      val result = webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isOk
+        .returnResult(String::class.java)
+
+      val userId = result.responseBody.blockFirst()?.filterNot { it == '"' }
+
+      webTestClient
+        .get().uri("/users/$userId/groups")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .consumeWith(System.out::println)
+        .jsonPath("$.[*].groupCode").value<List<String>> {
+          assertThat(it).containsOnly("CHILD_1")
+        }
+        .jsonPath("$.[*].groupName").value<List<String>> {
+          assertThat(it).containsOnly("Child - Site 1 - Group 2")
+        }
+
+      webTestClient
+        .get().uri("/users/$userId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .consumeWith(System.out::println)
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).isEqualTo(listOf("GLOBAL_SEARCH", "LICENCE_RO"))
+        }
+    }
+
+    @Test
+    fun `Create User by email endpoint fails if no privilege`() {
+      val user = NewUser("bob@bobdigital.justice.gov.uk", "Bob", "Smith")
+
+      webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("ITAG_USER_ADM"))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .consumeWith(System.out::println)
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf("developerMessage" to "Denied", "status" to 403, "userMessage" to "Denied", "errorCode" to null, "moreInfo" to null),
+          )
+        }
+    }
+
+    @Test
+    fun `Fails when first and last name are invalid`() {
+      val user = NewUser("auth_test@digital.justice.gov.uk", ">", "S")
+
+      webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
+        .expectBody()
+        .consumeWith(System.out::println)
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+
+              "status" to 400,
+            ),
+          )
+          assertThat(it["userMessage"] as String).contains("firstName: First name length should be between minimum 2 to maximum 50 characters")
+          assertThat(it["userMessage"] as String).contains("lastName: Last name length should be between minimum 2 to maximum 50 characters")
+          assertThat(it["userMessage"] as String).contains("firstName: Invalid characters in first name '< ＜〈〈> ＞ 〉 〉'")
+        }
+    }
+  }
 }
