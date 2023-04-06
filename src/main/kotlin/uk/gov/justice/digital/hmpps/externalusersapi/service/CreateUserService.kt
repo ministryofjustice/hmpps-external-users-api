@@ -78,33 +78,39 @@ class CreateUserService(
     user.lastName = createUser.lastName
     user.setFirstName(createUser.firstName)
     userRepository.save(user)
-    log.info("External User created: {} , generated user id {}", user.name, user.id)
+
     return user
   }
   private suspend fun saveUserGroups(user: User, group: Set<Group>) {
-    val userGroups = group
-      .map { UserGroup(user.id, it.groupId) }
-      .toList()
-      .toSet()
+    user.id?.let { userId ->
+      val groupIds = group.mapNotNull { it.groupId }.toSet()
+      val userGroups = groupIds
+        .map {
+          UserGroup(userId, it)
+        }
+        .toList()
+        .toSet()
 
-    val savedUserGroup = userGroupCoroutineRepository.saveAll(userGroups)
-    savedUserGroup?.let { it.toList() }
-    log.debug("User groups created: {} for user name {}", userGroups.map { it.groupId }.toString(), user.name)
+      userGroupCoroutineRepository.saveAll(userGroups).toList()
+      log.info("External User created: {} , generated user id {}", user.name, user.id)
+    }
   }
 
   private suspend fun saveUserRoles(user: User, group: Set<Group>) {
-    val userRoles = group
-      .map {
-        roleRepository.findRolesByGroupCode(it.groupCode)
-          .toList()
-          .map { UserRole(user.id, it.id) }
-      }
-      .flatten()
-      .toSet()
+    user.id?.let { userId ->
+      val roleIds = group
+        .map { it ->
+          roleRepository.findRolesByGroupCode(it.groupCode)
+            .toList()
+            .mapNotNull { it.id }
+        }
+        .flatten()
+        .toSet()
 
-    val savedUserRoles = userRoleCoroutineRepository.saveAll(userRoles)
-    savedUserRoles?.let { it.toList() }
-    log.debug("User roles created: {} for user name {}", userRoles.map { it.roleId }.toString(), user.name)
+      val userRoles = roleIds.map { UserRole(userId, it) }
+      userRoleCoroutineRepository.saveAll(userRoles).toList()
+      log.debug("User roles created: {} for user name {}", userRoles.map { it.roleId }.toString(), user.name)
+    }
   }
   private suspend fun getInitialGroups(
     groupCodes: Set<String>,

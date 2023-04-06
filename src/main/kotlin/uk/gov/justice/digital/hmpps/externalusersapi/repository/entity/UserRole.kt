@@ -5,8 +5,8 @@ import java.util.UUID
 
 @Table(name = "user_role")
 data class UserRole(
-  val userId: UUID?,
-  val roleId: UUID?,
+  val userId: UUID,
+  val roleId: UUID,
 ) {
 
   override fun equals(other: Any?): Boolean {

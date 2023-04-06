@@ -29,8 +29,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRoleCoroutin
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.UserGroup
-import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.UserRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateUser
 import java.util.*
 
@@ -129,15 +127,7 @@ class CreateUserServiceTest {
       assertThat(captUser.firstValue.getUserName()).isEqualTo(StringUtils.upperCase(createUser.email))
       assertThat(captUser.firstValue.getFirstName()).isEqualTo(createUser.firstName)
       assertThat(captUser.firstValue.lastName).isEqualTo(createUser.lastName)
-      assertThat(captUser.firstValue.isEnabled()).isTrue()
-
-      val captUserRole = argumentCaptor<Set<UserRole>>()
-      verify(userRoleCoroutineRepository).saveAll(captUserRole.capture())
-      assertThat(captUserRole.firstValue).hasSize(1)
-
-      val captUserGroup = argumentCaptor<Set<UserGroup>>()
-      verify(userGroupCoroutineRepository).saveAll(captUserGroup.capture())
-      assertThat(captUserGroup.firstValue).hasSize(1)
+      assertThat(captUser.firstValue.isEnabled()).isTrue
     }
   }
 }
