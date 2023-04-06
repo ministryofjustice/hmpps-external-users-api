@@ -71,7 +71,7 @@ class HmppsExternalUsersApiExceptionHandler {
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
   fun handleMethodArgumentTypeMismatchException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.info("Validation exception..: {}", e.message)
+    log.info("Validation exception: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
       .body(
