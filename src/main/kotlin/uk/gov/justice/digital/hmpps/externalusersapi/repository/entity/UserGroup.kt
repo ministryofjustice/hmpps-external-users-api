@@ -5,8 +5,8 @@ import java.util.UUID
 
 @Table(name = "user_group")
 data class UserGroup(
-  var userId: UUID?,
-  var groupId: UUID?,
+  val userId: UUID?,
+  val groupId: UUID?,
 ) {
 
   override fun equals(other: Any?): Boolean {

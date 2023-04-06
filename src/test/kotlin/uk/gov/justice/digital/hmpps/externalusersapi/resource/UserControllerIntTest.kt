@@ -726,6 +726,13 @@ class UserControllerIntTest : IntegrationTestBase() {
   inner class CreateExternalUser {
 
     @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.post().uri("/users/user/create")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
     fun `Create User by email endpoint succeeds to create user data`() {
       val user = NewUser("bob2@bobdigital.justice.gov.uk", "Bob", "Smith")
 

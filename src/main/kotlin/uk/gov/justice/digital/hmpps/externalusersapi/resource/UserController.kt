@@ -512,16 +512,6 @@ class UserController(
           ),
         ],
       ),
-      ApiResponse(
-        responseCode = "500",
-        description = "Server exception e.g. failed to call notify.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = ErrorResponse::class),
-          ),
-        ],
-      ),
     ],
   )
   suspend fun createUserByEmail(
