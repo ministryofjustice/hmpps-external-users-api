@@ -81,6 +81,127 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class AddUserRoleByUserId {
+    @Test
+    fun `access forbidden without valid token`() {
+      webTestClient.put().uri("/users/$authRoUserTest5Id/roles/GLOBAL_SEARCH")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `access forbidden without correct role`() {
+      webTestClient.put().uri("/users/$authRoUserTest5Id/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("bob", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `user not found`() {
+      webTestClient
+        .put().uri("/users/12345678-1234-1234-1234-123456789ABC/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not found: User 12345678-1234-1234-1234-123456789abc not found",
+               "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `role does not exist`() {
+      webTestClient
+        .put().uri("/users/$authRoUserTest5Id/roles/ROLE_DOES_NOT_EXIST")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.notfound",
+               "developerMessage":"Modify role failed for field role with reason: role.notfound"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `user already has role`() {
+      webTestClient
+        .put().uri("/users/$authRoUserTest6Id/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.exists",
+               "developerMessage":"Modify role failed for field role with reason: role.exists"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `group manager cannot add role to user not in groups`() {
+      webTestClient
+        .put().uri("/users/$authAdmId/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.FORBIDDEN)
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not within your groups: Unable to maintain user: AUTH_ADM with reason: User not with your groups",
+               "developerMessage":"Unable to maintain user: AUTH_ADM with reason: User not with your groups"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `success as superuser`() {
+      val authAddRoleTest2Id = "90F930E1-2195-4AFD-92CE-0EB5672DA02E"
+      webTestClient
+        .put().uri("/users/$authAddRoleTest2Id/roles/LICENCE_RO")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      checkRolesForUserId(authAddRoleTest2Id, listOf("LICENCE_RO"))
+      removeRoleForUserId(authAddRoleTest2Id, "LICENCE_RO")
+    }
+
+    @Test
+    fun `success as group manager`() {
+      val authRoUserTest2Id = "90F930E1-2195-4AFD-92CE-0EB5672DA02B"
+
+      webTestClient
+        .put().uri("/users/$authRoUserTest2Id/roles/LICENCE_RO")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      checkRolesForUserId(authRoUserTest2Id, listOf("LICENCE_RO"))
+      removeRoleForUserId(authRoUserTest2Id, "LICENCE_RO")
+    }
+  }
+
+  @Nested
   inner class AddUserRolesByUserId {
 
     @Test

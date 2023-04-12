@@ -57,13 +57,25 @@ class UserRoleControllerTest {
     }
   }
 
-  @Test
-  fun addRolesByUserId(): Unit = runBlocking {
-    val userId = UUID.randomUUID()
-    val roles = listOf("roleCode")
+  @Nested
+  inner class AddRoles {
+    @Test
+    fun addRolesByUserId(): Unit = runBlocking {
+      val userId = UUID.randomUUID()
+      val roles = listOf("roleCode")
 
-    userRoleController.addRolesByUserId(userId, roles)
-    verify(userRoleService).addRolesByUserId(userId, roles)
+      userRoleController.addRolesByUserId(userId, roles)
+      verify(userRoleService).addRolesByUserId(userId, roles)
+    }
+
+    @Test
+    fun addRoleByUserId(): Unit = runBlocking {
+      val userId = UUID.randomUUID()
+      val role = "roleCode"
+
+      userRoleController.addRoleByUserId(userId, role)
+      verify(userRoleService).addRolesByUserId(userId, listOf(role))
+    }
   }
 
   @Test
