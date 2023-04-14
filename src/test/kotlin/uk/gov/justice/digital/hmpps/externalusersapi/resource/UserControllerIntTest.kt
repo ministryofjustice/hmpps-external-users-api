@@ -786,7 +786,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .consumeWith(System.out::println)
         .jsonPath("$.[*].groupCode").value<List<String>> {
           assertThat(it).containsOnly("CHILD_1")
         }
@@ -800,7 +799,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .consumeWith(System.out::println)
         .jsonPath("$.[*].roleCode").value<List<String>> {
           assertThat(it).isEqualTo(listOf("GLOBAL_SEARCH", "LICENCE_RO"))
         }
@@ -817,7 +815,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectStatus().isForbidden
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
-        .consumeWith(System.out::println)
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsExactlyInAnyOrderEntriesOf(
             mapOf("developerMessage" to "Denied", "status" to 403, "userMessage" to "Denied", "errorCode" to null, "moreInfo" to null),
@@ -835,7 +832,6 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.BAD_REQUEST)
         .expectBody()
-        .consumeWith(System.out::println)
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it).containsAllEntriesOf(
             mapOf(
@@ -845,7 +841,7 @@ class UserControllerIntTest : IntegrationTestBase() {
           )
           assertThat(it["userMessage"] as String).contains("firstName: First name length should be between minimum 2 to maximum 50 characters")
           assertThat(it["userMessage"] as String).contains("lastName: Last name length should be between minimum 2 to maximum 50 characters")
-          assertThat(it["userMessage"] as String).contains("firstName: Invalid characters in first name '< ＜〈〈> ＞ 〉 〉'")
+          assertThat(it["userMessage"] as String).contains("firstName: firstName failed validation")
         }
     }
   }

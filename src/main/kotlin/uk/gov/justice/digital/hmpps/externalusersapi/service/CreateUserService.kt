@@ -52,7 +52,7 @@ class CreateUserService(
     val group = createUser.groupCodes?.let { getInitialGroups(it) }
 
     user = saveUser(createUser)
-
+    log.info("External User created: {} , generated user id {}", user.name, user.id)
     if (group != null) {
       saveUserGroups(user, group)
       saveUserRoles(user, group)
@@ -92,7 +92,7 @@ class CreateUserService(
         .toSet()
 
       userGroupCoroutineRepository.saveAll(userGroups).toList()
-      log.info("External User created: {} , generated user id {}", user.name, user.id)
+      log.debug("User groups created: {} for user name {}", groupIds, user.name)
     }
   }
 

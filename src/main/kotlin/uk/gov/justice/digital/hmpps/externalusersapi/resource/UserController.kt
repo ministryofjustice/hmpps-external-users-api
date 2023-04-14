@@ -599,11 +599,11 @@ data class CreateUser(
   val email: String,
   @field:Size(min = 2, max = 50, message = "First name length should be between minimum 2 to maximum 50 characters")
   @Schema(required = true, description = "First name", example = "Firstname")
-  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "Invalid characters in first name '< ＜〈〈> ＞ 〉 〉'")
+  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "firstName failed validation")
   val firstName: String,
   @field:Size(min = 2, max = 50, message = "Last name length should be between minimum 2 to maximum 50 characters")
   @Schema(required = true, description = "Last name", example = "User")
-  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "Username can only include letters, numbers and _")
+  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "lastName failed validation")
   val lastName: String,
   @Schema(
     description = "Initial group/groups, required for initial groups required for user creation",
