@@ -50,7 +50,7 @@ class CreateUserServiceTest {
 
     val user = UserHelper.createSampleUser(username = "email@email.com", id = UUID.randomUUID())
     private var createUser = CreateUser("email@email.com", "first_name", "last_name", setOf(""))
-    private var GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"), SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"), SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
 
     @BeforeEach
     fun initSecurityContext(): Unit = runBlocking {
@@ -104,7 +104,7 @@ class CreateUserServiceTest {
 
     @Test
     fun `createUserByEmail fails if group is missing`(): Unit = runBlocking {
-      createUser = CreateUser("email@email.com", "first_name", "last_name", emptySet())
+      createUser = CreateUser("email@email.com", "first_name", "last_name", null)
       whenever(authenticationFacade.getAuthentication().authorities).thenReturn(emptySet())
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
       whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), anyOrNull())).thenReturn(emptyFlow())
@@ -119,7 +119,7 @@ class CreateUserServiceTest {
     @Test
     fun `Create external user`(): Unit = runBlocking {
       createUser = CreateUser("email@email.com", "first_name", "last_name", setOf("SITE_1_GROUP_1"))
-      listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
       whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), anyOrNull())).thenReturn(emptyFlow())
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")

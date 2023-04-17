@@ -43,21 +43,19 @@ class CreateUserService(
     if (userRepository.findByEmailAndSourceOrderByUsername(createUser.email).count() >= 1) {
       throw UserExistsException("email", "Email with username ${createUser.email} already exists")
     }
-    val groups = createUser.groupCodes?.let { getInitialGroups(it) }
+    val groups = getInitialGroups(createUser.groupCodes)
 
     user = saveUser(createUser)
     log.info("External User created: {} , generated user id {}", user.name, user.id)
-    if (groups != null) {
-      saveUserGroups(user, groups)
-      saveUserRoles(user, groups)
-    }
+    saveUserGroups(user, groups)
+    saveUserRoles(user, groups)
 
     telemetryClient.trackEvent(
       "ExternalUserCreated",
       mapOf(
         "username" to user.name,
         "admin" to authenticationFacade.getUsername(),
-        "groups" to groups?.map { it.groupCode }.toString(),
+        "groups" to groups.map { it.groupCode }.toString(),
       ),
       null,
     )
@@ -107,7 +105,7 @@ class CreateUserService(
     }
   }
   private suspend fun getInitialGroups(
-    groupCodes: Set<String>,
+    groupCodes: Set<String>?,
   ): Set<Group> {
     if (groupCodes.isNullOrEmpty()) {
       return if (authenticationFacade.getAuthentication().authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
