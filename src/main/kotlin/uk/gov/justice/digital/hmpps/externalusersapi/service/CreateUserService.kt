@@ -33,29 +33,23 @@ class CreateUserService(
   private val userRoleCoroutineRepository: UserRoleCoroutineRepository,
 ) {
   @Transactional
-  @Throws(CreateUserException::class, UserExistsException::class)
   suspend fun createUserByEmail(createUser: CreateUser): UUID? {
     log.info("Creating External User : {} ", createUser.email)
     var user = userRepository.findByUsernameAndSource(StringUtils.upperCase(createUser.email))
     if (user != null) {
-      throw UserExistsException("userId", "User with username ${createUser.email} already exist")
+      throw UserExistsException("userId", "User with username ${createUser.email} already exists")
     }
 
     if (userRepository.findByEmailAndSourceOrderByUsername(createUser.email).count() >= 1) {
-      throw UserExistsException("email", "Email with username ${createUser.email} already exist")
+      throw UserExistsException("email", "Email with username ${createUser.email} already exists")
     }
-
-   /* This check not required as endpoint is  protected with 'MAINTAIN_OAUTH_USERS' role
-    if (!canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
-      throw CreateUserException("groupCode", "missing")
-    } */
-    val group = createUser.groupCodes?.let { getInitialGroups(it) }
+    val groups = createUser.groupCodes?.let { getInitialGroups(it) }
 
     user = saveUser(createUser)
     log.info("External User created: {} , generated user id {}", user.name, user.id)
-    if (group != null) {
-      saveUserGroups(user, group)
-      saveUserRoles(user, group)
+    if (groups != null) {
+      saveUserGroups(user, groups)
+      saveUserRoles(user, groups)
     }
 
     telemetryClient.trackEvent(
@@ -63,7 +57,7 @@ class CreateUserService(
       mapOf(
         "username" to user.name,
         "admin" to authenticationFacade.getUsername(),
-        "groups" to group?.map { it.groupCode }.toString(),
+        "groups" to groups?.map { it.groupCode }.toString(),
       ),
       null,
     )
@@ -115,9 +109,16 @@ class CreateUserService(
   private suspend fun getInitialGroups(
     groupCodes: Set<String>,
   ): Set<Group> {
+    if (groupCodes.isNullOrEmpty()) {
+      return if (authenticationFacade.getAuthentication().authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
+        emptySet()
+      } else {
+        throw CreateUserException("groupCode", "missing")
+      }
+    }
     val authUserGroups = userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
     val groups = authUserGroups.filter { it.groupCode in groupCodes }.toSet()
-    if ((groups.isEmpty())) {
+    if (groups.isEmpty()) {
       throw CreateUserException("groupCode", "notfound")
     }
     return groups
@@ -131,4 +132,4 @@ class CreateUserService(
 class CreateUserException(val field: String, val errorCode: String) :
   Exception("Create user failed for field $field with reason: $errorCode")
 class UserExistsException(val field: String, val errorCode: String) :
-  Exception("Already exists, for field $field with reason: $errorCode")
+  Exception("User already exists, for field $field with reason: $errorCode")

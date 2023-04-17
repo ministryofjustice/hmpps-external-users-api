@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -586,7 +587,7 @@ data class UserDto(
   }
 }
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(NON_NULL)
 @Schema(description = "User creation")
 data class CreateUser(
   @Schema(

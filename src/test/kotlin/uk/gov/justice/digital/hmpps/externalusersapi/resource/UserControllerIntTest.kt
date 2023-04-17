@@ -773,7 +773,7 @@ class UserControllerIntTest : IntegrationTestBase() {
 
       val result = webTestClient
         .post().uri("/users/user/create").bodyValue(user)
-        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER", "ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
         .returnResult(String::class.java)

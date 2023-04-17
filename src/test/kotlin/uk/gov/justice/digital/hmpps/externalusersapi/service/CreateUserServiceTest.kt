@@ -50,7 +50,7 @@ class CreateUserServiceTest {
 
     val user = UserHelper.createSampleUser(username = "email@email.com", id = UUID.randomUUID())
     private var createUser = CreateUser("email@email.com", "first_name", "last_name", setOf(""))
-    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+    private var GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"), SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
 
     @BeforeEach
     fun initSecurityContext(): Unit = runBlocking {
@@ -68,7 +68,7 @@ class CreateUserServiceTest {
           createUserService.createUserByEmail(createUser)
         }
       }.isInstanceOf(UserExistsException::class.java)
-        .hasMessage("Already exists, for field userId with reason: User with username email@email.com already exist")
+        .hasMessage("User already exists, for field userId with reason: User with username email@email.com already exists")
     }
 
     @Test
@@ -80,7 +80,7 @@ class CreateUserServiceTest {
           createUserService.createUserByEmail(createUser)
         }
       }.isInstanceOf(UserExistsException::class.java)
-        .hasMessage("Already exists, for field email with reason: Email with username email@email.com already exist")
+        .hasMessage("User already exists, for field email with reason: Email with username email@email.com already exists")
     }
 
     @Test
@@ -103,9 +103,23 @@ class CreateUserServiceTest {
     }
 
     @Test
+    fun `createUserByEmail fails if group is missing`(): Unit = runBlocking {
+      createUser = CreateUser("email@email.com", "first_name", "last_name", emptySet())
+      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(emptySet())
+      whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
+      whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), anyOrNull())).thenReturn(emptyFlow())
+      assertThatThrownBy {
+        runBlocking {
+          createUserService.createUserByEmail(createUser)
+        }
+      }.isInstanceOf(CreateUserException::class.java)
+        .hasMessage("Create user failed for field groupCode with reason: missing")
+    }
+
+    @Test
     fun `Create external user`(): Unit = runBlocking {
       createUser = CreateUser("email@email.com", "first_name", "last_name", setOf("SITE_1_GROUP_1"))
-
+      listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
       whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), anyOrNull())).thenReturn(emptyFlow())
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
