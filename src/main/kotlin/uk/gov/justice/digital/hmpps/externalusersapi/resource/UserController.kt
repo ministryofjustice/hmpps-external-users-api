@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,13 +29,16 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserFilter.Status
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
+import uk.gov.justice.digital.hmpps.externalusersapi.service.CreateUserService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.validation.Valid
+import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
+import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
 
 @RestController
@@ -42,6 +48,7 @@ class UserController(
   private val userService: UserService,
   private val userSearchService: UserSearchService,
   private val userGroupService: UserGroupService,
+  private val createUserService: CreateUserService,
 ) {
 
   @GetMapping("/id/{userId}/password/present")
@@ -474,6 +481,49 @@ class UserController(
     val groups = userGroupService.getMyAssignableGroups()
     return groups.map { UserGroupDto(it) }
   }
+
+  @PostMapping("/user/create")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @Operation(
+    summary = "Create user.",
+    description = "Create user.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ), ApiResponse(
+        responseCode = "409",
+        description = "User already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  suspend fun createUserByEmail(
+    @Valid
+    @Parameter(description = "Details of the user to be created.", required = true)
+    @RequestBody
+    createUser: CreateUser,
+  ): ResponseEntity<Any> {
+    val userId = createUserService.createUserByEmail(createUser)
+    return ResponseEntity.ok(userId)
+  }
 }
 
 data class UserDto(
@@ -536,6 +586,32 @@ data class UserDto(
     }
   }
 }
+
+@JsonInclude(NON_NULL)
+@Schema(description = "User creation")
+data class CreateUser(
+  @Schema(
+    required = true,
+    description = "Email address",
+    example = "external.user@someagency.justice.gov.uk",
+  )
+  @field:Email(message = "Not a valid email address")
+  @field:NotBlank
+  val email: String,
+  @field:Size(min = 2, max = 50, message = "First name length should be between minimum 2 to maximum 50 characters")
+  @Schema(required = true, description = "First name", example = "Firstname")
+  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "firstName failed validation")
+  val firstName: String,
+  @field:Size(min = 2, max = 50, message = "Last name length should be between minimum 2 to maximum 50 characters")
+  @Schema(required = true, description = "Last name", example = "User")
+  @field:Pattern(regexp = "^((?!(<|＜|〈|〈|>| ＞| 〉| 〉)).)*\$", message = "lastName failed validation")
+  val lastName: String,
+  @Schema(
+    description = "Initial group/groups, required for initial groups required for user creation",
+    example = "[\"SITE_1_GROUP_1\", \"SITE_1_GROUP_2\"]",
+  )
+  val groupCodes: Set<String>?,
+)
 
 data class EmailUpdateDto(
   @Schema(description = "Username", example = "TEST_USER")
