@@ -50,6 +50,27 @@ class RoleRepositoryTest {
   }
 
   @Nested
+  inner class FindAutomaticGroupRolesByGroupCode {
+    @Test
+    fun givenAnExistingRoleTheyCanBeRetrieved(): Unit = runBlocking {
+      assertThat(repository.findAutomaticGroupRolesByGroupCode("SITE_1_GROUP_2").toList()).size()
+        .isEqualTo(2)
+    }
+
+    @Test
+    fun givenAnNonAutomaticGroupRoleTheyCantBeRetrieved(): Unit = runBlocking {
+      // SITE_1_GROUP_1 have 2 automatic set to 'true' and 1 set to 'false'
+      assertThat(repository.findAutomaticGroupRolesByGroupCode("SITE_1_GROUP_1").toList()).size()
+        .isEqualTo(2)
+    }
+
+    @Test
+    fun givenANonExistentRoleTheyCantBeRetrieved(): Unit = runBlocking {
+      assertThat(repository.findAutomaticGroupRolesByGroupCode("DOES_NOT_EXIST").toList()).isEmpty()
+    }
+  }
+
+  @Nested
   inner class FindByRoleCode {
     @Test
     fun givenAnExistingRoleTheyCanBeRetrieved(): Unit = runBlocking {
@@ -62,6 +83,7 @@ class RoleRepositoryTest {
       assertThat(repository.findByRoleCode("DOES_NOT_EXIST")).isNull()
     }
   }
+
   /*
   @Nested
   inner class FindByGroupAssignableRoles() {

@@ -33,6 +33,7 @@ class UserGroupService(
   private val roleRepository: RoleRepository,
   private val childGroupRepository: ChildGroupRepository,
   private val userGroupRepository: UserGroupRepository,
+  private val userRoleService: UserRoleService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -84,7 +85,12 @@ class UserGroupService(
         throw UserGroupException("Add", "group", "exists")
       }
       // check that modifier is able to add user to group
-      if (!checkGroupModifier(groupCode, authenticationFacade.getAuthentication().authorities, authenticationFacade.getUsername())) {
+      if (!checkGroupModifier(
+          groupCode,
+          authenticationFacade.getAuthentication().authorities,
+          authenticationFacade.getUsername(),
+        )
+      ) {
         throw UserGroupManagerException("Add", "group", "managerNotMember")
       }
       // check that modifier is able to maintain the user
@@ -96,9 +102,17 @@ class UserGroupService(
         userGroupRepository.insertUserGroup(userId, it)
       }
 
-      roleRepository.saveAll(roleRepository.findRolesByGroupCode(group.groupCode).toList())
+      val groupRoles = roleRepository.findAutomaticGroupRolesByGroupCode(groupCode).toSet()
+
+      val existingUserRoles = userRoleService.getUserRoles(userId)
+
+      // remove existing roles to the user
+      val roleCodesToAdd = existingUserRoles?.let { groupRoles.subtract(it.toSet()) }!!.map { it.roleCode }
+
+      userRoleService.addRolesByUserId(userId, roleCodesToAdd)
+
       telemetryClient.trackEvent(
-        "AuthUserGroupAddSuccess",
+        "ExternalUserGroupAddSuccess",
         mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
         null,
       )

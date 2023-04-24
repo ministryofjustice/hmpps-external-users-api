@@ -47,10 +47,11 @@ class UserGroupServiceTest {
   private val roleRepository: RoleRepository = mock()
   private val childGroupRepository: ChildGroupRepository = mock()
   private val userGroupRepository: UserGroupRepository = mock()
+  private val userRoleService: UserRoleService = mock()
 
   private val userId = UUID.randomUUID()
   private val user = User("testy", AuthSource.auth)
-  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient, authenticationFacade, roleRepository, childGroupRepository, userGroupRepository)
+  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient, authenticationFacade, roleRepository, childGroupRepository, userGroupRepository, userRoleService)
 
   @Nested
   inner class GetParentGroups {
@@ -464,15 +465,18 @@ class UserGroupServiceTest {
       val group1 = Group("GROUP_LICENCE_VARY_1", "desc 2")
       whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(flowOf(group1))
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
-      whenever(roleRepository.findRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence))
+      val approveCategory = Authority(UUID.randomUUID(), "APPROVE_CATEGORISATION", "Approve Category assessments", "", "")
+
+      whenever(roleRepository.findAutomaticGroupRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence, approveCategory))
+      whenever(userRoleService.getUserRoles(anyOrNull())).thenReturn(listOf(approveCategory))
 
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
       service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
-
+      verify(userRoleService).addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
       verify(groupRepository).findGroupsByUserId(userId)
       val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
       verify(telemetryClient).trackEvent(
-        eq("AuthUserGroupAddSuccess"),
+        eq("ExternalUserGroupAddSuccess"),
         eq(expectedTelemetryDetails),
         isNull(),
       )
@@ -498,14 +502,18 @@ class UserGroupServiceTest {
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
 
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
-      whenever(roleRepository.findRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence))
+      val approveCategory = Authority(UUID.randomUUID(), "APPROVE_CATEGORISATION", "Approve Category assessments", "", "")
+
+      whenever(roleRepository.findAutomaticGroupRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence, approveCategory))
+      whenever(userRoleService.getUserRoles(anyOrNull())).thenReturn(listOf(approveCategory))
 
       service.addGroupByUserId(UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a"), "GROUP_LICENCE_VARY")
 
       verify(groupRepository).findGroupsByUserId(userId)
+      verify(userRoleService).addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
 
       val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
-      verify(telemetryClient).trackEvent(eq("AuthUserGroupAddSuccess"), eq(expectedTelemetryDetails), isNull())
+      verify(telemetryClient).trackEvent(eq("ExternalUserGroupAddSuccess"), eq(expectedTelemetryDetails), isNull())
     }
 
     @Test
