@@ -496,7 +496,7 @@ class UserGroupServiceTest {
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
       val approveCategory = Authority(UUID.randomUUID(), "APPROVE_CATEGORISATION", "Approve Category assessments", "", "")
 
-      //Total roles for group code
+      //Total roles for a group code
       whenever(roleRepository.findAutomaticGroupRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence, approveCategory))
 
       //existing roles
