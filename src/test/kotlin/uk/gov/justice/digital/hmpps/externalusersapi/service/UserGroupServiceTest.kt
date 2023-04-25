@@ -482,7 +482,6 @@ class UserGroupServiceTest {
       )
     }
 
-
     @Test
     fun `No roles to add for a Group By User Id , if roles already exists`(): Unit = runBlocking {
       givenSuperUserRoleForUser("MANAGER")
@@ -496,11 +495,11 @@ class UserGroupServiceTest {
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
       val approveCategory = Authority(UUID.randomUUID(), "APPROVE_CATEGORISATION", "Approve Category assessments", "", "")
 
-      //Total roles for a group code
+      // Total roles for a group code
       whenever(roleRepository.findAutomaticGroupRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence, approveCategory))
 
-      //existing roles
-      whenever(userRoleService.getUserRoles(anyOrNull())).thenReturn(listOf(roleLicence,approveCategory))
+      // existing roles
+      whenever(userRoleService.getUserRoles(anyOrNull())).thenReturn(listOf(roleLicence, approveCategory))
 
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
       service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
