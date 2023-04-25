@@ -482,6 +482,38 @@ class UserGroupServiceTest {
       )
     }
 
+
+    @Test
+    fun `No roles to add for a Group By User Id , if roles already exists`(): Unit = runBlocking {
+      givenSuperUserRoleForUser("MANAGER")
+
+      val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
+      val user = createSampleUser(username = "user")
+      whenever(userRepository.findById(anyOrNull())).thenReturn(user)
+      val group = Group("GROUP_LICENCE_VARY", "desc")
+      val group1 = Group("GROUP_LICENCE_VARY_1", "desc 2")
+      whenever(groupRepository.findGroupsByUserId(anyOrNull())).thenReturn(flowOf(group1))
+      val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
+      val approveCategory = Authority(UUID.randomUUID(), "APPROVE_CATEGORISATION", "Approve Category assessments", "", "")
+
+      //Total roles for group code
+      whenever(roleRepository.findAutomaticGroupRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence, approveCategory))
+
+      //existing roles
+      whenever(userRoleService.getUserRoles(anyOrNull())).thenReturn(listOf(roleLicence,approveCategory))
+
+      whenever(groupRepository.findByGroupCode(anyString())).thenReturn(group)
+      service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
+      verify(userRoleService).addRolesByUserId(userId, emptyList())
+      verify(groupRepository).findGroupsByUserId(userId)
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      verify(telemetryClient).trackEvent(
+        eq("ExternalUserGroupAddSuccess"),
+        eq(expectedTelemetryDetails),
+        isNull(),
+      )
+    }
+
     @Test
     fun successAsGroupManager(): Unit = runBlocking {
       givenGroupManagerRoleForUser()
