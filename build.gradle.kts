@@ -1,6 +1,6 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.6-beta-2"
-  kotlin("plugin.spring") version "1.8.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.6-beta-3"
+  kotlin("plugin.spring") version "1.8.21"
 }
 
 dependencyCheck {
@@ -42,7 +42,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-kotlin:1.7.0")
   implementation("org.springdoc:springdoc-openapi-security:1.7.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
