@@ -59,9 +59,15 @@ class RoleRepositoryTest {
 
     @Test
     fun givenAnNonAutomaticGroupRoleTheyCantBeRetrieved(): Unit = runBlocking {
-      // SITE_1_GROUP_1 have 2 automatic set to 'true' and 1 set to 'false'
+      // SITE_1_GROUP_1 (have total 3 roles associated) have 2 automatic set to 'true' and 1 set to 'false'
       assertThat(repository.findAutomaticGroupRolesByGroupCode("SITE_1_GROUP_1").toList()).size()
         .isEqualTo(2)
+    }
+
+    @Test
+    fun givenAnUnassociatedRoleToGroupTheyCantBeRetrieved(): Unit = runBlocking {
+      // LICENCE_DM role not associated with any group
+      assertThat(repository.findAutomaticGroupRolesByGroupCode("LICENCE_DM").toList()).isEmpty()
     }
 
     @Test
