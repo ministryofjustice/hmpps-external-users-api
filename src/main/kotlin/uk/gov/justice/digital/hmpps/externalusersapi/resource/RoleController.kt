@@ -7,6 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.Valid
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -27,11 +32,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType
 import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService
-import javax.validation.Valid
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.Pattern
-import javax.validation.constraints.Size
 
 @Validated
 @RestController

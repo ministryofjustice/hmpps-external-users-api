@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.config
 
+import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
@@ -36,7 +37,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastGroupExcept
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleExistsException
-import javax.validation.ValidationException
 
 @RestControllerAdvice
 class HmppsExternalUsersApiExceptionHandler {
@@ -102,7 +102,9 @@ class HmppsExternalUsersApiExceptionHandler {
     log.info("Validation exception: {}", e.message)
     val message = if (e.hasFieldErrors()) {
       e.fieldErrors.joinToString("; ") { fieldError -> fieldError.field + ": " + fieldError.defaultMessage }
-    } else { e.message }
+    } else {
+      e.message
+    }
 
     return ResponseEntity
       .status(BAD_REQUEST)

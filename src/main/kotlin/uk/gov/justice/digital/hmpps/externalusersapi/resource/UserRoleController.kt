@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.NotEmpty
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -22,7 +23,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
 import java.util.UUID
-import javax.validation.constraints.NotEmpty
 
 @RestController
 @Tag(name = "/users/{userId}/roles", description = "User Roles Controller")

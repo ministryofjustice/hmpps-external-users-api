@@ -1,12 +1,13 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
-import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.StringUtils.isNotEmpty
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
-import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.StringUtils.isNotEmpty
+import org.apache.commons.lang3.StringUtils.trim
+import org.apache.commons.lang3.StringUtils.upperCase
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -73,7 +74,8 @@ class UserSearchService(
   }
 
   suspend fun getUserByUsername(username: String): User =
-    userRepository.findByUsernameAndSource(StringUtils.upperCase(StringUtils.trim(username))) ?: throw UserNotFoundException("Account for username $username not found")
+    userRepository.findByUsernameAndSource(upperCase(trim(username)))
+      ?: throw UserNotFoundException("Account for username $username not found")
 
   suspend fun getUserByUserId(userId: UUID): User {
     val user = userRepository.findById(userId) ?: throw UserNotFoundException("User with id $userId not found")
@@ -95,7 +97,8 @@ class UserSearchService(
     return if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {
-      val assignableGroupCodes = userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authorities).map { it.groupCode }
+      val assignableGroupCodes =
+        userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authorities).map { it.groupCode }
       if (groupCodes.isNullOrEmpty()) assignableGroupCodes else groupCodes.filter { g -> assignableGroupCodes.any { it == g } }
     } else {
       emptyList()
