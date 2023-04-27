@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.6-beta-3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-3"
   kotlin("plugin.spring") version "1.8.21"
 }
 
@@ -18,6 +18,10 @@ configurations {
 // Temporarily kept at 0.9.2 as get class java.lang.Long cannot be cast to class java.lang.Integer when upgrading to 1.0.0.RELEASE
 val r2dbcPostgresVersion by extra("0.9.2.RELEASE")
 
+repositories {
+  maven { url = uri("https://repo.spring.io/milestone") }
+  mavenCentral()
+}
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -38,17 +42,16 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.6.0")
   implementation("io.opentelemetry:opentelemetry-api:1.25.0")
 
-  implementation("org.springdoc:springdoc-openapi-webflux-ui:1.7.0")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.7.0")
-  implementation("org.springdoc:springdoc-openapi-security:1.7.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.2")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-  testImplementation("io.jsonwebtoken:jjwt:0.9.1")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.18.0")
   testImplementation("io.projectreactor:reactor-test")

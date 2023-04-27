@@ -2,13 +2,14 @@ package uk.gov.justice.digital.hmpps.externalusersapi.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
 import org.springframework.lang.NonNull
 import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 
 @Repository
-interface GroupAssignableRoleRepository : CoroutineSortingRepository<UserAssignableRoleDto, String> {
+interface GroupAssignableRoleRepository : CoroutineCrudRepository<UserAssignableRoleDto, String>, CoroutineSortingRepository<UserAssignableRoleDto, String> {
 
   @NonNull
   @Query(
