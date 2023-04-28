@@ -350,12 +350,6 @@ class UserController(
       ApiResponse(
         responseCode = "200",
         description = "OK.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = EmailNotificationDto::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "401",
@@ -623,20 +617,6 @@ data class EmailUpdateDto(
   @field:NotBlank(message = "email must be supplied")
   @field:Size(min = 2, max = 240)
   val email: String,
-)
-
-data class EmailNotificationDto(
-  @Schema(description = "Username", example = "TEST_USER")
-  val username: String,
-
-  @Schema(description = "First name of the user", example = "John")
-  val firstName: String,
-
-  @Schema(description = "email of the user", example = "Smith@gov.uk")
-  val email: String?,
-
-  @Schema(description = "admin id who enabled user", example = "ADMIN_USR")
-  val admin: String,
 )
 
 @Schema(description = "Deactivate Reason")

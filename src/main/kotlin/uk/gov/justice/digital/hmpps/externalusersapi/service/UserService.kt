@@ -1,15 +1,12 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
-import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailNotificationDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.EmailUpdateDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
@@ -39,7 +36,7 @@ class UserService(
 
   @Transactional
   @Throws(UserGroupRelationshipException::class)
-  suspend fun enableUserByUserId(userId: UUID): EmailNotificationDto {
+  suspend fun enableUserByUserId(userId: UUID) {
     val user = getUserForUpdate(userId)
     user.setEnabled(true)
     user.inactiveReason = null
@@ -49,13 +46,6 @@ class UserService(
     }
     userRepository.save(user)
     telemetryClient.trackEvent("ExternalUserEnabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
-    log.debug("User {} enabled and saved", user)
-    return EmailNotificationDto(
-      firstName = user.getFirstName(),
-      username = user.getUserName(),
-      email = user.email,
-      admin = authenticationFacade.getUsername(),
-    )
   }
 
   @Transactional
@@ -73,9 +63,5 @@ class UserService(
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       return user
     } ?: throw UserNotFoundException("User $userId not found")
-  }
-
-  companion object {
-    private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 }
