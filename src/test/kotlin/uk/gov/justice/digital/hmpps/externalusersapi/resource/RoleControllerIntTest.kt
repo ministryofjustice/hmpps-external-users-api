@@ -696,7 +696,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
           assertThat(it["userMessage"] as String).startsWith("Validation failure:")
-          assertThat(it["developerMessage"] as String).contains("default message [roleName],[Ljavax.validation.constraints.Pattern")
+          assertThat(it["developerMessage"] as String).contains("default message [roleName],[Ljakarta.validation.constraints.Pattern")
         }
     }
 
@@ -837,7 +837,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
           assertThat(it["userMessage"] as String).startsWith("Validation failure:")
-          assertThat(it["developerMessage"] as String).contains("default message [roleDescription],[Ljavax.validation.constraints.Pattern")
+          assertThat(it["developerMessage"] as String).contains("default message [roleDescription],[Ljakarta.validation.constraints.Pattern$")
         }
     }
 
@@ -978,7 +978,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$").value<Map<String, Any>> {
           assertThat(it["status"]).isEqualTo(BAD_REQUEST.value())
           assertThat(it["userMessage"] as String).startsWith("Parameter conversion failure:")
-          assertThat(it["developerMessage"] as String).contains("Cannot deserialize value")
+          assertThat(it["developerMessage"] as String).contains("400 BAD_REQUEST \"Failed to read HTTP message\"")
         }
     }
   }

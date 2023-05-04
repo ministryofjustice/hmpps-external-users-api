@@ -29,7 +29,7 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .map(userGroupMappingFunction)
       .all().asFlow()
 
-  suspend fun deleteUserGroup(userId: UUID, groupId: UUID): Int {
+  suspend fun deleteUserGroup(userId: UUID, groupId: UUID): Long {
     val sql = "delete from user_group " +
       "where " +
       "user_id = :userId " +
@@ -43,7 +43,7 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .awaitFirst()
   }
 
-  suspend fun insertUserGroup(userId: UUID, groupId: UUID): Int =
+  suspend fun insertUserGroup(userId: UUID, groupId: UUID) =
     databaseClient
       .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
       .bind("userId", userId)
