@@ -474,7 +474,7 @@ class UserGroupServiceTest {
       service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
       verify(userRoleService).addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
       verify(groupRepository).findGroupsByUserId(userId)
-      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "username" to "user", "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
       verify(telemetryClient).trackEvent(
         eq("ExternalUserGroupAddSuccess"),
         eq(expectedTelemetryDetails),
@@ -505,7 +505,7 @@ class UserGroupServiceTest {
       service.addGroupByUserId(userId, "GROUP_LICENCE_VARY")
       verify(userRoleService).addRolesByUserId(userId, emptyList())
       verify(groupRepository).findGroupsByUserId(userId)
-      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "username" to "user", "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
       verify(telemetryClient).trackEvent(
         eq("ExternalUserGroupAddSuccess"),
         eq(expectedTelemetryDetails),
@@ -543,7 +543,7 @@ class UserGroupServiceTest {
       verify(groupRepository).findGroupsByUserId(userId)
       verify(userRoleService).addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
 
-      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
+      val expectedTelemetryDetails = mapOf("userId" to userId.toString(), "username" to "user", "group" to "GROUP_LICENCE_VARY", "admin" to "MANAGER")
       verify(telemetryClient).trackEvent(eq("ExternalUserGroupAddSuccess"), eq(expectedTelemetryDetails), isNull())
     }
 
