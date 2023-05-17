@@ -93,11 +93,12 @@ class UserRoleService(
       }
       // now that roles have all been added, then audit the role additions
       val maintainerName = authenticationFacade.getUsername()
+      val userName = userRepository.findById(userId)!!.getUserName()
       formattedRoles.forEach(
         Consumer { roleCode: String ->
           telemetryClient.trackEvent(
             "ExternalUserRoleAddSuccess",
-            mapOf("username" to userId.toString(), "role" to roleCode, "admin" to maintainerName),
+            mapOf("userId" to userId.toString(), "username" to userName, "role" to roleCode, "admin" to maintainerName),
             null,
           )
           log.info("Adding role {} to user {}", roleCode, userId)
@@ -137,7 +138,7 @@ class UserRoleService(
 
       telemetryClient.trackEvent(
         "ExternalUserRoleRemoveSuccess",
-        mapOf("userId" to userId.toString(), "role" to roleFormatted, "admin" to authenticationFacade.getUsername()),
+        mapOf("userId" to userId.toString(), "username" to userRepository.findById(userId)!!.getUserName(), "role" to roleFormatted, "admin" to authenticationFacade.getUsername()),
         null,
       )
     } ?: throw UsernameNotFoundException("User $userId not found")

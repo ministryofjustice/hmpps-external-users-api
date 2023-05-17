@@ -240,7 +240,7 @@ internal class UserRoleServiceTest {
       service.addRolesByUserId(userId, listOf("TO_ADD"))
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
-        mapOf("username" to userId.toString(), "role" to "TO_ADD", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "TO_ADD", "admin" to "admin"),
         null,
       )
     }
@@ -261,7 +261,7 @@ internal class UserRoleServiceTest {
       service.addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY"))
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
-        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
       )
     }
@@ -284,12 +284,12 @@ internal class UserRoleServiceTest {
       service.addRolesByUserId(userId, listOf("ROLE_LICENCE_VARY", "ROLE_OTHER"))
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
-        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
       )
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
-        mapOf("username" to userId.toString(), "role" to "OTHER", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "OTHER", "admin" to "admin"),
         null,
       )
     }
@@ -315,7 +315,7 @@ internal class UserRoleServiceTest {
       )
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
-        mapOf("username" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
       )
     }
@@ -444,7 +444,7 @@ internal class UserRoleServiceTest {
       service.removeRoleByUserId(userId, "  licence_vary   ")
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleRemoveSuccess",
-        mapOf("userId" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "admin"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
       )
     }
@@ -467,7 +467,7 @@ internal class UserRoleServiceTest {
       service.removeRoleByUserId(userId, "  licence_vary   ")
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleRemoveSuccess",
-        mapOf("userId" to userId.toString(), "role" to "LICENCE_VARY", "admin" to "groupmanager"),
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "groupmanager"),
         null,
       )
     }

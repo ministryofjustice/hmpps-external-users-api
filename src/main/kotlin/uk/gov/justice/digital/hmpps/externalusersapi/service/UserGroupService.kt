@@ -113,7 +113,7 @@ class UserGroupService(
 
       telemetryClient.trackEvent(
         "ExternalUserGroupAddSuccess",
-        mapOf("userId" to userId.toString(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
+        mapOf("userId" to userId.toString(), "username" to userRepository.findById(userId)!!.getUserName(), "group" to groupFormatted, "admin" to authenticationFacade.getUsername()),
         null,
       )
     }
@@ -150,7 +150,7 @@ class UserGroupService(
         }
       telemetryClient.trackEvent(
         "UserGroupRemoveSuccess",
-        mapOf("userId" to userId.toString(), "group" to groupCode, "admin" to authenticationFacade.getUsername()),
+        mapOf("userId" to userId.toString(), "username" to userRepository.findById(userId)!!.getUserName(), "group" to groupCode, "admin" to authenticationFacade.getUsername()),
         null,
       )
     }
