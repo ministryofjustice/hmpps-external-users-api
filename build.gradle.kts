@@ -1,6 +1,6 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4-beta-4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0-beta-2"
   kotlin("plugin.spring") version "1.8.21"
 }
 
@@ -26,8 +26,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
 
   implementation("org.hibernate.reactive:hibernate-reactive-core:1.1.9.Final")
 
@@ -37,11 +37,11 @@ dependencies {
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.6.0")
-  implementation("io.opentelemetry:opentelemetry-api:1.25.0")
+  implementation("io.opentelemetry:opentelemetry-api:1.26.0")
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -50,9 +50,9 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.18.0")
+  testImplementation("org.testcontainers:postgresql:1.18.1")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 }
 
 java {
