@@ -1,6 +1,6 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0-beta-2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
   kotlin("plugin.spring") version "1.8.21"
 }
 
@@ -29,7 +29,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:1.1.9.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.0.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
 
@@ -41,7 +41,7 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -50,7 +50,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
   testImplementation("com.github.tomakehurst:wiremock-jre8-standalone:2.35.0")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.18.1")
+  testImplementation("org.testcontainers:postgresql:1.18.3")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 }
