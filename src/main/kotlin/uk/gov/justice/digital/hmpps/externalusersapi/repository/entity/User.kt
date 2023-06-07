@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
@@ -7,8 +9,6 @@ import org.springframework.security.core.CredentialsContainer
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.time.LocalDateTime
 import java.util.UUID
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 
 @Table(name = "USERS")
 class User(
