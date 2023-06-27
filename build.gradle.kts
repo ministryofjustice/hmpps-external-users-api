@@ -32,6 +32,7 @@ dependencies {
   implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.1.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
+  implementation("com.google.guava:guava:32.0.1-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
