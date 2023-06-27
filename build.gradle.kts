@@ -1,7 +1,7 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.0"
-  kotlin("plugin.spring") version "1.8.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.1"
+  kotlin("plugin.spring") version "1.8.22"
 }
 
 dependencyCheck {
@@ -29,7 +29,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.1.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
 
@@ -37,7 +37,7 @@ dependencies {
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.6.0")
-  implementation("io.opentelemetry:opentelemetry-api:1.26.0")
+  implementation("io.opentelemetry:opentelemetry-api:1.27.0")
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
 
