@@ -1,7 +1,7 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.2"
-  kotlin("plugin.spring") version "1.8.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.2.4"
+  kotlin("plugin.spring") version "1.9.0"
 }
 
 dependencyCheck {
@@ -26,19 +26,19 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.2")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.1.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.0.3.Final")
 
   implementation("org.apache.commons:commons-text:1.10.0")
-  implementation("com.google.guava:guava:32.0.1-jre")
+  implementation("com.google.guava:guava:32.1.1-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.6.0")
-  implementation("io.opentelemetry:opentelemetry-api:1.27.0")
+  implementation("io.opentelemetry:opentelemetry-api:1.28.0")
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
 
@@ -53,7 +53,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.18.3")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
 }
 
 java {
