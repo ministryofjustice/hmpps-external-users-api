@@ -43,7 +43,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Create role.",
-    description = "Create a Role",
+    description = "Create a Role. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [
@@ -82,7 +82,7 @@ class RoleController(
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
   @Operation(
     summary = "Get all Roles",
-    description = "Get all Roles",
+    description = "Get all Roles. Requires role ROLE_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
   )
   @ApiResponses(
     value = [
@@ -112,7 +112,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Get all paged Roles.",
-    description = "getAllPagedRoles",
+    description = "Get all paged Roles. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [
@@ -166,7 +166,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Role detail.",
-    description = "Get Role Details",
+    description = "Get Role Details. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [
@@ -206,7 +206,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role name.",
-    description = "AmendRoleName",
+    description = "Amend role name. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [
@@ -251,7 +251,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role description.",
-    description = "Amend role description.",
+    description = "Amend role description. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [
@@ -296,7 +296,7 @@ class RoleController(
   @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
   @Operation(
     summary = "Amend role admin type.",
-    description = "Amend role admin type.",
+    description = "Amend role admin type. Requires role ROLE_ROLES_ADMIN",
   )
   @ApiResponses(
     value = [

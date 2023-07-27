@@ -35,7 +35,7 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Child Group detail.",
-    description = "get Child Group Details",
+    description = "Get child group details. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
@@ -79,7 +79,7 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend child group name.",
-    description = "Amend a Child Group Name",
+    description = "Amend a child group name. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
@@ -125,7 +125,7 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete child group.",
-    description = "Delete a Child Group",
+    description = "Delete a child group. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
@@ -167,7 +167,7 @@ class ChildGroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create child group.",
-    description = "Create a Child Group",
+    description = "Create a child group. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [

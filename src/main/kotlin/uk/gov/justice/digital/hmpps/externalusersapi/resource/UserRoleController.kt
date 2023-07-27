@@ -158,7 +158,7 @@ class UserRoleController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add roles to user.",
-    description = "Add role to user, post version taking multiple roles",
+    description = "Add role to user, post version taking multiple roles.  Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
