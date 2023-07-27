@@ -292,6 +292,15 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Should able to access with view role`() {
+      webTestClient
+        .get().uri("/users/5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8/groups")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_VIEW_USER_GROUPS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `User Groups by userId endpoint returns forbidden - user not in group manager group`() {
       webTestClient
         .get().uri("/users/9E84F1E4-59C8-4B10-927A-9CF9E9A30792/groups")

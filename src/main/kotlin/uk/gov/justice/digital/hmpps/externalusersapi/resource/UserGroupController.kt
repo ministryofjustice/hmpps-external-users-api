@@ -34,10 +34,10 @@ class UserGroupController(
   }
 
   @GetMapping("/users/{userId}/groups")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_VIEW_USER_GROUPS')")
   @Operation(
     summary = "Get groups for userId.",
-    description = "Get groups for userId.",
+    description = "Get groups for userId. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER or ROLE_VIEW_USER_GROUPS",
   )
   @ApiResponses(
     value = [
@@ -86,7 +86,7 @@ class UserGroupController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Remove group from user.",
-    description = "Remove group from user.",
+    description = "Remove group from user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -143,7 +143,7 @@ class UserGroupController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Add group to user.",
-    description = "Add group to user.",
+    description = "Add group to user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [

@@ -100,7 +100,7 @@ class UserController(
   @GetMapping("/id/{userId}")
   @Operation(
     summary = "User detail.",
-    description = "User detail.",
+    description = "User detail. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -234,6 +234,7 @@ class UserController(
   @GetMapping("/search")
   @Operation(
     summary = "Search for an external user.",
+    description = "Search for an external user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -291,7 +292,7 @@ class UserController(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @Operation(
     summary = "Update email address and username of user.",
-    description = "Update email address and user name of user.",
+    description = "Update email address and user name of user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -343,7 +344,7 @@ class UserController(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Enable a user.",
-    description = "Enable a user.",
+    description = "Enable a user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -394,7 +395,7 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Disable a user.",
-    description = "Disable a user.",
+    description = "Disable a user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ResponseStatus(HttpStatus.OK)
   @ApiResponses(
@@ -480,7 +481,7 @@ class UserController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Create user.",
-    description = "Create user.",
+    description = "Create user. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [

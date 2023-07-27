@@ -38,7 +38,7 @@ class GroupsController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Get all possible groups.",
-    description = "Get all groups.",
+    description = "Get all groups. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -64,7 +64,7 @@ class GroupsController(
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(
     summary = "Group detail.",
-    description = "return Group Details",
+    description = "Return group details. Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
   )
   @ApiResponses(
     value = [
@@ -104,7 +104,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Amend group name.",
-    description = "AmendGroupName",
+    description = "Amend group name. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
@@ -150,7 +150,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Create group.",
-    description = "Create a Group",
+    description = "Create a group. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
@@ -192,7 +192,7 @@ class GroupsController(
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
   @Operation(
     summary = "Delete group.",
-    description = "Delete a Group",
+    description = "Delete a group. Requires role ROLE_MAINTAIN_OAUTH_USERS",
   )
   @ApiResponses(
     value = [
