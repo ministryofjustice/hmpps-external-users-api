@@ -37,15 +37,23 @@ class UserGroupService(
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+
+    fun hasViewUserGroupsRole(authorities: Collection<GrantedAuthority>): Boolean =
+      authorities.map { it.authority }
+        .any { it == "ROLE_VIEW_USER_GROUPS" }
   }
 
   suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
-    userSecurityCheck(userId)
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
+      userSecurityCheck(userId)
+    }
     return groupRepository.findGroupsByUserId(userId).toList()
   }
 
   suspend fun getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId: UUID): List<GroupIdentity> {
-    userSecurityCheck(userId)
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
+      userSecurityCheck(userId)
+    }
     val groups = groupRepository.findGroupsByUserId(userId).toList()
     val allGroups: MutableList<GroupIdentity> = mutableListOf()
 
