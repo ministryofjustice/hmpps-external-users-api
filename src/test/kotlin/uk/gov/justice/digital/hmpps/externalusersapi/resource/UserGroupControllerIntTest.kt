@@ -294,8 +294,8 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
     @Test
     fun `Should able to access with view role`() {
       webTestClient
-        .get().uri("/users/5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8/groups")
-        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_VIEW_USER_GROUPS")))
+        .get().uri("/users/6c4036b7-e87d-44fb-864f-5a06c1c492f3/groups")
+        .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER", "ROLE_VIEW_USER_GROUPS")))
         .exchange()
         .expectStatus().isOk
     }

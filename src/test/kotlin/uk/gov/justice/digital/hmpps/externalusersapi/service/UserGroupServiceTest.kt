@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
@@ -14,6 +15,7 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -56,6 +58,11 @@ class UserGroupServiceTest {
   @Nested
   inner class GetParentGroups {
 
+    @BeforeEach
+    fun setRoles(): Unit = runBlocking {
+      givenRolesForUser(user.getUserName(), SUPER_USER)
+    }
+
     @Test
     fun shouldFailWhenUserNotFound(): Unit = runBlocking {
       whenever(userRepository.findById(userId)).thenReturn(null)
@@ -94,10 +101,30 @@ class UserGroupServiceTest {
       assertThat(actualGroups).containsOnly(group1, group2)
       verify(maintainUserCheck).ensureUserLoggedInUserRelationship(user.name)
     }
+
+    @Test
+    fun shouldNotCheckUserGroupRelationUserWithViewGroupRoleWhenParentGroups(): Unit = runBlocking {
+      givenViewGroupsRoleForUser(user.name)
+      val group1 = Group("GROUP_1", "First Group")
+      val group2 = Group("GROUP_2", "Second Group")
+
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(group1, group2))
+
+      val actualGroups = service.getParentGroups(userId)
+
+      assertThat(actualGroups).containsOnly(group1, group2)
+      verify(maintainUserCheck, never()).ensureUserLoggedInUserRelationship(user.name)
+    }
   }
 
   @Nested
   inner class GetAllGroupsUsingChildGroupsInLieuOfParentGroup {
+
+    @BeforeEach
+    fun setRoles(): Unit = runBlocking {
+      givenRolesForUser(user.getUserName(), SUPER_USER)
+    }
 
     @Test
     fun shouldFailWhenUserNotFound(): Unit = runBlocking {
@@ -114,7 +141,12 @@ class UserGroupServiceTest {
     @Test
     fun shouldFailWhenUserFailsSecurityCheck(): Unit = runBlocking {
       whenever(userRepository.findById(userId)).thenReturn(user)
-      whenever(maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)).doThrow(UserGroupRelationshipException(user.name, "User not with your groups"))
+      whenever(maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)).doThrow(
+        UserGroupRelationshipException(
+          user.name,
+          "User not with your groups",
+        ),
+      )
 
       assertThatThrownBy {
         runBlocking {
@@ -149,8 +181,10 @@ class UserGroupServiceTest {
     @Test
     fun shouldReturnChildGroupsWhenPresentInLieuOfParentGroup(): Unit = runBlocking {
       val group1 = Group("GROUP_1", "First Group")
-      val childGroup1 = ChildGroup(groupCode = "CHILD_GROUP_1", groupName = "First Child Group", group = UUID.randomUUID())
-      val childGroup2 = ChildGroup(groupCode = "CHILD_GROUP_2", groupName = "Second Child Group", group = UUID.randomUUID())
+      val childGroup1 =
+        ChildGroup(groupCode = "CHILD_GROUP_1", groupName = "First Child Group", group = UUID.randomUUID())
+      val childGroup2 =
+        ChildGroup(groupCode = "CHILD_GROUP_2", groupName = "Second Child Group", group = UUID.randomUUID())
       whenever(userRepository.findById(userId)).thenReturn(user)
       whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf(group1))
       whenever(childGroupRepository.findAllByGroup(group1.groupId)).thenReturn(flowOf(childGroup1, childGroup2))
@@ -158,6 +192,18 @@ class UserGroupServiceTest {
       val actualGroups = service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
 
       assertThat(actualGroups).containsOnly(childGroup1, childGroup2)
+    }
+
+    @Test
+    fun shouldNotCheckUserGroupRelationUserWithViewGroupsRoleWhenGroupsFetched(): Unit = runBlocking {
+      givenViewGroupsRoleForUser(user.name)
+      whenever(userRepository.findById(userId)).thenReturn(user)
+      whenever(groupRepository.findGroupsByUserId(userId)).thenReturn(flowOf())
+
+      val actualGroups = service.getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId)
+
+      assertThat(actualGroups).isEmpty()
+      verify(maintainUserCheck, never()).ensureUserLoggedInUserRelationship(user.name)
     }
   }
 
@@ -604,6 +650,10 @@ class UserGroupServiceTest {
     givenRolesForUser("MANAGER", GROUP_MANAGER_ROLE)
   }
 
+  private fun givenViewGroupsRoleForUser(username: String): Unit = runBlocking {
+    givenRolesForUser(username, VIEW_USER_GROUPS)
+  }
+
   private fun givenRolesForUser(username: String, authorities: Set<GrantedAuthority>): Unit = runBlocking {
     whenever(authenticationFacade.getUsername()).thenReturn(username)
     whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
@@ -613,5 +663,6 @@ class UserGroupServiceTest {
   companion object {
     private val SUPER_USER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+    private val VIEW_USER_GROUPS: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_VIEW_USER_GROUPS"))
   }
 }

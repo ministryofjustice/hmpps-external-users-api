@@ -37,6 +37,10 @@ class UserGroupService(
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+
+    fun hasViewUserGroupsRole(authorities: Collection<GrantedAuthority>): Boolean =
+      authorities.map { it.authority }
+        .any { it == "ROLE_VIEW_USER_GROUPS" }
   }
 
   suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
@@ -61,9 +65,11 @@ class UserGroupService(
   }
 
   private suspend fun userSecurityCheck(userId: UUID) {
-    userRepository.findById(userId)?.let { u: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
-    } ?: throw UsernameNotFoundException("User $userId not found")
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
+      userRepository.findById(userId)?.let { u: User ->
+        maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
+      } ?: throw UsernameNotFoundException("User $userId not found")
+    }
   }
 
   @Transactional
