@@ -44,12 +44,16 @@ class UserGroupService(
   }
 
   suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
-    checkUserGroupsReadAccess(userId)
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
+      userSecurityCheck(userId)
+    }
     return groupRepository.findGroupsByUserId(userId).toList()
   }
 
   suspend fun getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId: UUID): List<GroupIdentity> {
-    checkUserGroupsReadAccess(userId)
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
+      userSecurityCheck(userId)
+    }
     val groups = groupRepository.findGroupsByUserId(userId).toList()
     val allGroups: MutableList<GroupIdentity> = mutableListOf()
 
@@ -64,12 +68,10 @@ class UserGroupService(
     return allGroups
   }
 
-  private suspend fun checkUserGroupsReadAccess(userId: UUID) {
-    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
-      userRepository.findById(userId)?.let { u: User ->
-        maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
-      } ?: throw UsernameNotFoundException("User $userId not found")
-    }
+  private suspend fun userSecurityCheck(userId: UUID) {
+    userRepository.findById(userId)?.let { u: User ->
+      maintainUserCheck.ensureUserLoggedInUserRelationship(u.name)
+    } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
   @Transactional
