@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
@@ -9,7 +10,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.CreateUserService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
-import wiremock.javax.servlet.http.HttpServletRequest
 import java.util.UUID
 
 class UserControllerTest {
