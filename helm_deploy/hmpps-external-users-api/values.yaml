@@ -1,6 +1,7 @@
 ---
 generic-service:
   nameOverride: hmpps-external-users-api
+  productId: DPS017
 
   replicaCount: 4
 
