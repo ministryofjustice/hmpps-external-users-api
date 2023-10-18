@@ -1,7 +1,7 @@
 INSERT INTO roles (role_id, role_code, role_name, create_datetime, role_description, admin_type)
 VALUES ('a7f59e44-cbf0-4913-ba11-0764f39c06c2', 'ADD_SENSITIVE_CASE_NOTES', 'Add Secure Case Notes', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
        ('bf263e33-601b-4558-b6b7-28a0349f669b', 'APPROVE_CATEGORISATION', 'Approve Category assessments', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
-       ('4f108240-992c-4a56-b64a-bc5d8b285c81', 'ARTEMIS_USER', 'Artemis user', '2021-10-15 21:35:49.520000', null, 'DPS_ADM,DPS_LSA,EXT_ADM'),
+       ('4f108240-992c-4a56-b64a-bc5d8b285c81', 'IMS_USER', 'IMS user', '2021-10-15 21:35:49.520000', null, 'DPS_ADM,DPS_LSA,EXT_ADM'),
        ('0a09f0a0-2562-4f14-a2fa-fb1349687032', 'AUDIT_VIEWER', 'Audit viewer', '2021-10-15 21:35:51.130000', null, 'EXT_ADM'),
        ('d1ac4fec-be51-4302-aa52-31c095fd2d14', 'AUTH_GROUP_MANAGER', 'Auth Group Manager', '2021-10-15 21:35:48.406667', null, 'EXT_ADM'),
        ('fb0ffd90-01ad-4248-9800-2067ef5580ea', 'CATEGORISATION_SECURITY', 'Security Cat tool role', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),

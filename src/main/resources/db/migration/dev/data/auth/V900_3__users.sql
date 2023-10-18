@@ -235,12 +235,12 @@ VALUES ('ABCF4F85-0057-43E1-454C-87D345DD510A', 'SOC_POLICE_LOCAL_NW', '{bcrypt}
 
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'SOC_POLICE_LOCAL_NW' and group_code = 'SOC_NORTH_WEST';
 
--- Auth user for Artemis
+-- Auth user for IMS
 INSERT INTO users (user_id, username, password, email, first_name, last_name, verified, locked, enabled, master, create_datetime, password_expiry, last_logged_in, source, mfa_preference)
 VALUES
     ('ABD94E71-0047-43F1-842B-5BEF234AEB09', 'AUTH_INTEL_LOCAL', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', 'auth.intel@digital.justice.gov.uk', 'Intel', 'Local', true, false, true, false, '2020-05-01 15:07:34.5466667', '2040-04-26 16:17:28.4953990', '2020-05-18 14:16:21.7349800', 'auth', 'EMAIL');
 
-INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_INTEL_LOCAL' and role_code = 'ARTEMIS_USER';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_INTEL_LOCAL' and role_code = 'IMS_USER';
 
 -- Auth user for pecs journey price calculation service
 INSERT INTO users (user_id, username, password, email, first_name, last_name, verified, locked, enabled, master, create_datetime, password_expiry, last_logged_in, source, mfa_preference)

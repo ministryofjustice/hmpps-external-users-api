@@ -380,8 +380,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.[*].roleName").value<List<String>> {
           assertThat(it).hasSize(5)
         }
-        .jsonPath("$[0].roleName").isEqualTo("Artemis user")
-        .jsonPath("$[0].roleCode").isEqualTo("ARTEMIS_USER")
+        .jsonPath("$[0].roleName").isEqualTo("IMS user")
+        .jsonPath("$[0].roleCode").isEqualTo("IMS_USER")
         .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
@@ -510,8 +510,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[1].roleName").isEqualTo("HWPV Band 5")
-        .jsonPath("$.content[1].roleCode").isEqualTo("HWPV_CASEWORK_MANAGER_BAND_5")
+        .jsonPath("$.content[1].roleName").isEqualTo("HWPV Band 2")
+        .jsonPath("$.content[1].roleCode").isEqualTo("HWPV_CLAIM_ENTRY_BAND_2")
     }
 
     @Test
