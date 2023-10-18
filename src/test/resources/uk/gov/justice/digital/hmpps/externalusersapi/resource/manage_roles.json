@@ -42,8 +42,8 @@
       ]
     },
     {
-      "roleCode": "ARTEMIS_USER",
-      "roleName": "Artemis user",
+      "roleCode": "IMS_USER",
+      "roleName": "IMS user",
       "roleDescription": null,
       "adminType": [
         {
