@@ -42,21 +42,13 @@
       ]
     },
     {
-      "roleCode": "IMS_USER",
-      "roleName": "IMS user",
-      "roleDescription": null,
+      "roleCode": "CREATE_USER",
+      "roleName": "Create DPS Users",
+      "roleDescription": "Create different types of DPS users",
       "adminType": [
         {
           "adminTypeCode": "DPS_ADM",
           "adminTypeName": "DPS Central Administrator"
-        },
-        {
-          "adminTypeCode": "DPS_LSA",
-          "adminTypeName": "DPS Local System Administrator"
-        },
-        {
-          "adminTypeCode": "EXT_ADM",
-          "adminTypeName": "External Administrator"
         }
       ]
     },

@@ -510,8 +510,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectStatus().isOk
         .expectBody()
         .assertPageOfMany()
-        .jsonPath("$.content[1].roleName").isEqualTo("HWPV Band 5")
-        .jsonPath("$.content[1].roleCode").isEqualTo("HWPV_CASEWORK_MANAGER_BAND_5")
+        .jsonPath("$.content[1].roleName").isEqualTo("HWPV Band 2")
+        .jsonPath("$.content[1].roleCode").isEqualTo("HWPV_CLAIM_ENTRY_BAND_2")
     }
 
     @Test
