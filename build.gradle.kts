@@ -1,6 +1,6 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.7.0"
   kotlin("plugin.spring") version "1.9.10"
 }
 
@@ -42,13 +42,13 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.2.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("org.wiremock:wiremock:3.2.0")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.19.1")
