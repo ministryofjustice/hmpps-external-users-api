@@ -38,7 +38,7 @@ dependencies {
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.6.0")
-  implementation("io.opentelemetry:opentelemetry-api:1.31.0")
+  implementation("io.opentelemetry:opentelemetry-api")
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.2.0")
 
