@@ -31,6 +31,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
+import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.IMS_HIDDEN
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
 import java.util.UUID
 
@@ -290,6 +291,27 @@ internal class UserRoleServiceTest {
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "OTHER", "admin" to "admin"),
+        null,
+      )
+    }
+
+    @Test
+    fun `add Hidden Role success`() = runBlocking {
+      whenever(authenticationFacade.getUsername()).thenReturn("admin")
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(MAINTAIN_IMS_ROLE)
+
+      val userId = UUID.randomUUID()
+      whenever(userRepository.findById(userId)).thenReturn(createSampleUser(id = userId, username = "user"))
+      val role = Authority(UUID.randomUUID(), "ROLE_IMS_HIDDEN_USER", "Role IMS hidden user", adminType = "IMS_HIDDEN")
+      whenever(roleRepository.findByAdminTypeContainingOrderByRoleName(IMS_HIDDEN.adminTypeCode)).thenReturn(flowOf(role)) // allroles
+      whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
+      whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
+
+      service.serviceAddRolesByUserId(userId, listOf("ROLE_IMS_HIDDEN_USER"))
+      verify(telemetryClient).trackEvent(
+        "ExternalUserRoleAddSuccess",
+        mapOf("userId" to userId.toString(), "username" to "user", "role" to "IMS_HIDDEN_USER", "admin" to "admin"),
         null,
       )
     }
@@ -596,5 +618,6 @@ internal class UserRoleServiceTest {
   companion object {
     private val SUPER_USER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
     private val GROUP_MANAGER_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"))
+    private val MAINTAIN_IMS_ROLE: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_IMS_USERS"))
   }
 }

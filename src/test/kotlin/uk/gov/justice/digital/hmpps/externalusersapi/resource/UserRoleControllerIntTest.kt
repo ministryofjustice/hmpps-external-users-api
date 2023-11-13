@@ -14,6 +14,8 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
   val authRoUserTest5Id = "90F930E1-2195-4AFD-92CE-0EB5672DA44B"
   val authRoUserTest6Id = "90F930E1-2195-4AFD-92CE-0EB5672DA02F"
   val authRoVaryUserId = "5E3850B9-9D6E-49D7-B8E7-42874D6CEEA8"
+  val authRequiresIMSRoleId = "2E285CCD-DCFD-4497-9E22-A9E8E10A2A6C"
+  val authHasIMSRoleId = "2E285CCD-DCFD-4497-9E22-A9E8E10A2A6D"
 
   @Nested
   inner class GetUserRolesByUserId {
@@ -120,7 +122,27 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `User Roles add role by userId endpoint adds a role that doesn't exist`() {
+    fun `User Roles add role by userId endpoint role not found for role that doesn't exist`() {
+      webTestClient
+        .post().uri("/users/$authRoUserTest5Id/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .body(BodyInserters.fromValue(listOf("ROLE_DOES_NOT_EXIST", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.notfound",
+               "developerMessage":"Modify role failed for field role with reason: role.notfound"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles add role by userId endpoint `() {
       webTestClient
         .post().uri("/users/$authRoUserTest5Id/roles")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
@@ -347,6 +369,160 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class ServiceAddUserRolesByUserId {
+
+    @Test
+    fun `User Roles service add role by userId user not found`() {
+      webTestClient
+        .post().uri("/users/12345678-1234-1234-1234-123456789abc/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .body(BodyInserters.fromValue(listOf("ANY_OLD_ROLE")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not found: User 12345678-1234-1234-1234-123456789abc not found",
+               "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles service add role by userId endpoint adds a role that doesn't exist`() {
+      webTestClient
+        .post().uri("/users/$authRequiresIMSRoleId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .body(BodyInserters.fromValue(listOf("ROLE_DOES_NOT_EXIST", "LICENCE_RO")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.notfound",
+               "developerMessage":"Modify role failed for field role with reason: role.notfound"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles service fails to add role by userId endpoint adds a role to a user that already exists`() {
+      webTestClient
+        .post().uri("/users/$authHasIMSRoleId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .body(BodyInserters.fromValue(listOf("IMS_USER_HIDDEN")))
+        .exchange()
+        .expectStatus().isEqualTo(HttpStatus.CONFLICT)
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.exists",
+               "developerMessage":"Modify role failed for field role with reason: role.exists"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles service add role by userId POST endpoint adds a role to a user as IMS system user`() {
+      webTestClient
+        .post().uri("/users/$authRequiresIMSRoleId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .body(BodyInserters.fromValue(listOf("IMS_USER_HIDDEN")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      checkRolesForUserId(authRequiresIMSRoleId, listOf("IMS_USER_HIDDEN"))
+
+      // Tidy up - Reset user roles to original state
+      removeIMSRoleForUserId(authRequiresIMSRoleId, "IMS_USER_HIDDEN")
+    }
+  }
+
+  @Nested
+  inner class ServiceRemoveUserRoleByUserId {
+
+    @Test
+    fun `User Roles remove role by userId user not found`() {
+      webTestClient
+        .delete().uri("/users/12345678-1234-1234-1234-123456789ABC/roles/ANY_ROLE")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User not found: User 12345678-1234-1234-1234-123456789abc not found",
+               "developerMessage":"User 12345678-1234-1234-1234-123456789abc not found"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles remove role by userId endpoint not allowed to remove a role from a user that isn't found`() {
+      webTestClient
+        .delete().uri("/users/$authRoUserTest6Id/roles/ims_bob")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.notfound",
+               "developerMessage":"Modify role failed for field role with reason: role.notfound"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles remove role by userId endpoint removes a role from a user that isn't on the user`() {
+      webTestClient
+        .delete().uri("/users/$authRoUserTest6Id/roles/ims_user_hidden")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .json(
+          """
+             {
+               "userMessage":"User role error: Modify role failed for field role with reason: role.missing",
+               "developerMessage":"Modify role failed for field role with reason: role.missing"
+             }
+            """
+            .trimIndent(),
+        )
+    }
+
+    @Test
+    fun `User Roles remove by userId role endpoint successfully removes a role from a user`() {
+      webTestClient
+        .delete().uri("/users/$authHasIMSRoleId/roles/ims_user_hidden")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isNoContent
+
+      checkRolesForUserId(authHasIMSRoleId, listOf("GLOBAL_SEARCH"))
+
+      // Tidy up - Reset user roles to original state
+      addIMSRoleForUserId(authHasIMSRoleId, "IMS_USER_HIDDEN")
+    }
+  }
+
+  @Nested
   inner class AssignableRoles {
 
     @Test
@@ -558,10 +734,26 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
       .expectStatus().isNoContent
   }
 
+  private fun addIMSRoleForUserId(userId: String, roleCode: String) {
+    webTestClient
+      .post().uri("/users/$userId/roles")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+      .body(BodyInserters.fromValue(listOf(roleCode)))
+      .exchange()
+      .expectStatus().isNoContent
+  }
+
   private fun removeRoleForUserId(userId: String, roleCode: String) {
     webTestClient
       .delete().uri("/users/$userId/roles/$roleCode")
       .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+      .exchange()
+      .expectStatus().isNoContent
+  }
+  private fun removeIMSRoleForUserId(userId: String, roleCode: String) {
+    webTestClient
+      .delete().uri("/users/$userId/roles/$roleCode")
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
       .exchange()
       .expectStatus().isNoContent
   }

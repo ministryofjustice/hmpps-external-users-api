@@ -65,7 +65,7 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('90F930E1-2195-4AFD-92CE-0EB5672DA44A', 'AUTH_RO_USER_TEST4', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test4@digital.justice.gov.uk', 'Ryan-Auth', 'Orton4', true, true, false, 'auth'),
        ('90F930E1-2195-4AFD-92CE-0EB5672DA44B', 'AUTH_RO_USER_TEST5', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test5@digital.justice.gov.uk', 'Ryan-Auth', 'Orton5', true, true, false, 'auth'),
        ('90F930E1-2195-4AFD-92CE-0EB5672DA02F', 'AUTH_RO_USER_TEST6', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test6@digital.justice.gov.uk', 'Ryan-Auth', 'Orton6', true, true, false, 'auth'),
-       ('90F930E1-2195-4AFD-92CE-0EB5672DA030', 'AUTH_RO_USER_TEST7', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test7@digital.justice.gov.uk', 'Ryan-Auth', 'Orton6', true, true, false, 'auth'),
+       ('90F930E1-2195-4AFD-92CE-0EB5672DA030', 'AUTH_RO_USER_TEST7', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ro_user_test7@digital.justice.gov.uk', 'Ryan-Auth', 'Orton7', true, true, false, 'auth'),
        ('90F930E1-2195-4AFD-92CE-0EB5672DA02D', 'AUTH_ADD_ROLE_TEST', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_add_role@digital.justice.gov.uk', 'Add', 'RoleTest', true, true, false, 'auth'),
        ('90F930E1-2195-4AFD-92CE-0EB5672DA02E', 'AUTH_ADD_ROLE_TEST2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_add_role2@digital.justice.gov.uk', 'Add', 'RoleTest2', true, true, false, 'auth'),
        ('D9873CB3-24BD-4CFF-9CFE-1E64CE6BBCC4', 'AUTH_LOCKED2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_locked2@digital.justice.gov.uk', 'Auth', 'Locked2', true, true, true, 'auth'),
@@ -147,7 +147,9 @@ VALUES ('608955AE-52ED-44CC-884C-011597A77949', 'AUTH_USER', '{bcrypt}$2a$10$Fmc
        ('edec977d-b743-4744-a8a8-1da84ee40c6b', 'WMT_DATA_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_data_admin@digital.justice.gov.uk', 'Wmt Data', 'Admin', true, true, false, 'delius'),
        ('9274ec5b-19fd-49ce-ae3c-a6f5d77a3388', 'WMT_MANAGER', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_manager@digital.justice.gov.uk', 'Wmt', 'Manager', true, true, false, 'delius'),
        ('f47742d4-18ba-4332-9519-86b2c94ab99c', 'WMT_STAFF', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_staff@digital.justice.gov.uk', 'Wmt', 'Staff', true, true, false, 'delius'),
-       ('7fa0d669-6875-4d6b-86a5-3cf42c1c0015', 'WMT_SYSTEM_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_system_admin@digital.justice.gov.uk', 'Wmt System', 'Admin', true, true, false, 'delius');
+       ('7fa0d669-6875-4d6b-86a5-3cf42c1c0015', 'WMT_SYSTEM_ADMIN', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'wmt_system_admin@digital.justice.gov.uk', 'Wmt System', 'Admin', true, true, false, 'delius'),
+       ('2E285CCD-DCFD-4497-9E22-A9E8E10A2A6C', 'AUTH_IMS_USER1', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ims_user1@digital.justice.gov.uk', 'Auth IMS', 'User1', true, true, false, 'auth'),
+       ('2E285CCD-DCFD-4497-9E22-A9E8E10A2A6D', 'AUTH_IMS_USER2', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '3013-01-28 13:23:19.0000000', 'auth_ims_user2@digital.justice.gov.uk', 'Auth IMS', 'User2', true, true, false, 'auth');
 
 INSERT INTO users (user_id, username, password, last_logged_in, first_name, last_name, verified, enabled, locked, source)
 VALUES ('7B59A818-BC14-43F3-A1C3-93004E173B2A', 'AUTH_DELETE', '{bcrypt}$2a$10$Fmcp2KUKRW53US3EJfsxkOh.ekZhqz5.Baheb9E98QLwEFLb9csxy', '2018-01-02 13:23:19.0000000', 'Auth', 'Delete', true, false, false, 'auth'),
@@ -325,6 +327,8 @@ INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, use
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_MFA_LOCKED_2ND_EMAIL' and role_code = 'MFA';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_VIDEO_LINK_COURT_USER' and role_code = 'VIDEO_LINK_COURT_USER';
 INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'MAKE_RECALL_DECISION_USER' and role_code = 'MAKE_RECALL_DECISION';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_IMS_USER2' and role_code = 'GLOBAL_SEARCH';
+INSERT INTO user_role (role_id, user_id) SELECT role_id, user_id from roles, users where username = 'AUTH_IMS_USER2' and role_code = 'IMS_USER_HIDDEN';
 
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_VARY_USER' and group_code = 'SITE_1_GROUP_2';

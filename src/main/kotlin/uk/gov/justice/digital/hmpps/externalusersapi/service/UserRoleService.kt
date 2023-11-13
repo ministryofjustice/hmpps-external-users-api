@@ -43,6 +43,9 @@ class UserRoleService(
   val allRoles: Flow<Authority>
     get() = roleRepository.findByAdminTypeContainingOrderByRoleName(AdminType.EXT_ADM.adminTypeCode)
 
+  val allIMSRoles: Flow<Authority>
+    get() = roleRepository.findByAdminTypeContainingOrderByRoleName(AdminType.IMS_HIDDEN.adminTypeCode)
+
   suspend fun getUserRoles(userId: UUID) =
     userRepository.findById(userId)?.let { user: User ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
@@ -61,7 +64,8 @@ class UserRoleService(
   suspend fun getAllAssignableRolesByUserId(userId: UUID) =
     if (canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
       // only allow oauth admins to see that role
-      allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }.toSet()
+      allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
+        .toSet()
       // otherwise they can assign all roles that can be assigned to any of their groups
     } else {
       roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
@@ -97,7 +101,56 @@ class UserRoleService(
         Consumer { roleCode: String ->
           telemetryClient.trackEvent(
             "ExternalUserRoleAddSuccess",
-            mapOf("userId" to userId.toString(), "username" to user.getUserName(), "role" to roleCode, "admin" to maintainerName),
+            mapOf(
+              "userId" to userId.toString(),
+              "username" to user.getUserName(),
+              "role" to roleCode,
+              "admin" to maintainerName,
+            ),
+            null,
+          )
+          log.info("Adding role {} to user {}", roleCode, userId)
+        },
+      )
+    } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Transactional
+  suspend fun serviceAddRolesByUserId(
+    userId: UUID,
+    roleCodes: List<String>,
+  ) {
+    userRepository.findById(userId)?.let { user: User ->
+      val formattedRoles = roleCodes.map { formatRole(it) }
+      for (roleCode in formattedRoles) {
+        // check that role exists
+        val role = roleRepository.findByRoleCode(roleCode) ?: throw UserRoleException("role", "role.notfound")
+
+        val userRoles = userRepository.findById(userId)?.let {
+          roleRepository.findRolesByUserId(userId).toList()
+        } ?: throw NotFoundException("usernotfound")
+
+        if (userRoles.contains(role)) {
+          throw UserRoleExistsException()
+        }
+
+        if (!allIMSRoles.toSet().contains(role)) {
+          throw UserRoleException("role", "invalid")
+        }
+        userRoleRepository.insertUserRole(userId, role.id!!)
+      }
+
+      val maintainerName = authenticationFacade.getUsername()
+      formattedRoles.forEach(
+        Consumer { roleCode: String ->
+          telemetryClient.trackEvent(
+            "ExternalUserRoleAddSuccess",
+            mapOf(
+              "userId" to userId.toString(),
+              "username" to user.getUserName(),
+              "role" to roleCode,
+              "admin" to maintainerName,
+            ),
             null,
           )
           log.info("Adding role {} to user {}", roleCode, userId)
@@ -107,7 +160,8 @@ class UserRoleService(
   }
 
   suspend fun getRolesByUsername(username: String): Set<Authority> {
-    userRepository.findByUsernameAndSource(username) ?: throw UsernameNotFoundException("User with username $username not found")
+    userRepository.findByUsernameAndSource(username)
+      ?: throw UsernameNotFoundException("User with username $username not found")
     return roleRepository.findByUserRolesForUserName(username).toSet()
   }
 
@@ -137,7 +191,50 @@ class UserRoleService(
 
       telemetryClient.trackEvent(
         "ExternalUserRoleRemoveSuccess",
-        mapOf("userId" to userId.toString(), "username" to user.getUserName(), "role" to roleFormatted, "admin" to authenticationFacade.getUsername()),
+        mapOf(
+          "userId" to userId.toString(),
+          "username" to user.getUserName(),
+          "role" to roleFormatted,
+          "admin" to authenticationFacade.getUsername(),
+        ),
+        null,
+      )
+    } ?: throw UsernameNotFoundException("User $userId not found")
+  }
+
+  @Transactional
+  suspend fun serviceRemoveRoleByUserId(
+    userId: UUID,
+    roleCode: String,
+  ) {
+    // already checked that user exists
+    // check that the logged in user has permission to modify user
+    userRepository.findById(userId)?.let { user: User ->
+
+      val roleFormatted = formatRole(roleCode)
+      val role = roleRepository.findByRoleCode(roleFormatted) ?: throw UserRoleException("role", "role.notfound")
+      val userRoles = userRepository.findById(userId)?.let {
+        roleRepository.findRolesByUserId(userId).toList()
+      } ?: throw NotFoundException("usernotfound")
+
+      val userRoleToDelete = userRoles.find { it.roleCode == roleFormatted }
+        ?: throw UserRoleException("role", "role.missing")
+
+      if (!allIMSRoles.toSet().contains(role)) {
+        throw UserRoleException("role", "invalid")
+      }
+      log.info("Removing role {} from userId {}", roleFormatted, userId)
+
+      userRoleRepository.deleteUserRole(userId, userRoleToDelete.id!!)
+
+      telemetryClient.trackEvent(
+        "ExternalUserRoleRemoveSuccess",
+        mapOf(
+          "userId" to userId.toString(),
+          "username" to user.getUserName(),
+          "role" to roleFormatted,
+          "admin" to authenticationFacade.getUsername(),
+        ),
         null,
       )
     } ?: throw UsernameNotFoundException("User $userId not found")
@@ -146,7 +243,8 @@ class UserRoleService(
   suspend fun getAllAssignableRoles() =
     if (canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
       // only allow oauth admins to see that role
-      allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }.toSet()
+      allRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
+        .toSet()
       // otherwise they can assign all roles that can be assigned to any of their groups
     } else {
       roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
@@ -157,5 +255,6 @@ class UserRoleService(
 
   open class UserRoleException(val field: String, val errorCode: String) :
     Exception("Modify role failed for field $field with reason: $errorCode")
+
   class UserRoleExistsException : UserRoleException("role", "role.exists")
 }
