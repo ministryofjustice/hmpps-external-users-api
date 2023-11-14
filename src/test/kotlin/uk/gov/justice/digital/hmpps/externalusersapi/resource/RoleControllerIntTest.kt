@@ -48,6 +48,32 @@ class RoleControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Create IMS role`() {
+      webTestClient
+        .post().uri("/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "IMS_USER_ROLE",
+              "roleName" to " New IMS role",
+              "roleDescription" to "New IMS role description",
+              "adminType" to listOf("IMS_HIDDEN"),
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      runBlocking {
+        val role = roleRepository.findByRoleCode("IMS_USER_ROLE")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
+      }
+    }
+
+    @Test
     fun `Create role passes regex validation`() {
       webTestClient
         .post().uri("/roles")
@@ -386,6 +412,23 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
     }
+
+    @Test
+    fun `Get Roles endpoint returns roles filter requested IMS_HIDDEN adminType`() {
+      webTestClient
+        .get().uri("/roles?adminTypes=IMS_HIDDEN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleName").value<List<String>> { assertThat(it).hasSize(1) }
+        .jsonPath("$[0].roleName").isEqualTo("IMS user hidden role")
+        .jsonPath("$[0].roleCode").isEqualTo("IMS_USER_HIDDEN")
+        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("IMS_HIDDEN")
+        .jsonPath("$[0].adminType[1].adminTypeCode").doesNotExist()
+        .jsonPath("$[0].adminType[2].adminTypeCode").doesNotExist()
+    }
   }
 
   @Nested
@@ -532,8 +575,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(72)
-        .jsonPath("$.totalPages").isEqualTo(24)
+        .jsonPath("$.totalElements").isEqualTo(73)
+        .jsonPath("$.totalPages").isEqualTo(25)
         .jsonPath("$.last").isEqualTo(false)
   }
 

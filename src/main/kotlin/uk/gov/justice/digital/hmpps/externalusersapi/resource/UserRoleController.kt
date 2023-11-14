@@ -88,7 +88,7 @@ class UserRoleController(
 
   @DeleteMapping("/users/{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Remove role from user.",
     description = "Remove role from user.",
@@ -155,7 +155,7 @@ class UserRoleController(
 
   @PostMapping("/users/{userId}/roles")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Add roles to user.",
     description = "Add role to user, post version taking multiple roles.  Requires role ROLE_MAINTAIN_OAUTH_USERS or ROLE_AUTH_GROUP_MANAGER",
