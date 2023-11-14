@@ -21,12 +21,15 @@ class AuthenticationFacade {
       is String -> {
         userPrincipal
       }
+
       is UserDetails -> {
         userPrincipal.username
       }
+
       is Map<*, *> -> {
         userPrincipal["username"] as String
       }
+
       else -> {
         "anonymous"
       }
@@ -45,4 +48,7 @@ class AuthenticationFacade {
       authentication.authorities.stream()
         .anyMatch { a: GrantedAuthority? -> roles.contains(RegExUtils.replaceFirst(a!!.authority, "ROLE_", "")) }
   }
+
+  suspend fun isMaintainImsUser() = getAuthentication().authorities.map { it.authority }
+    .any { it == "ROLE_MAINTAIN_IMS_USERS" }
 }

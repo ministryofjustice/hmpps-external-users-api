@@ -95,6 +95,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_roleNotfound(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val userId = UUID.fromString("00000000-aaaa-0000-aaaa-0a0a0a0a0a0a")
@@ -115,6 +116,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_invalidRole(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
@@ -137,6 +139,9 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_noaccess(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER")))
       whenever(userRepository.findById(any())).thenReturn(createSampleUser(id = UUID.randomUUID(), username = "user"))
       doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
         .ensureUserLoggedInUserRelationship(anyString())
@@ -152,6 +157,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_invalidRoleGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
 
@@ -185,6 +191,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_oauthAdminRestricted(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
@@ -203,6 +210,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_roleAlreadyOnUser(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
@@ -227,6 +235,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_oauthAdminRestricted_success(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(setOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"), SimpleGrantedAuthority("ROLE_OAUTH_ADMIN")))
@@ -248,6 +257,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_success(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
@@ -269,6 +279,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun `addRoles success multiple roles`(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
@@ -297,6 +308,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun `add Hidden Role success`() = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(true)
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(MAINTAIN_IMS_ROLE)
@@ -308,7 +320,7 @@ internal class UserRoleServiceTest {
       whenever(roleRepository.findByRoleCode(anyString())).thenReturn(role)
       whenever(roleRepository.findRolesByUserId(userId)).thenReturn(flowOf(role.copy(roleCode = "ANY")))
 
-      service.serviceAddRolesByUserId(userId, listOf("ROLE_IMS_HIDDEN_USER"))
+      service.addRolesByUserId(userId, listOf("ROLE_IMS_HIDDEN_USER"))
       verify(telemetryClient).trackEvent(
         "ExternalUserRoleAddSuccess",
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "IMS_HIDDEN_USER", "admin" to "admin"),
@@ -318,6 +330,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun addRoles_successGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(GROUP_MANAGER_ROLE)
@@ -357,6 +370,8 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_roleNotOnUser(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
+
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(user)
       val role = Authority(UUID.randomUUID(), "BOB", "Bloggs", adminType = "EXT_ADM")
@@ -377,6 +392,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_invalid(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
 
@@ -399,6 +415,9 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_noaccess(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER")))
       val user = createSampleUser(username = "user")
       doThrow(UserGroupRelationshipException("user", "User not with your groups")).whenever(maintainUserCheck)
         .ensureUserLoggedInUserRelationship(anyString())
@@ -416,6 +435,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_invalidGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
 
       val role = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", adminType = "EXT_ADM")
@@ -436,6 +456,9 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_notfound(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
+      whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+      whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
       val user = createSampleUser(username = "user")
       whenever(userRepository.findById(any())).thenReturn(user)
 
@@ -449,6 +472,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_success(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       val userId = UUID.randomUUID()
       whenever(authenticationFacade.getUsername()).thenReturn("admin")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
@@ -473,6 +497,7 @@ internal class UserRoleServiceTest {
 
     @Test
     fun removeRole_successGroupManager(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       val userId = UUID.randomUUID()
       whenever(authenticationFacade.getUsername()).thenReturn("groupmanager")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)

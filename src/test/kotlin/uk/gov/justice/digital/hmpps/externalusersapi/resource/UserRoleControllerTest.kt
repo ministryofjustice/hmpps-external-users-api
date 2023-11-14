@@ -7,13 +7,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
@@ -21,9 +17,7 @@ import java.util.UUID
 
 class UserRoleControllerTest {
   private val userRoleService: UserRoleService = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
-  private val authentication: Authentication = mock()
-  private val userRoleController = UserRoleController(userRoleService, authenticationFacade)
+  private val userRoleController = UserRoleController(userRoleService)
 
   @Nested
   inner class RolesByUserId {
@@ -65,46 +59,22 @@ class UserRoleControllerTest {
 
   @Test
   fun addRolesByUserId(): Unit = runBlocking {
-    whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+    // whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+    // whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
     val userId = UUID.randomUUID()
     val roles = listOf("roleCode")
 
     userRoleController.addRolesByUserId(userId, roles)
     verify(userRoleService).addRolesByUserId(userId, roles)
-    verify(userRoleService, never()).serviceAddRolesByUserId(userId, roles)
-  }
-
-  @Test
-  fun serviceAddRolesByUserId(): Unit = runBlocking {
-    whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_IMS_USERS")))
-    val userId = UUID.randomUUID()
-    val roles = listOf("IMS_USER_HIDDEN")
-
-    userRoleController.addRolesByUserId(userId, roles)
-    verify(userRoleService).serviceAddRolesByUserId(userId, roles)
-    verify(userRoleService, never()).addRolesByUserId(userId, roles)
   }
 
   @Test
   fun removeRoleByUserId_success(): Unit = runBlocking {
-    whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
+    // whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
+    // whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
     val userId = UUID.randomUUID()
     userRoleController.removeRoleByUserId(userId, "roleCode")
     verify(userRoleService).removeRoleByUserId(userId, "roleCode")
-    verify(userRoleService, never()).serviceRemoveRoleByUserId(userId, "roleCode")
-  }
-
-  @Test
-  fun systemRemoveRoleByUserId_success(): Unit = runBlocking {
-    whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_IMS_USERS")))
-    val userId = UUID.randomUUID()
-    userRoleController.removeRoleByUserId(userId, "IMS_USER_HIDDEN")
-    verify(userRoleService).serviceRemoveRoleByUserId(userId, "IMS_USER_HIDDEN")
-    verify(userRoleService, never()).removeRoleByUserId(userId, "IMS_USER_HIDDEN")
   }
 
   @Test

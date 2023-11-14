@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.ErrorResponse
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService
@@ -29,7 +28,6 @@ import java.util.UUID
 @Tag(name = "/users/{userId}/roles", description = "User Roles Controller")
 class UserRoleController(
   private val userRoleService: UserRoleService,
-  private val authenticationFacade: AuthenticationFacade,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -151,12 +149,7 @@ class UserRoleController(
     @PathVariable
     role: String,
   ) {
-    if (authenticationFacade.getAuthentication().authorities.map { it.authority }.any { it == "ROLE_MAINTAIN_IMS_USERS" }
-    ) {
-      userRoleService.serviceRemoveRoleByUserId(userId, role)
-    } else {
-      userRoleService.removeRoleByUserId(userId, role)
-    }
+    userRoleService.removeRoleByUserId(userId, role)
     log.info("Remove role succeeded for userId {} and role {}", userId, role)
   }
 
@@ -234,13 +227,7 @@ class UserRoleController(
     @NotEmpty
     roles: List<String>,
   ) {
-    // separate on role
-    if (authenticationFacade.getAuthentication().authorities.map { it.authority }.any { it == "ROLE_MAINTAIN_IMS_USERS" }
-    ) {
-      userRoleService.serviceAddRolesByUserId(userId, roles)
-    } else {
-      userRoleService.addRolesByUserId(userId, roles)
-    }
+    userRoleService.addRolesByUserId(userId, roles)
     log.info("Add role succeeded for userId {} and roles {}", userId, roles.toString())
   }
 

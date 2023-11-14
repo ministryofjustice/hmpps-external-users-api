@@ -18,7 +18,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupIdentity
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
-import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainUsers
+import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainExternalUsers
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
 import java.util.UUID
 
@@ -144,7 +144,7 @@ class UserGroupService(
         throw UserGroupManagerException("delete", "group", "managerNotMember")
       }
 
-      if (userGroup.count() == 1 && !canMaintainUsers(authenticationFacade.getAuthentication().authorities)) {
+      if (userGroup.count() == 1 && !canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
         throw UserLastGroupException("group", "last")
       }
       log.info("Removing group {} from userId {}", groupFormatted, userId)
@@ -180,7 +180,7 @@ class UserGroupService(
       throw UserGroupManagerException("delete", "group", "managerNotMember")
     }
 
-    if (groups.size == 1 && !canMaintainUsers(authorities)) {
+    if (groups.size == 1 && !canMaintainExternalUsers(authorities)) {
       throw UserLastGroupException("group", "last")
     }
 
@@ -199,7 +199,7 @@ class UserGroupService(
     authorities: Collection<GrantedAuthority>,
     modifier: String?,
   ): Boolean {
-    return if (canMaintainUsers(authorities)) {
+    return if (canMaintainExternalUsers(authorities)) {
       true
     } else {
       val modifierGroups = getAssignableGroups(modifier, authorities)
@@ -221,7 +221,7 @@ class UserGroupService(
   }
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainUsers(authorities)) {
+    if (canMaintainExternalUsers(authorities)) {
       groupRepository.findAllByOrderByGroupName().toList()
     } else {
       getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
