@@ -171,7 +171,5 @@ enum class AdminType(val adminTypeCode: String, val adminTypeName: String) {
   DPS_LSA("DPS_LSA", "DPS Local System Administrator"),
   DPS_ADM("DPS_ADM", "DPS Central Administrator"),
   EXT_ADM("EXT_ADM", "External Administrator"),
-  DPS_HIDDEN("DPS_HIDDEN", "DPS Hidden Administrator"),
-  EXT_HIDDEN("EXT_HIDDEN", "External Hidden Administrator"),
   IMS_HIDDEN("IMS_HIDDEN", "IMS Administrator"),
 }
