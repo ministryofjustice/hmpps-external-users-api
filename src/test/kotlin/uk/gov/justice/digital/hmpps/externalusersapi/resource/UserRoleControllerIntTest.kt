@@ -48,6 +48,34 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `User Roles by userId endpoint returns user roles - Auth Admin returns hidden role`() {
+      webTestClient
+        .get().uri("/users/$authHasIMSRoleId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER_HIDDEN"))
+        }
+    }
+
+    @Test
+    fun `User Roles by userId endpoint returns user roles - IMS Admin`() {
+      webTestClient
+        .get().uri("/users/$authHasIMSRoleId/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER_HIDDEN"))
+        }
+    }
+
+    @Test
     fun `User Roles by userId endpoint returns user roles - Group Manager`() {
       webTestClient
         .get().uri("/users/$authRoVaryUserId/roles")

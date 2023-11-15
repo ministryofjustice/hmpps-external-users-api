@@ -26,7 +26,6 @@ class GroupsRepositoryTest {
 
     @Test
     fun givenATransientEntityItCanBePersisted(): Unit = runBlocking {
-      // val transientEntity = transientEntity()
       val groupCode = "groupCode" + Random().nextInt()
       val groupName = "groupName" + Random().nextInt()
 

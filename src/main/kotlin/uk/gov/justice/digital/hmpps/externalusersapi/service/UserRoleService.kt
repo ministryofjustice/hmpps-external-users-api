@@ -48,7 +48,10 @@ class UserRoleService(
 
   suspend fun getUserRoles(userId: UUID) =
     userRepository.findById(userId)?.let { user: User ->
-      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
+      // MaintainImsUser doesn't need to check user relationship as is system role
+      if (!authenticationFacade.isMaintainImsUser()) {
+        maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
+      }
       roleRepository.findRolesByUserId(userId).toList()
     }
 

@@ -49,6 +49,7 @@ internal class UserRoleServiceTest {
   inner class GetAuthUserByUserId {
     @Test
     fun getRolesSuccess(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(false)
       whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
       val id = UUID.randomUUID()
       val user = createSampleUser(username = "user")
@@ -64,6 +65,27 @@ internal class UserRoleServiceTest {
 
       val roles = service.getUserRoles(id)
       assertThat(roles).extracting<String> { it.roleCode }.containsOnly("ROLE_ONE", "GLOBAL_SEARCH")
+    }
+
+    @Test
+    fun getRolesSuccess_HiddenImsRole(): Unit = runBlocking {
+      whenever(authenticationFacade.isMaintainImsUser()).thenReturn(true)
+      whenever(authentication.authorities).thenReturn(SUPER_USER_ROLE)
+      val id = UUID.randomUUID()
+      val user = createSampleUser(username = "user")
+
+      whenever(userRepository.findById(id)).thenReturn(user)
+
+      whenever(roleRepository.findRolesByUserId(any())).thenReturn(
+        flowOf(
+          Authority(UUID.randomUUID(), "ROLE_ONE", "Role One info", adminType = "EXT_ADM"),
+          Authority(UUID.randomUUID(), "GLOBAL_SEARCH", "Global Search", "Allow user to search globally for a user", "EXT_ADM"),
+          Authority(UUID.randomUUID(), "IMS_USER", "IMS User", "IMS user role", "IMS_HIDDEN"),
+        ),
+      )
+
+      val roles = service.getUserRoles(id)
+      assertThat(roles).extracting<String> { it.roleCode }.containsOnly("ROLE_ONE", "GLOBAL_SEARCH", "IMS_USER")
     }
 
     @Test
