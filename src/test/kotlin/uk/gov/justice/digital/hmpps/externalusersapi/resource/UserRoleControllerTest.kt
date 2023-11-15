@@ -59,8 +59,6 @@ class UserRoleControllerTest {
 
   @Test
   fun addRolesByUserId(): Unit = runBlocking {
-    // whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    // whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
     val userId = UUID.randomUUID()
     val roles = listOf("roleCode")
 
@@ -70,8 +68,6 @@ class UserRoleControllerTest {
 
   @Test
   fun removeRoleByUserId_success(): Unit = runBlocking {
-    // whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-    // whenever(authentication.authorities).thenReturn(listOf(SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS")))
     val userId = UUID.randomUUID()
     userRoleController.removeRoleByUserId(userId, "roleCode")
     verify(userRoleService).removeRoleByUserId(userId, "roleCode")

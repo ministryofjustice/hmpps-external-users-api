@@ -34,7 +34,7 @@ class UserRoleController(
   }
 
   @GetMapping("/users/{userId}/roles")
-  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
+  @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER', 'ROLE_MAINTAIN_IMS_USERS')")
   @Operation(
     summary = "Get roles for user.",
     description = "Get roles for user.",
