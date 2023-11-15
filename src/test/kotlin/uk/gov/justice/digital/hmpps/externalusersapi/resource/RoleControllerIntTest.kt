@@ -404,10 +404,10 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.[*].roleName").value<List<String>> {
-          assertThat(it).hasSize(5)
+          assertThat(it).hasSize(4)
         }
-        .jsonPath("$[0].roleName").isEqualTo("IMS user")
-        .jsonPath("$[0].roleCode").isEqualTo("IMS_USER")
+        .jsonPath("$[0].roleName").isEqualTo("Licence Responsible Officer")
+        .jsonPath("$[0].roleCode").isEqualTo("LICENCE_RO")
         .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("EXT_ADM")
@@ -423,11 +423,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.[*].roleName").value<List<String>> { assertThat(it).hasSize(1) }
-        .jsonPath("$[0].roleName").isEqualTo("IMS user hidden role")
-        .jsonPath("$[0].roleCode").isEqualTo("IMS_USER_HIDDEN")
-        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("IMS_HIDDEN")
-        .jsonPath("$[0].adminType[1].adminTypeCode").doesNotExist()
-        .jsonPath("$[0].adminType[2].adminTypeCode").doesNotExist()
+        .jsonPath("$[0].roleName").isEqualTo("IMS user")
+        .jsonPath("$[0].roleCode").isEqualTo("IMS_USER")
+        .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
+        .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
+        .jsonPath("$[0].adminType[2].adminTypeCode").isEqualTo("IMS_HIDDEN")
     }
   }
 
@@ -575,8 +575,8 @@ class RoleControllerIntTest : IntegrationTestBase() {
     private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
       this.jsonPath("$.content.length()").isEqualTo(3)
         .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(73)
-        .jsonPath("$.totalPages").isEqualTo(25)
+        .jsonPath("$.totalElements").isEqualTo(72)
+        .jsonPath("$.totalPages").isEqualTo(24)
         .jsonPath("$.last").isEqualTo(false)
   }
 

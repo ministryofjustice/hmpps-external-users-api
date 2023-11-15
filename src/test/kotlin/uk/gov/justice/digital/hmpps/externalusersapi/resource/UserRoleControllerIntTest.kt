@@ -57,7 +57,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.[*].roleCode").value<List<String>> {
-          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER_HIDDEN"))
+          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER"))
         }
     }
 
@@ -71,7 +71,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
         .expectHeader().contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.[*].roleCode").value<List<String>> {
-          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER_HIDDEN"))
+          assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("GLOBAL_SEARCH", "IMS_USER"))
         }
     }
 
@@ -444,7 +444,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .post().uri("/users/$authHasIMSRoleId/roles")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
-        .body(BodyInserters.fromValue(listOf("IMS_USER_HIDDEN")))
+        .body(BodyInserters.fromValue(listOf("IMS_USER")))
         .exchange()
         .expectStatus().isEqualTo(HttpStatus.CONFLICT)
         .expectBody()
@@ -464,14 +464,14 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
       webTestClient
         .post().uri("/users/$authRequiresIMSRoleId/roles")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
-        .body(BodyInserters.fromValue(listOf("IMS_USER_HIDDEN")))
+        .body(BodyInserters.fromValue(listOf("IMS_USER")))
         .exchange()
         .expectStatus().isNoContent
 
-      checkRolesForUserId(authRequiresIMSRoleId, listOf("IMS_USER_HIDDEN"))
+      checkRolesForUserId(authRequiresIMSRoleId, listOf("IMS_USER"))
 
       // Tidy up - Reset user roles to original state
-      removeIMSRoleForUserId(authRequiresIMSRoleId, "IMS_USER_HIDDEN")
+      removeIMSRoleForUserId(authRequiresIMSRoleId, "IMS_USER")
     }
   }
 
@@ -519,7 +519,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Roles remove role by userId endpoint removes a role from a user that isn't on the user`() {
       webTestClient
-        .delete().uri("/users/$authRoUserTest6Id/roles/ims_user_hidden")
+        .delete().uri("/users/$authRoUserTest6Id/roles/IMS_USER")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
         .exchange()
         .expectStatus().isBadRequest
@@ -538,7 +538,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
     @Test
     fun `User Roles remove by userId role endpoint successfully removes a role from a user`() {
       webTestClient
-        .delete().uri("/users/$authHasIMSRoleId/roles/ims_user_hidden")
+        .delete().uri("/users/$authHasIMSRoleId/roles/IMS_USER")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_IMS_USERS")))
         .exchange()
         .expectStatus().isNoContent
@@ -546,7 +546,7 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
       checkRolesForUserId(authHasIMSRoleId, listOf("GLOBAL_SEARCH"))
 
       // Tidy up - Reset user roles to original state
-      addIMSRoleForUserId(authHasIMSRoleId, "IMS_USER_HIDDEN")
+      addIMSRoleForUserId(authHasIMSRoleId, "IMS_USER")
     }
   }
 
