@@ -31,6 +31,21 @@
       ]
     },
     {
+      "roleCode": "CREATE_CATEGORISATION",
+      "roleName": "Create Category assessments",
+      "roleDescription": null,
+      "adminType": [
+        {
+          "adminTypeCode": "DPS_ADM",
+          "adminTypeName": "DPS Central Administrator"
+        },
+        {
+          "adminTypeCode": "DPS_LSA",
+          "adminTypeName": "DPS Local System Administrator"
+        }
+      ]
+    },
+    {
       "roleCode": "IMS_USER",
       "roleName": "IMS user",
       "roleDescription": null,
@@ -44,23 +59,8 @@
           "adminTypeName": "DPS Local System Administrator"
         },
         {
-          "adminTypeCode": "EXT_ADM",
-          "adminTypeName": "External Administrator"
-        }
-      ]
-    },
-    {
-      "roleCode": "CREATE_CATEGORISATION",
-      "roleName": "Create Category assessments",
-      "roleDescription": null,
-      "adminType": [
-        {
-          "adminTypeCode": "DPS_ADM",
-          "adminTypeName": "DPS Central Administrator"
-        },
-        {
-          "adminTypeCode": "DPS_LSA",
-          "adminTypeName": "DPS Local System Administrator"
+          "adminTypeCode": "IMS_HIDDEN",
+          "adminTypeName": "IMS Administrator"
         }
       ]
     },
@@ -95,8 +95,8 @@
       ]
     },
     {
-      "roleCode": "LICENCE_RO_READONLY",
-      "roleName": "Licence RO Read Only",
+      "roleCode": "LICENCE_READONLY",
+      "roleName": "Licence read only",
       "roleDescription": null,
       "adminType": [
         {
@@ -129,8 +129,8 @@
       ]
     },
     {
-      "roleCode": "LICENCE_READONLY",
-      "roleName": "Licence read only",
+      "roleCode": "LICENCE_RO_READONLY",
+      "roleName": "Licence RO Read Only",
       "roleDescription": null,
       "adminType": [
         {
@@ -160,20 +160,20 @@
     }
   ],
   "pageable": {
+    "pageNumber": 0,
+    "pageSize": 10,
     "sort": {
       "empty": false,
       "sorted": true,
       "unsorted": false
     },
     "offset": 0,
-    "pageNumber": 0,
-    "pageSize": 10,
     "paged": true,
     "unpaged": false
   },
-  "last": false,
   "totalPages": 3,
   "totalElements": 23,
+  "last": false,
   "size": 10,
   "number": 0,
   "sort": {
@@ -181,7 +181,7 @@
     "sorted": true,
     "unsorted": false
   },
-  "first": true,
   "numberOfElements": 10,
+  "first": true,
   "empty": false
 }
