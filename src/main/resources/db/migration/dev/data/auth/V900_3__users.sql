@@ -32,6 +32,8 @@ VALUES ('C0279EE3-76BF-487F-833C-AA47C5DF22F8', 'CA_USER', 'ca_user@digital.just
        ('C3B15C4B-ADF5-493B-9424-DBCC65B3C4E3', 'PPUD_USER', 'ppud.user.test@digital.justice.gov.uk', true, 'nomis'),
        ('C3B15C4B-ADF5-493B-9424-DBCC65B3C4E2', 'PRISON_ANALYST_LOCAL', 'prison_analyst_local@digital.justice.gov.uk', true, 'nomis'),
        ('C3B15C4B-ADF5-493B-9424-DBCC65E7BFEF', 'PRISON_COLLATOR_LOCAL', 'prison_collator_local@digital.justice.gov.uk', true, 'nomis'),
+       ('89A9E5AA-12F4-4C3F-9B29-1F632B5B1889', 'PRISON_ADMIN_LOCAL', 'prison_admin_local@digital.justice.gov.uk', true, 'nomis'),
+       ('A7CA0B27-6235-444D-9586-E80CDAF462FB', 'PRISON_READONLY_LOCAL', 'prison_readonly_local@digital.justice.gov.uk', true, 'nomis'),
        ('C3B15C4B-ADF5-493B-9424-DBCC65B3CABD', 'PT_OMU_LOCAL', 'pt_omu_local@digital.justice.gov.uk', true, 'nomis'),
        ('98FBF8D7-4164-47B3-826F-ECD3BB643005', 'RCTL_USER', 'rctl_user@digital.justice.gov.uk', true, 'nomis'),
        ('86192295-8652-40BB-B03F-4D56BB93C1D7', 'RESET_TEST_USER', 'reset_test@digital.justice.gov.uk', true, 'nomis'),
