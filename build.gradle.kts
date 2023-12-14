@@ -49,7 +49,7 @@ dependencies {
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
-  testImplementation("org.wiremock:wiremock:3.3.1")
+  testImplementation("org.wiremock:wiremock-standalone:3.3.1")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.19.3")
   testImplementation("io.projectreactor:reactor-test")
