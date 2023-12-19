@@ -5,7 +5,7 @@ spring:
     password: admin_password
     properties:
       sslMode: DISABLE
-      sslRootCert:
+      sslRootCert: //home
   flyway:
     url: jdbc:postgresql://localhost:5432/auth-db?sslmode=prefer
     user: admin
