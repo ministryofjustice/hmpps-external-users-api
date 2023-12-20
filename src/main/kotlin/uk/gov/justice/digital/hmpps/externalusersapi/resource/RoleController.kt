@@ -79,10 +79,10 @@ class RoleController(
   ) = roleService.createRole(createRole)
 
   @GetMapping("/roles")
-  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_MAINTAIN_ACCESS_ROLES_ADMIN','ROLE_MAINTAIN_ACCESS_ROLES', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Get all Roles",
-    description = "Get all Roles. Requires role ROLE_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES",
+    description = "Get all Roles. Requires role ROLE_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES_ADMIN or ROLE_MAINTAIN_ACCESS_ROLES or ROLE_VIEW_ADMINISTRABLE_USER_ROLES",
   )
   @ApiResponses(
     value = [
@@ -109,10 +109,10 @@ class RoleController(
   ) = roleService.getRoles(adminTypes).map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/paged")
-  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Get all paged Roles.",
-    description = "Get all paged Roles. Requires role ROLE_ROLES_ADMIN",
+    description = "Get all paged Roles. Requires role ROLE_ROLES_ADMIN or ROLE_VIEW_ADMINISTRABLE_USER_ROLES",
   )
   @ApiResponses(
     value = [
@@ -163,10 +163,10 @@ class RoleController(
       .map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/{role}")
-  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")
   @Operation(
     summary = "Role detail.",
-    description = "Get Role Details. Requires role ROLE_ROLES_ADMIN",
+    description = "Get Role Details. Requires role ROLE_ROLES_ADMIN or ROLE_VIEW_ADMINISTRABLE_USER_ROLES",
   )
   @ApiResponses(
     value = [
