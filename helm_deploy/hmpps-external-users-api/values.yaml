@@ -4,6 +4,8 @@ generic-service:
 
   replicaCount: 4
 
+  serviceAccountName: hmpps-external-users-api
+
   image:
     repository: quay.io/hmpps/hmpps-external-users-api
     tag: app_version # override at deployment time
