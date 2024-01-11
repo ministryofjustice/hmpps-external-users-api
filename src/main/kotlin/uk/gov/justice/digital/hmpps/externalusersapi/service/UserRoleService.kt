@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainExternalUsers
+import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
 import java.util.UUID
 import java.util.function.Consumer
 
@@ -32,6 +33,7 @@ class UserRoleService(
   private val roleRepository: RoleRepository,
   private val authenticationFacade: AuthenticationFacade,
   private val telemetryClient: TelemetryClient,
+  private val auditService: AuditService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -125,6 +127,8 @@ class UserRoleService(
           log.info("Adding role {} to user {}", roleCode, userId)
         },
       )
+      log.info("Publishing audit message")
+      auditService.createEvent("ADD_ROLE", "hmpps-external-users-api", "some test details")
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 

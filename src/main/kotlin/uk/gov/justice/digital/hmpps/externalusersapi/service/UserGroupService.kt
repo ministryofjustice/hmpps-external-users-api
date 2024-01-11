@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainExternalUsers
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
-import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
 import java.util.UUID
 
 @Service
@@ -35,7 +34,6 @@ class UserGroupService(
   private val childGroupRepository: ChildGroupRepository,
   private val userGroupRepository: UserGroupRepository,
   private val userRoleService: UserRoleService,
-  private val auditService: AuditService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -120,8 +118,6 @@ class UserGroupService(
       val roleCodesToAdd = existingUserRoles?.let { groupRoles.subtract(it.toSet()) }!!.map { it.roleCode }
 
       userRoleService.addRolesByUserId(userId, roleCodesToAdd)
-      log.info("Publishing audit message")
-      auditService.createEvent("ADD_ROLE", "hmpps-external-users-api", "some test details")
 
       telemetryClient.trackEvent(
         "ExternalUserGroupAddSuccess",

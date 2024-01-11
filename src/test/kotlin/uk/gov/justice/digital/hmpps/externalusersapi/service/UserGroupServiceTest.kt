@@ -37,7 +37,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelationshipException
-import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
 import java.util.UUID
 
 class UserGroupServiceTest {
@@ -51,13 +50,12 @@ class UserGroupServiceTest {
   private val childGroupRepository: ChildGroupRepository = mock()
   private val userGroupRepository: UserGroupRepository = mock()
   private val userRoleService: UserRoleService = mock()
-  private val auditService: AuditService = mock()
 
   private val userId = UUID.randomUUID()
   private val user = User("testy", AuthSource.auth)
   private val service = UserGroupService(
     userRepository, groupRepository, maintainUserCheck, telemetryClient,
-    authenticationFacade, roleRepository, childGroupRepository, userGroupRepository, userRoleService, auditService,
+    authenticationFacade, roleRepository, childGroupRepository, userGroupRepository, userRoleService,
   )
 
   @Nested
