@@ -128,7 +128,7 @@ class UserRoleService(
         },
       )
       log.info("Publishing audit message")
-      auditService.createEvent("ADD_ROLE", "hmpps-external-users-api",  "{ \"details\": \"some test details\" }")
+      auditService.createEvent("ADD_ROLE", "hmpps-external-users-api", "{ \"details\": \"some test details\" }")
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
