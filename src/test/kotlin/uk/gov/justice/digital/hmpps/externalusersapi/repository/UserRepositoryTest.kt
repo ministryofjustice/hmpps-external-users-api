@@ -5,13 +5,15 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.r2dbc.DataR2dbcTest
+import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR2dbc
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 
 @ActiveProfiles("test")
-@DataR2dbcTest
+@SpringBootTest
+@AutoConfigureDataR2dbc
 @WithMockUser
 class UserRepositoryTest {
   @Autowired
