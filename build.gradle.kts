@@ -1,7 +1,7 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.10.1"
-  kotlin("plugin.spring") version "1.9.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.14.1"
+  kotlin("plugin.spring") version "1.9.22"
 }
 
 dependencyCheck {
@@ -29,10 +29,10 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.2.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.2.1.Final")
 
   implementation("org.apache.commons:commons-text:1.11.0")
-  implementation("com.google.guava:guava:32.1.3-jre")
+  implementation("com.google.guava:guava:33.0.0-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
@@ -42,7 +42,7 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
