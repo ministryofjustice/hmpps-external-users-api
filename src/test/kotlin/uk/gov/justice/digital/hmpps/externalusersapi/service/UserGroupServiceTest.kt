@@ -53,7 +53,10 @@ class UserGroupServiceTest {
 
   private val userId = UUID.randomUUID()
   private val user = User("testy", AuthSource.auth)
-  private val service = UserGroupService(userRepository, groupRepository, maintainUserCheck, telemetryClient, authenticationFacade, roleRepository, childGroupRepository, userGroupRepository, userRoleService)
+  private val service = UserGroupService(
+    userRepository, groupRepository, maintainUserCheck, telemetryClient,
+    authenticationFacade, roleRepository, childGroupRepository, userGroupRepository, userRoleService,
+  )
 
   @Nested
   inner class GetParentGroups {

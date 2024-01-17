@@ -33,6 +33,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelations
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.IMS_HIDDEN
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
+import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
 import java.util.UUID
 
 internal class UserRoleServiceTest {
@@ -43,7 +44,8 @@ internal class UserRoleServiceTest {
   private val authentication: Authentication = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val service = UserRoleService(userRepository, maintainUserCheck, userRoleRepository, roleRepository, authenticationFacade, telemetryClient)
+  private val auditService: AuditService = mock()
+  private val service = UserRoleService(userRepository, maintainUserCheck, userRoleRepository, roleRepository, authenticationFacade, telemetryClient, auditService)
 
   @Nested
   inner class GetAuthUserByUserId {
