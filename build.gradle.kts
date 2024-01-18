@@ -25,7 +25,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("uk.gov.justice.service.hmpps:hmpps-audit-sdk:0.0.4")
+  implementation("uk.gov.justice.service.hmpps:hmpps-audit-sdk:0.0.5")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
