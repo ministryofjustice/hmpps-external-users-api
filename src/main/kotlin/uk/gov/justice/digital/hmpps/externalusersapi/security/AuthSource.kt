@@ -3,7 +3,21 @@ package uk.gov.justice.digital.hmpps.externalusersapi.security
 import com.fasterxml.jackson.annotation.JsonValue
 
 enum class AuthSource(val description: String) {
-  auth("External"), azuread("Microsoft Azure"), delius("Delius"), nomis("DPS"), none("None"); // ktlint-disable enum-entry-name-case
+  @Suppress("ktlint:standard:enum-entry-name-case")
+  auth("External"),
+
+  @Suppress("ktlint:standard:enum-entry-name-case")
+  azuread("Microsoft Azure"),
+
+  @Suppress("ktlint:standard:enum-entry-name-case")
+  delius("Delius"),
+
+  @Suppress("ktlint:standard:enum-entry-name-case")
+  nomis("DPS"),
+
+  @Suppress("ktlint:standard:enum-entry-name-case")
+  none("None"),
+  ;
 
   @JsonValue
   val source: String = name

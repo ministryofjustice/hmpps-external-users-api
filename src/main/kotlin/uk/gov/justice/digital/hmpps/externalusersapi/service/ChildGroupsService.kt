@@ -69,7 +69,7 @@ class ChildGroupsService(
     }
     val parentGroupCode = createChildGroup.parentGroupCode.trim().uppercase()
     val parentGroupDetails = groupRepository.findByGroupCode(parentGroupCode) ?: throw
-    GroupNotFoundException("create", groupCode, "ParentGroupNotFound")
+      GroupNotFoundException("create", groupCode, "ParentGroupNotFound")
 
     val groupName = createChildGroup.groupName.trim()
     val child = ChildGroup(groupCode = createChildGroup.groupCode, groupName = groupName, group = parentGroupDetails.groupId)

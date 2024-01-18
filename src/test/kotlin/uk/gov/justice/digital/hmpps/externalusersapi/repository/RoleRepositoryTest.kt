@@ -139,5 +139,5 @@ class RoleRepositoryTest {
   }
   private fun transientEntity() = Authority(roleCode = "hdc", roleName = "Licences", adminType = listOf(AdminType.EXT_ADM))
 
-  */
+   */
 }

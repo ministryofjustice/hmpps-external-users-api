@@ -151,6 +151,8 @@ class UserFilter(
   }
 
   enum class Status {
-    ACTIVE, INACTIVE, ALL
+    ACTIVE,
+    INACTIVE,
+    ALL,
   }
 }

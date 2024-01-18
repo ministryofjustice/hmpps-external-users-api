@@ -118,7 +118,6 @@ class ChildGroupsController(
       required = true,
     ) @Valid @RequestBody
     groupAmendment: GroupAmendmentDto,
-
   ) = childGroupsService.updateChildGroup(group, groupAmendment)
 
   @DeleteMapping("/groups/child/{group}")
