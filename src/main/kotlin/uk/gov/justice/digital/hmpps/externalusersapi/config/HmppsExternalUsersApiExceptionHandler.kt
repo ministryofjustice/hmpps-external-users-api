@@ -102,7 +102,9 @@ class HmppsExternalUsersApiExceptionHandler {
     log.info("Validation exception: {}", e.message)
     val message = if (e.hasFieldErrors()) {
       e.fieldErrors.joinToString("; ") { fieldError -> fieldError.field + ": " + fieldError.defaultMessage }
-    } else { e.message }
+    } else {
+      e.message
+    }
 
     return ResponseEntity
       .status(BAD_REQUEST)

@@ -608,9 +608,9 @@ class UserRoleControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `Assignable User Roles by userId endpoint returns all assignable user roles for a group for group manager`() {
-      val AUTH_RO_USER_TEST2_ID = "90F930E1-2195-4AFD-92CE-0EB5672DA02B"
+      val authROUserTestId2 = "90F930E1-2195-4AFD-92CE-0EB5672DA02B"
       webTestClient
-        .get().uri("/users/$AUTH_RO_USER_TEST2_ID/assignable-roles")
+        .get().uri("/users/$authROUserTestId2/assignable-roles")
         .headers(setAuthorisation("AUTH_GROUP_MANAGER", listOf("ROLE_AUTH_GROUP_MANAGER")))
         .exchange()
         .expectStatus().isOk

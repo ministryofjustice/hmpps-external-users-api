@@ -116,7 +116,7 @@ class UserSearchServiceTest {
     }
 
     @Test
-    fun shouldReturnFlowDataFromRepository(): Unit = runBlocking() {
+    fun shouldReturnFlowDataFromRepository(): Unit = runBlocking {
       val email = "fred@testy.co.uk"
       val user = User(username = email, source = AuthSource.auth)
       whenever(userRepository.findByEmailAndSourceOrderByUsername(email)).thenReturn(flowOf(user))

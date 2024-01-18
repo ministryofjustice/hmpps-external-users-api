@@ -50,14 +50,14 @@ class CreateUserServiceTest {
 
     val user = UserHelper.createSampleUser(username = "email@email.com", id = UUID.randomUUID())
     private var createUser = CreateUser("email@email.com", "first_name", "last_name", setOf(""))
-    private val GROUP_MANAGER: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"), SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
+    private val groupManager: Set<GrantedAuthority> = setOf(SimpleGrantedAuthority("ROLE_AUTH_GROUP_MANAGER"), SimpleGrantedAuthority("ROLE_MAINTAIN_OAUTH_USERS"))
 
     @BeforeEach
     fun initSecurityContext(): Unit = runBlocking {
       MockitoAnnotations.openMocks(this)
       whenever(authenticationFacade.getUsername()).thenReturn("adminuser")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(GROUP_MANAGER)
+      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(groupManager)
     }
 
     @Test
@@ -125,13 +125,13 @@ class CreateUserServiceTest {
       val roleLicence = Authority(UUID.randomUUID(), "ROLE_LICENCE_VARY", "Role Licence Vary", "", "")
       whenever(roleRepository.findRolesByGroupCode(anyString())).thenReturn(flowOf(roleLicence))
 
-      val SITE_1_GROUP_1_GRPID = UUID.randomUUID()
-      val SITE_1_GROUP_2_GRPID = UUID.randomUUID()
+      val site1Group1GRPID = UUID.randomUUID()
+      val site1Group2GRPID = UUID.randomUUID()
 
       whenever(userGroupService.getAssignableGroups(anyString(), anyOrNull())).thenReturn(
         listOf(
-          Group("SITE_1_GROUP_1", "desc", SITE_1_GROUP_1_GRPID),
-          Group("SITE_1_GROUP_2", "desc", SITE_1_GROUP_2_GRPID),
+          Group("SITE_1_GROUP_1", "desc", site1Group1GRPID),
+          Group("SITE_1_GROUP_2", "desc", site1Group2GRPID),
         ),
       )
       val captUser = argumentCaptor<User>()

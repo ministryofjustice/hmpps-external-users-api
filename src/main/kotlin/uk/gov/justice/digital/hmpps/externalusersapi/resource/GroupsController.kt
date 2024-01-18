@@ -143,7 +143,6 @@ class GroupsController(
       required = true,
     ) @Valid @RequestBody
     groupAmendment: GroupAmendmentDto,
-
   ) = groupsService.updateGroup(group, groupAmendment)
 
   @PostMapping("/groups")
