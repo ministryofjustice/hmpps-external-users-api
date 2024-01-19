@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
@@ -115,6 +117,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UsernameNotFoundException::class.java,
       ).hasMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -136,6 +139,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: role.notfound")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -159,6 +163,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -177,6 +182,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserGroupRelationshipException::class.java,
       ).hasMessage("Unable to maintain user: user with reason: User not with your groups")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -211,6 +217,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -230,6 +237,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: invalid")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -255,6 +263,7 @@ internal class UserRoleServiceTest {
       }.isInstanceOf(
         UserRoleException::class.java,
       ).hasMessage("Modify role failed for field role with reason: role.exists")
+      verifyNoInteractions(auditService)
     }
 
     @Test
@@ -277,6 +286,15 @@ internal class UserRoleServiceTest {
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "TO_ADD", "admin" to "admin"),
         null,
       )
+      verify(auditService).publishEvent(
+        what = "ADD_ROLE",
+        who = "admin",
+        subjectId = userId.toString(),
+        subjectType = "USER_ID",
+        correlationId = null,
+        service = "hmpps-external-users-api",
+        details = Json.encodeToString(AddedRoles(listOf("TO_ADD"))),
+      )
     }
 
     @Test
@@ -298,6 +316,15 @@ internal class UserRoleServiceTest {
         "ExternalUserRoleAddSuccess",
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
+      )
+      verify(auditService).publishEvent(
+        what = "ADD_ROLE",
+        who = "admin",
+        subjectId = userId.toString(),
+        subjectType = "USER_ID",
+        correlationId = null,
+        service = "hmpps-external-users-api",
+        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY"))),
       )
     }
 
@@ -328,6 +355,15 @@ internal class UserRoleServiceTest {
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "OTHER", "admin" to "admin"),
         null,
       )
+      verify(auditService).publishEvent(
+        what = "ADD_ROLE",
+        who = "admin",
+        subjectId = userId.toString(),
+        subjectType = "USER_ID",
+        correlationId = null,
+        service = "hmpps-external-users-api",
+        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY", "ROLE_OTHER"))),
+      )
     }
 
     @Test
@@ -349,6 +385,15 @@ internal class UserRoleServiceTest {
         "ExternalUserRoleAddSuccess",
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "IMS_HIDDEN_USER", "admin" to "admin"),
         null,
+      )
+      verify(auditService).publishEvent(
+        what = "ADD_ROLE",
+        who = "admin",
+        subjectId = userId.toString(),
+        subjectType = "USER_ID",
+        correlationId = null,
+        service = "hmpps-external-users-api",
+        details = Json.encodeToString(AddedRoles(listOf("ROLE_IMS_HIDDEN_USER"))),
       )
     }
 
@@ -376,6 +421,15 @@ internal class UserRoleServiceTest {
         "ExternalUserRoleAddSuccess",
         mapOf("userId" to userId.toString(), "username" to "user", "role" to "LICENCE_VARY", "admin" to "admin"),
         null,
+      )
+      verify(auditService).publishEvent(
+        what = "ADD_ROLE",
+        who = "admin",
+        subjectId = userId.toString(),
+        subjectType = "USER_ID",
+        correlationId = null,
+        service = "hmpps-external-users-api",
+        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY"))),
       )
     }
   }
