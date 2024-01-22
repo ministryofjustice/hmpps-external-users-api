@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.GrantedAuthority
@@ -127,8 +130,7 @@ class UserRoleService(
           log.info("Adding role {} to user {}", roleCode, userId)
         },
       )
-      log.info("Publishing audit message")
-      auditService.createEvent("ADD_ROLE", "hmpps-external-users-api", "{ \"details\": \"some test details\" }")
+      publishAuditEvent(userId, maintainerName, roleCodes)
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
@@ -201,4 +203,19 @@ class UserRoleService(
     Exception("Modify role failed for field $field with reason: $errorCode")
 
   class UserRoleExistsException : UserRoleException("role", "role.exists")
+
+  private fun publishAuditEvent(userId: UUID, maintainerName: String, roleCodes: List<String>) {
+    auditService.publishEvent(
+      what = "ADD_ROLE",
+      who = maintainerName,
+      subjectId = userId.toString(),
+      subjectType = "USER_ID",
+      correlationId = null,
+      service = "hmpps-external-users-api",
+      details = Json.encodeToString(AddedRoles(roleCodes)),
+    )
+  }
 }
+
+@Serializable
+data class AddedRoles(val addedRoles: List<String>)
