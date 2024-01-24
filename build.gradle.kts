@@ -1,7 +1,7 @@
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.14.1"
-  id("org.jetbrains.kotlin.plugin.serialization") version "1.5.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.1"
+  id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
   kotlin("plugin.spring") version "1.9.22"
 }
 
@@ -26,12 +26,12 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("uk.gov.justice.service.hmpps:hmpps-audit-sdk:0.0.6")
+  implementation("uk.gov.justice.service.hmpps:hmpps-audit-sdk:1.0.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.2.1.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.2.2.Final")
 
   implementation("org.apache.commons:commons-text:1.11.0")
   implementation("com.google.guava:guava:33.0.0-jre")
@@ -45,7 +45,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.16.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
