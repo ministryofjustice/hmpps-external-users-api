@@ -11,19 +11,6 @@ generic-service:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
     API_BASE_URL_OAUTH: http://sign-in-stage.hmpps.service.justice.gov.uk/auth
 
-  namespace_secrets:
-    hmpps-external-users-api:
-      APPINSIGHTS_INSTRUMENTATIONKEY: "APPINSIGHTS_INSTRUMENTATIONKEY"
-
-    dps-rds-instance-output:
-      SPRING_DATASOURCE_NAME: "database_name"
-      SPRING_DATASOURCE_ENDPOINT: "rds_instance_endpoint"
-      SPRING_R2DBC_USERNAME: "database_username"
-      SPRING_R2DBC_PASSWORD: "database_password"
-
-    sqs-hmpps-audit-secret:
-      HMPPS_SQS_QUEUES_AUDIT_QUEUE_NAME: "sqs_queue_name"
-
 # CloudPlatform AlertManager receiver to route prometheus alerts to slack
 # See https://user-guide.cloud-platform.service.justice.gov.uk/documentation/monitoring-an-app/how-to-create-alarms.html#creating-your-own-custom-alerts
 generic-prometheus-alerts:
