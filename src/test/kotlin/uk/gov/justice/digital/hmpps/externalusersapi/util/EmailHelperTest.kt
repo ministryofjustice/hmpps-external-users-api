@@ -16,6 +16,11 @@ internal class EmailHelperTest {
 
   @Test
   fun formatReplaceMicrosoftQuote() {
-    assertThat(EmailHelper.format(" JOHN O’brian")).isEqualTo("john o'brian")
+    assertThat(EmailHelper.format(" JOHN O’brian")).isEqualTo("john o''brian")
+  }
+
+  @Test
+  fun formatReplaceSingleQuote() {
+    assertThat(EmailHelper.format(" JOHN O'brian")).isEqualTo("john o''brian")
   }
 }
