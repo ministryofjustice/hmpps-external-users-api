@@ -244,26 +244,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[0].email").isEqualTo("bob2.o'hagan@bobdigital.justice.gov.uk")
         .jsonPath("$.content[0].firstName").isEqualTo("Bob")
         .jsonPath("$.content[0].lastName").isEqualTo("O'HAGAN")
-/*        .jsonPath("$.content[0]").value<Map<String, Any>> {
-          assertThat(it).containsExactlyInAnyOrderEntriesOf(
-            mapOf(
-             // "userId" to "006a9299-ef3d-4990-8604-13cefac706b5",
-              "username" to "BOB2.O'HAGAN@BOBDIGITAL.JUSTICE.GOV.UK",
-              "email" to "bob2.o'hagan@bobdigital.justice.gov.uk",
-              "firstName" to "Bob",
-              "lastName" to "O'HAGAN",
-              "locked" to false,
-              "enabled" to true,
-              "verified" to false,
-              "inactiveReason" to  null,
-            ),
-          )
-        }*/
         .jsonPath("totalElements").isEqualTo("1")
-       /* .jsonPath("$").value<Map<String, Any>> {
-          assertThat(it["userMessage"] as String).isEqualTo("Role already exists: Role with code RC1 already exists")
-          assertThat(it["developerMessage"] as String).isEqualTo("Role with code RC1 already exists")*/
-      // .json("user_search_specialchar.json".readFile())
     }
   }
 
