@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.StringUtils.isNotEmpty
+import org.apache.commons.lang3.StringUtils.replace
 import org.apache.commons.lang3.StringUtils.upperCase
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -44,7 +45,7 @@ class UserSearchService(
     status: Status,
   ): Page<UserDto> = coroutineScope {
     val userFilter = UserFilter(
-      name = name,
+      name = name?.let { formatName(it) },
       roleCodes = roleCodes,
       groupCodes = limitGroupSearchCodesByUserAuthority(groupCodes),
       status = status,
@@ -90,6 +91,10 @@ class UserSearchService(
       Sort.Order.asc("first_name"),
     )
   }
+
+  private suspend fun formatName(emailInput: String): String =
+    // Single quotes need to be replaced with 2x single quotes to prevent SQLGrammarExceptions. The first single quote is an escape char.
+    replace(replace(StringUtils.lowerCase(StringUtils.trim(emailInput)), "'", "''"), "’", "''")
 
   private suspend fun limitGroupSearchCodesByUserAuthority(groupCodes: List<String>?): List<String>? {
     val authorities = authenticationFacade.getAuthentication().authorities
