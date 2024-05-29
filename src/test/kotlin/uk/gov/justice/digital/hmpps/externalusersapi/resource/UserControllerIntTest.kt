@@ -209,6 +209,62 @@ class UserControllerIntTest : IntegrationTestBase() {
         .expectBody()
         .json("user_search_groups_roles.json".readFile())
     }
+
+    @Test
+    fun `User search return should return result with special char`() {
+      val user = NewUser("bob2.o'hagan@bobdigital.justice.gov.uk", "Bob", "O'HAGAN")
+
+      webTestClient
+        .post().uri("/users/user/create").bodyValue(user)
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/users/${user.email}")
+        .headers(setAuthorisation("ITAG_USER_ADM"))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it.filter { it.key != "userId" }).containsAllEntriesOf(
+            mapOf("username" to user.email.uppercase(), "enabled" to true, "lastName" to user.lastName, "firstName" to user.firstName),
+          )
+        }
+
+      webTestClient
+        .get().uri("/users/search?name=bob2.o'hagan@bobdigital.justice.gov.uk&groups=&roles=")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.content[0].username").isEqualTo("BOB2.O'HAGAN@BOBDIGITAL.JUSTICE.GOV.UK")
+        .jsonPath("$.content[0].email").isEqualTo("bob2.o'hagan@bobdigital.justice.gov.uk")
+        .jsonPath("$.content[0].firstName").isEqualTo("Bob")
+        .jsonPath("$.content[0].lastName").isEqualTo("O'HAGAN")
+/*        .jsonPath("$.content[0]").value<Map<String, Any>> {
+          assertThat(it).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+             // "userId" to "006a9299-ef3d-4990-8604-13cefac706b5",
+              "username" to "BOB2.O'HAGAN@BOBDIGITAL.JUSTICE.GOV.UK",
+              "email" to "bob2.o'hagan@bobdigital.justice.gov.uk",
+              "firstName" to "Bob",
+              "lastName" to "O'HAGAN",
+              "locked" to false,
+              "enabled" to true,
+              "verified" to false,
+              "inactiveReason" to  null,
+            ),
+          )
+        }*/
+        .jsonPath("totalElements").isEqualTo("1")
+       /* .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).isEqualTo("Role already exists: Role with code RC1 already exists")
+          assertThat(it["developerMessage"] as String).isEqualTo("Role with code RC1 already exists")*/
+      // .json("user_search_specialchar.json".readFile())
+    }
   }
 
   @Nested
