@@ -2,26 +2,16 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
   kotlin("plugin.spring") version "2.0.0"
 }
-
-dependencyCheck {
-  // Suppression till can upgrade to 3.2.5
-  suppressionFiles.add("spring-suppressions.xml")
-}
-// Temporarily pin as can't upgrade to latest gradle plugin
-ext["netty.version"] = "4.1.108.Final"
 
 configurations {
   implementation { exclude(module = "spring-boot-starter-web") }
   implementation { exclude(module = "spring-boot-starter-tomcat") }
   testImplementation { exclude(group = "org.junit.vintage") }
 }
-
-// Temporarily kept at 0.9.2 as get class java.lang.Long cannot be cast to class java.lang.Integer when upgrading to 1.0.0.RELEASE
-val r2dbcPostgresVersion by extra("0.9.2.RELEASE")
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -41,7 +31,6 @@ dependencies {
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
-  // runtimeOnly("org.postgresql:r2dbc-postgresql:$r2dbcPostgresVersion")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.5.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.7.3")
