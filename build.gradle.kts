@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.0.0"
-  kotlin("plugin.spring") version "2.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.0.10"
+  kotlin("plugin.spring") version "2.0.10"
 }
 
 configurations {
@@ -36,19 +36,19 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.3")
   implementation("io.opentelemetry:opentelemetry-api")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  testImplementation("org.awaitility:awaitility-kotlin:4.2.1")
+  testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("org.wiremock:wiremock-standalone:3.7.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.9.1")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.19.8")
+  testImplementation("org.testcontainers:postgresql:1.20.1")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
 }
