@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.0.10"
-  kotlin("plugin.spring") version "2.0.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.4"
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
+  kotlin("plugin.spring") version "2.0.20"
 }
 
 configurations {
@@ -24,21 +24,21 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.3.1.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.4.0.Final")
 
   implementation("org.apache.commons:commons-text:1.12.0")
-  implementation("com.google.guava:guava:33.2.1-jre")
+  implementation("com.google.guava:guava:33.3.0-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.5.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
-  runtimeOnly("org.postgresql:postgresql:42.7.3")
+  runtimeOnly("org.postgresql:postgresql:42.7.4")
   implementation("io.opentelemetry:opentelemetry-api")
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.1")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
