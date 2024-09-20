@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.6"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"
   kotlin("plugin.spring") version "2.0.20"
 }
@@ -21,10 +21,10 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
   implementation("uk.gov.justice.service.hmpps:hmpps-audit-sdk:1.0.0")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.8.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.4.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.4.1.Final")
 
   implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.google.guava:guava:33.3.0-jre")
@@ -39,7 +39,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.6.0")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -50,7 +50,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.20.1")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }
 
 kotlin {
