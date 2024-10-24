@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.externalusersapi.helper.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.wiremock.HmppsAuthMockServer
-import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -29,7 +29,7 @@ abstract class IntegrationTestBase {
   private lateinit var jwtAuthHelper: JwtAuthHelper
 
   @MockBean
-  private lateinit var auditService: AuditService
+  private lateinit var auditService: HmppsAuditService
 
   companion object {
 
