@@ -9,7 +9,6 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@Suppress("SpringJavaInjectionPointsAutowiringInspection")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 class OpenApiDocsTest {
