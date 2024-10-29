@@ -10,10 +10,10 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.argThat
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -437,7 +437,7 @@ internal class UserRoleServiceTest {
         `when` = nowToTheNearestMinute(),
         who = eq("admin"),
         service = eq("hmpps-external-users-api"),
-        details = eq(Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY"))))
+        details = eq(Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY")))),
       )
     }
   }
