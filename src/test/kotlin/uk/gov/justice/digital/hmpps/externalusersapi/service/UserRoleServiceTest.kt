@@ -291,7 +291,7 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = eq("ADD_ROLE"),
+        what = eq("ADD_ROLE_MOHAMAD"),
         subjectId = eq(userId.toString()),
         subjectType = eq("USER_ID"),
         correlationId = eq(null),
@@ -323,7 +323,7 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = eq("ADD_ROLE"),
+        what = eq("ADD_ROLE_MOHAMAD"),
         subjectId = eq(userId.toString()),
         subjectType = eq("USER_ID"),
         correlationId = eq(null),
@@ -362,7 +362,7 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = eq("ADD_ROLE"),
+        what = eq("ADD_ROLE_MOHAMAD"),
         subjectId = eq(userId.toString()),
         subjectType = eq("USER_ID"),
         correlationId = eq(null),
@@ -394,7 +394,7 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = "ADD_ROLE",
+        what = "ADD_ROLE_MOHAMAD",
         who = "admin",
         subjectId = userId.toString(),
         subjectType = "USER_ID",
@@ -430,7 +430,7 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = eq("ADD_ROLE"),
+        what = eq("ADD_ROLE_MOHAMAD"),
         subjectId = eq(userId.toString()),
         subjectType = eq("USER_ID"),
         correlationId = eq(null),
