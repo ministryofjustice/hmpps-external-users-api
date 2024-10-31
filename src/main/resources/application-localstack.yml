@@ -1,0 +1,6 @@
+hmpps.sqs:
+  provider: localstack
+  queues:
+    audit:
+      queueName: ${random.uuid}
+      dlqName: ${random.uuid}
