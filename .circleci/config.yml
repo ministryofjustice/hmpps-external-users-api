@@ -27,7 +27,6 @@ jobs:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - setup_remote_docker:
-          version: 20.10.7
       - run:
           name: Start Localstack
           command: |
