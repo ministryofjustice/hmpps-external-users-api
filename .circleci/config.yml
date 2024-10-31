@@ -30,7 +30,7 @@ jobs:
       - run:
           name: Start Localstack
           command: |
-            docker run -d --name localstack -p 4566:4566 localstack/localstack
+            docker run -d --network host --name localstack localstack/localstack
       - run:
           command: ./gradlew check
       - save_cache:
