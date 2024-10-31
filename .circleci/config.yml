@@ -13,24 +13,28 @@ parameters:
 
 jobs:
   validate:
-    executor:
-      name: hmpps/java_postgres
-      jdk_tag: "21.0"
-      postgres_tag: "16"
-      postgres_db: "auth-db"
-      postgres_username: "admin"
-      postgres_password: "admin_password"
+    docker:
+      - image: hmpps/java_postgres:21.0
+        environment:
+          POSTGRES_DB: auth-db
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin_password
+      - image: localstack/localstack:latest
+        environment:
+          SERVICES: "sqs"
     steps:
       - checkout
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
-      - setup_remote_docker
       - run:
-          name: Start Localstack
+          name: Wait for Localstack
           command: |
-            docker run -d --network host --name localstack localstack/localstack
+            until curl -s http://localhost:4566/health | grep "running"; do
+              echo "Waiting for Localstack...";
+              sleep 5;
+            done
       - run:
           command: ./gradlew check
       - save_cache:
