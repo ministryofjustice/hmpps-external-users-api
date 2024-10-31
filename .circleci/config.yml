@@ -14,22 +14,6 @@ parameters:
 jobs:
   validate:
     executor:
-      name: hmpps/java
-      tag: "21.0"
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle.kts" }}
-            - gradle-
-      - run:
-          command: ./gradlew check -x test
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: gradle-{{ checksum "build.gradle.kts" }}
-  tests:
-    executor:
       name: hmpps/java_localstack_postgres_with_db_name
       jdk_tag: "21.0"
       localstack_tag: "3"
@@ -44,7 +28,8 @@ jobs:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
-      - run: ./gradlew check
+      - run:
+          command: ./gradlew check
       - save_cache:
           paths:
             - ~/.gradle
@@ -59,10 +44,6 @@ workflows:
   build-test-and-deploy:
     jobs:
       - validate:
-          filters:
-            tags:
-              ignore: /.*/
-      - tests:
           filters:
             tags:
               ignore: /.*/
@@ -87,7 +68,6 @@ workflows:
                 - main
           requires:
             - validate
-            - tests
             - build_docker
             - helm_lint
       - hmpps/deploy_env:
@@ -102,7 +82,6 @@ workflows:
                 - main
           requires:
             - validate
-            - tests
             - build_docker
             - helm_lint
       - request-preprod-approval:
