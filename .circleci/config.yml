@@ -14,8 +14,9 @@ parameters:
 jobs:
   validate:
     docker:
-      - image: hmpps/java_postgres:21.0
+      - image: hmpps/java_postgres
         environment:
+          postgres_tag: "16"
           postgres_db: "auth-db"
           postgres_username: "admin"
           postgres_password: "admin_password"
