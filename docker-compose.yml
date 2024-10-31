@@ -15,6 +15,7 @@ services:
       - API_BASE_URL_OAUTH=http://hmpps-auth:8080/auth
       - SPRING_R2DBC_URL=r2dbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
       - SPRING_FLYWAY_URL=jdbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
+      - SERVICES=sqs
 
 networks:
   hmpps:
