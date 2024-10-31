@@ -29,7 +29,6 @@ jobs:
             - ~/.gradle
           key: gradle-{{ checksum "build.gradle.kts" }}
   tests:
-    parallelism: << pipeline.parameters.test-executors-count >>
     executor:
       name: hmpps/java_localstack_postgres
       jdk_tag: "21.0"
