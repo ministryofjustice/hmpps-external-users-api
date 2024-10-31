@@ -67,6 +67,10 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - tests:
+          filters:
+            tags:
+              ignore: /.*/
       - hmpps/helm_lint:
           name: helm_lint
       - hmpps/build_multiplatform_docker:
