@@ -11,3 +11,8 @@ api:
     url:
       oauth: http://localhost:9090/auth
 
+hmpps.sqs:
+  provider: localstack
+  queues:
+    audit:
+      queueName: audit-queue
