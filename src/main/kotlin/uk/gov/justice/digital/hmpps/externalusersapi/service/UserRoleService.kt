@@ -206,7 +206,7 @@ class UserRoleService(
 
   private suspend fun publishAuditEvent(userId: UUID, maintainerName: String, roleCodes: List<String>) {
     auditService.publishEvent(
-      what = "ADD_ROLE_MOHAMAD",
+      what = "ADD_ROLE",
       who = maintainerName,
       subjectId = userId.toString(),
       subjectType = "USER_ID",
