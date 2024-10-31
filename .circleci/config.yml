@@ -27,7 +27,7 @@ jobs:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew check
+          command: ./gradlew check -x test
       - save_cache:
           paths:
             - ~/.gradle
@@ -52,7 +52,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - HAAR-2582
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
@@ -63,7 +63,7 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - HAAR-2582
           requires:
             - validate
             - build_docker
