@@ -11,7 +11,15 @@ api:
     url:
       oauth: http://localhost:9090/auth
 
+# uncomment to have extra database query logging
 #logging:
 #  level:
 #    io.r2dbc.postgresql.QUERY: DEBUG # for queries
 #    io.r2dbc.postgresql.PARAM: INFO # for parameters
+
+hmpps.sqs:
+  provider: localstack
+  queues:
+    audit:
+      queueName: audit-queue
+

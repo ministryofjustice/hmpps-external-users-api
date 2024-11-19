@@ -13,6 +13,8 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -35,7 +37,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.UserGroupRelations
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.EXT_ADM
 import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType.IMS_HIDDEN
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserRoleService.UserRoleException
-import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
+import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 
 internal class UserRoleServiceTest {
@@ -46,7 +50,7 @@ internal class UserRoleServiceTest {
   private val authentication: Authentication = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val telemetryClient: TelemetryClient = mock()
-  private val auditService: AuditService = mock()
+  private val auditService: HmppsAuditService = mock()
   private val service = UserRoleService(userRepository, maintainUserCheck, userRoleRepository, roleRepository, authenticationFacade, telemetryClient, auditService)
 
   @Nested
@@ -287,13 +291,14 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = "ADD_ROLE",
-        who = "admin",
-        subjectId = userId.toString(),
-        subjectType = "USER_ID",
-        correlationId = null,
-        service = "hmpps-external-users-api",
-        details = Json.encodeToString(AddedRoles(listOf("TO_ADD"))),
+        what = eq("ADD_ROLE"),
+        subjectId = eq(userId.toString()),
+        subjectType = eq("USER_ID"),
+        correlationId = eq(null),
+        `when` = nowToTheNearestMinute(),
+        who = eq("admin"),
+        service = eq("hmpps-external-users-api"),
+        details = eq(Json.encodeToString(AddedRoles(listOf("TO_ADD")))),
       )
     }
 
@@ -318,13 +323,14 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = "ADD_ROLE",
-        who = "admin",
-        subjectId = userId.toString(),
-        subjectType = "USER_ID",
-        correlationId = null,
-        service = "hmpps-external-users-api",
-        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY"))),
+        what = eq("ADD_ROLE"),
+        subjectId = eq(userId.toString()),
+        subjectType = eq("USER_ID"),
+        correlationId = eq(null),
+        `when` = nowToTheNearestMinute(),
+        who = eq("admin"),
+        service = eq("hmpps-external-users-api"),
+        details = eq(Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY")))),
       )
     }
 
@@ -356,13 +362,14 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = "ADD_ROLE",
-        who = "admin",
-        subjectId = userId.toString(),
-        subjectType = "USER_ID",
-        correlationId = null,
-        service = "hmpps-external-users-api",
-        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY", "ROLE_OTHER"))),
+        what = eq("ADD_ROLE"),
+        subjectId = eq(userId.toString()),
+        subjectType = eq("USER_ID"),
+        correlationId = eq(null),
+        `when` = nowToTheNearestMinute(),
+        who = eq("admin"),
+        service = eq("hmpps-external-users-api"),
+        details = eq(Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY", "ROLE_OTHER")))),
       )
     }
 
@@ -423,13 +430,14 @@ internal class UserRoleServiceTest {
         null,
       )
       verify(auditService).publishEvent(
-        what = "ADD_ROLE",
-        who = "admin",
-        subjectId = userId.toString(),
-        subjectType = "USER_ID",
-        correlationId = null,
-        service = "hmpps-external-users-api",
-        details = Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY"))),
+        what = eq("ADD_ROLE"),
+        subjectId = eq(userId.toString()),
+        subjectType = eq("USER_ID"),
+        correlationId = eq(null),
+        `when` = nowToTheNearestMinute(),
+        who = eq("admin"),
+        service = eq("hmpps-external-users-api"),
+        details = eq(Json.encodeToString(AddedRoles(listOf("ROLE_LICENCE_VARY")))),
       )
     }
   }
@@ -716,6 +724,10 @@ internal class UserRoleServiceTest {
         verify(roleRepository).findByUserRolesForUserName("JOE")
       }
     }
+  }
+
+  private fun nowToTheNearestMinute(): Instant = argThat { actualTime ->
+    Duration.between(Instant.now(), actualTime).abs() <= Duration.ofMinutes(1)
   }
 
   companion object {

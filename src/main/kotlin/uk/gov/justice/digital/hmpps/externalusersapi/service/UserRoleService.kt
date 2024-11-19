@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck.Companion.canMaintainExternalUsers
-import uk.gov.justice.digital.hmpps.hmppsauditsdk.AuditService
+import uk.gov.justice.hmpps.sqs.audit.HmppsAuditService
 import java.util.UUID
 import java.util.function.Consumer
 
@@ -36,7 +36,7 @@ class UserRoleService(
   private val roleRepository: RoleRepository,
   private val authenticationFacade: AuthenticationFacade,
   private val telemetryClient: TelemetryClient,
-  private val auditService: AuditService,
+  private val auditService: HmppsAuditService,
 ) {
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
@@ -204,7 +204,7 @@ class UserRoleService(
 
   class UserRoleExistsException : UserRoleException("role", "role.exists")
 
-  private fun publishAuditEvent(userId: UUID, maintainerName: String, roleCodes: List<String>) {
+  private suspend fun publishAuditEvent(userId: UUID, maintainerName: String, roleCodes: List<String>) {
     auditService.publishEvent(
       what = "ADD_ROLE",
       who = maintainerName,
