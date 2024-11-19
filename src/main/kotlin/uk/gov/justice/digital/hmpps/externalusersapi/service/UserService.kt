@@ -61,7 +61,7 @@ class UserService(
   }
 
   suspend fun getAllUsersLastName(): List<UserLastNameDto> =
-    userRepository.findAllBySource().map { UserLastNameDto(it.getUserName(), it.lastName!!) }.toList()
+    userRepository.findAllBySource().map { UserLastNameDto(it.getUserName(), it.lastName ?: "") }.toList()
 
   private suspend fun getUserForUpdate(userId: UUID): User {
     userRepository.findById(userId)?.let { user ->

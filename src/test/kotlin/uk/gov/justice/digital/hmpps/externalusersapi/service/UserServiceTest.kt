@@ -208,7 +208,7 @@ class UserServiceTest {
     fun `getAllUsersLastName should return list of UserLastNameDto`(): Unit = runBlocking {
       val users = listOf(
         createSampleUser(username = "bob", source = AuthSource.auth, lastName = "Doe"),
-        createSampleUser(username = "bob", source = AuthSource.auth, lastName = "Smith"),
+        createSampleUser(username = "bob2", source = AuthSource.auth, lastName = "Smith"),
       )
       whenever(userRepository.findAllBySource()).thenReturn(flowOf(*users.toTypedArray()))
 
@@ -217,6 +217,23 @@ class UserServiceTest {
       assertThat(result.size).isEqualTo(2)
       assertThat(result[0].lastName).isEqualTo("Doe")
       assertThat(result[1].lastName).isEqualTo("Smith")
+      verify(userRepository, times(1)).findAllBySource()
+      verifyNoMoreInteractions(userRepository)
+    }
+
+    @Test
+    fun `getAllUsersLastName should return list of UserLastNameDto last name is empty if null in db`(): Unit = runBlocking {
+      val users = listOf(
+        createSampleUser(username = "bob", source = AuthSource.auth, lastName = "Doe"),
+        createSampleUser(username = "bob2", source = AuthSource.auth),
+      )
+      whenever(userRepository.findAllBySource()).thenReturn(flowOf(*users.toTypedArray()))
+
+      val result = userService.getAllUsersLastName()
+
+      assertThat(result.size).isEqualTo(2)
+      assertThat(result[0].lastName).isEqualTo("Doe")
+      assertThat(result[1].lastName).isEqualTo("")
       verify(userRepository, times(1)).findAllBySource()
       verifyNoMoreInteractions(userRepository)
     }
