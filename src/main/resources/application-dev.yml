@@ -11,3 +11,7 @@ api:
     url:
       oauth: http://localhost:9090/auth
 
+#logging:
+#  level:
+#    io.r2dbc.postgresql.QUERY: DEBUG # for queries
+#    io.r2dbc.postgresql.PARAM: INFO # for parameters

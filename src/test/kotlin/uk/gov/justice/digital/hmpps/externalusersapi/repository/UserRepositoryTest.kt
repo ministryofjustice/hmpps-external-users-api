@@ -57,4 +57,9 @@ class UserRepositoryTest {
       .extracting<String> { it.getUserName() }
       .contains("AUTH_ADM", "AUTH_EXPIRED")
   }
+
+  @Test
+  fun findAllBySource(): Unit = runBlocking {
+    assertThat(repository.findAllBySource().toList()).hasSize(144)
+  }
 }

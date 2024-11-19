@@ -1,12 +1,12 @@
 spring:
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/auth-db?sslmode=prefer
+    url: r2dbc:postgresql://localhost:5433/auth-db?sslmode=prefer
     username: admin
     password: admin_password
     properties:
       sslMode: DISABLE
       sslRootCert: //home
   flyway:
-    url: jdbc:postgresql://localhost:5432/auth-db?sslmode=prefer
+    url: jdbc:postgresql://localhost:5433/auth-db?sslmode=prefer
     user: admin
     password: admin_password
