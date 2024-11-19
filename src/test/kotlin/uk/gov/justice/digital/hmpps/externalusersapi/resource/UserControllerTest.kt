@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.service.CreateUserService
@@ -48,6 +49,6 @@ class UserControllerTest {
     assertThat(response).hasSize(2)
     assertThat(response[0].lastName).isEqualTo("Doe")
     assertThat(response[1].lastName).isEqualTo("Smith")
-    verify(userService).getAllUsersLastName()
+    verify(userService, times(1)).getAllUsersLastName()
   }
 }
