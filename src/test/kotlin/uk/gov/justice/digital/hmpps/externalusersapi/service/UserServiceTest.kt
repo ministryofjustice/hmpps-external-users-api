@@ -14,7 +14,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
@@ -218,7 +218,7 @@ class UserServiceTest {
       assertThat(result[0].lastName).isEqualTo("Doe")
       assertThat(result[1].lastName).isEqualTo("Smith")
       verify(userRepository, times(1)).findAllBySource()
-      verifyNoInteractions(userRepository)
+      verifyNoMoreInteractions(userRepository)
     }
   }
 }
