@@ -10,12 +10,14 @@ class UserHelper {
       username: String = "firstlast",
       source: AuthSource = AuthSource.auth,
       id: UUID? = null,
+      lastName: String? = null,
     ): uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User {
       val user = uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User(
         username = username,
         source = source,
       )
       user.id = id
+      user.lastName = lastName
       return user
     }
   }

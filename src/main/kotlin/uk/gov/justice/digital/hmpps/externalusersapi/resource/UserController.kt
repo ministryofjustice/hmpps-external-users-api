@@ -36,6 +36,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.CreateUserService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserGroupService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.UserLastNameDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserSearchService
 import uk.gov.justice.digital.hmpps.externalusersapi.service.UserService
 import java.time.LocalDateTime
@@ -286,6 +287,32 @@ class UserController(
       PageRequest.of(page, size),
       status,
     )
+
+  @GetMapping("/lastnames")
+  @Operation(
+    summary = "Get all users' usernames and last names.",
+    description = "Returns a list of all users with their usernames and last names.",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_VIEW_USER_DETAIL')")
+  suspend fun getAllUsersLastNames(): List<UserLastNameDto> = userService.getAllUsersLastName()
 
   @PutMapping("/id/{userId}/email")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")

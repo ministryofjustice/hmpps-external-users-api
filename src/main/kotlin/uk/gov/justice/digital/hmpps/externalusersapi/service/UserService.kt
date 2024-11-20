@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -58,6 +60,9 @@ class UserService(
     telemetryClient.trackEvent("ExternalUserDisabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
   }
 
+  suspend fun getAllUsersLastName(): List<UserLastNameDto> =
+    userRepository.findAllBySource().map { UserLastNameDto(it.getUserName(), it.lastName ?: "") }.toList()
+
   private suspend fun getUserForUpdate(userId: UUID): User {
     userRepository.findById(userId)?.let { user ->
       maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
@@ -65,3 +70,5 @@ class UserService(
     } ?: throw UserNotFoundException("User $userId not found")
   }
 }
+
+data class UserLastNameDto(val username: String, val lastName: String)

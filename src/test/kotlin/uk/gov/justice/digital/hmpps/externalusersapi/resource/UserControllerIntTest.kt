@@ -882,4 +882,33 @@ class UserControllerIntTest : IntegrationTestBase() {
         }
     }
   }
+
+  @Test
+  fun `getAllUsersLastNames should return list of UserLastNameDto`() {
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/lastnames")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Is accessible to authorised user without roles`() {
+      webTestClient.get().uri("/users/lastnames")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    webTestClient.get().uri("/users/lastnames")
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_VIEW_USER_DETAIL")))
+      .exchange()
+      .expectStatus().isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody()
+      .jsonPath("$.length()").value { length: Int -> assertThat(length).isGreaterThan(140) }
+      .jsonPath("$[0].lastName").isEqualTo("Login")
+      .jsonPath("$[100].lastName").isEqualTo("Mfa")
+  }
 }

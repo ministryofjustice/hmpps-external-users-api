@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -11,9 +12,12 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
+import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper.Companion.createSampleUser
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
@@ -194,6 +198,44 @@ class UserServiceTest {
         }.isInstanceOf(UserNotFoundException::class.java)
           .withFailMessage("User 00000000-aaaa-0000-aaaa-0a0a0a0a0a0a not found")
       }
+    }
+  }
+
+  @Nested
+  inner class GetAllExternalUsers {
+
+    @Test
+    fun `getAllUsersLastName should return list of UserLastNameDto`(): Unit = runBlocking {
+      val users = listOf(
+        createSampleUser(username = "bob", source = AuthSource.auth, lastName = "Doe"),
+        createSampleUser(username = "bob2", source = AuthSource.auth, lastName = "Smith"),
+      )
+      whenever(userRepository.findAllBySource()).thenReturn(flowOf(*users.toTypedArray()))
+
+      val result = userService.getAllUsersLastName()
+
+      assertThat(result.size).isEqualTo(2)
+      assertThat(result[0].lastName).isEqualTo("Doe")
+      assertThat(result[1].lastName).isEqualTo("Smith")
+      verify(userRepository, times(1)).findAllBySource()
+      verifyNoMoreInteractions(userRepository)
+    }
+
+    @Test
+    fun `getAllUsersLastName should return list of UserLastNameDto last name is empty if null in db`(): Unit = runBlocking {
+      val users = listOf(
+        createSampleUser(username = "bob", source = AuthSource.auth, lastName = "Doe"),
+        createSampleUser(username = "bob2", source = AuthSource.auth),
+      )
+      whenever(userRepository.findAllBySource()).thenReturn(flowOf(*users.toTypedArray()))
+
+      val result = userService.getAllUsersLastName()
+
+      assertThat(result.size).isEqualTo(2)
+      assertThat(result[0].lastName).isEqualTo("Doe")
+      assertThat(result[1].lastName).isEqualTo("")
+      verify(userRepository, times(1)).findAllBySource()
+      verifyNoMoreInteractions(userRepository)
     }
   }
 }

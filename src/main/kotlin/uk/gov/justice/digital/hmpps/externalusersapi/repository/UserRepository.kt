@@ -24,4 +24,6 @@ interface UserRepository : CoroutineCrudRepository<User, UUID> {
   fun findAllByGroupCode(groupCode: String, source: AuthSource = AuthSource.auth): Flow<User>
 
   fun findByEmailAndSourceOrderByUsername(email: String?, source: AuthSource = AuthSource.auth): Flow<User>
+
+  fun findAllBySource(source: AuthSource = AuthSource.auth): Flow<User>
 }
