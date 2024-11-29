@@ -311,7 +311,7 @@ class UserController(
       ),
     ],
   )
-  // @PreAuthorize("hasAnyRole('ROLE_VIEW_USER_DETAIL')")
+  @PreAuthorize("hasAnyRole('ROLE_VIEW_USER_DETAIL')")
   suspend fun getAllUsersLastNames(): List<UserLastNameDto> = userService.getAllUsersLastName()
 
   @PutMapping("/id/{userId}/email")
