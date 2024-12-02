@@ -10,3 +10,4 @@ spring:
     url: jdbc:postgresql://localhost:5432/auth-db?sslmode=prefer
     user: admin
     password: admin_password
+    enabled: true
