@@ -41,6 +41,5 @@ class ValidationController(
       ),
     ],
   )
-  suspend fun isValidEmailDomain(@RequestParam(value = "emailDomain", required = true) emailDomain: String): Boolean =
-    verifyEmailDomainService.isValidEmailDomain(emailDomain)
+  suspend fun isValidEmailDomain(@RequestParam(value = "emailDomain", required = true) emailDomain: String): Boolean = verifyEmailDomainService.isValidEmailDomain(emailDomain)
 }

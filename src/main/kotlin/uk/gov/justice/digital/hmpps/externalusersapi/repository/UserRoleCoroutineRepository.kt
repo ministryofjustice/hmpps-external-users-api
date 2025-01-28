@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.UserRole
 
 @Repository
-interface UserRoleCoroutineRepository : CoroutineCrudRepository<UserRole, String>, CoroutineSortingRepository<UserRole, String>
+interface UserRoleCoroutineRepository :
+  CoroutineCrudRepository<UserRole, String>,
+  CoroutineSortingRepository<UserRole, String>

@@ -8,7 +8,9 @@ import org.springframework.lang.NonNull
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
 
-interface GroupRepository : CoroutineCrudRepository<Group, String>, CoroutineSortingRepository<Group, String> {
+interface GroupRepository :
+  CoroutineCrudRepository<Group, String>,
+  CoroutineSortingRepository<Group, String> {
   fun findAllByOrderByGroupName(): Flow<Group>
 
   suspend fun findByGroupCode(groupCode: String?): Group?

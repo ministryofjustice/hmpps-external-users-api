@@ -60,8 +60,7 @@ class UserService(
     telemetryClient.trackEvent("ExternalUserDisabled", mapOf("username" to user.name, "admin" to authenticationFacade.getUsername()), null)
   }
 
-  suspend fun getAllUsersLastName(): List<UserLastNameDto> =
-    userRepository.findAllBySource().map { UserLastNameDto(it.getUserName(), it.lastName ?: "") }.toList()
+  suspend fun getAllUsersLastName(): List<UserLastNameDto> = userRepository.findAllBySource().map { UserLastNameDto(it.getUserName(), it.lastName ?: "") }.toList()
 
   private suspend fun getUserForUpdate(userId: UUID): User {
     userRepository.findById(userId)?.let { user ->

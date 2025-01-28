@@ -153,14 +153,13 @@ class RoleController(
     @RequestParam(required = false)
     adminTypes: List<AdminType>?,
     @PageableDefault(sort = ["roleName"], direction = Sort.Direction.ASC) pageable: Pageable,
-  ): Page<RoleDetailsDto> =
-    roleService.getRoles(
-      roleName,
-      roleCode,
-      adminTypes,
-      pageable,
-    )
-      .map { RoleDetailsDto(it) }
+  ): Page<RoleDetailsDto> = roleService.getRoles(
+    roleName,
+    roleCode,
+    adminTypes,
+    pageable,
+  )
+    .map { RoleDetailsDto(it) }
 
   @GetMapping("/roles/{role}")
   @PreAuthorize("hasAnyRole('ROLE_ROLES_ADMIN', 'ROLE_VIEW_ADMINISTRABLE_USER_ROLES')")

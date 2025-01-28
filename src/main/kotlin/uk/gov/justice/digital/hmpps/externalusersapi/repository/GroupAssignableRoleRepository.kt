@@ -9,7 +9,9 @@ import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 
 @Repository
-interface GroupAssignableRoleRepository : CoroutineCrudRepository<UserAssignableRoleDto, String>, CoroutineSortingRepository<UserAssignableRoleDto, String> {
+interface GroupAssignableRoleRepository :
+  CoroutineCrudRepository<UserAssignableRoleDto, String>,
+  CoroutineSortingRepository<UserAssignableRoleDto, String> {
 
   @NonNull
   @Query(

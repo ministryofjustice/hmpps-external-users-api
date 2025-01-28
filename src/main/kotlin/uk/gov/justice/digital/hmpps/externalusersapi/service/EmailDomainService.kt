@@ -35,9 +35,7 @@ class EmailDomainService(
   }
 
   @Throws(EmailDomainNotFoundException::class)
-  suspend fun domain(id: UUID): EmailDomainDto {
-    return toDto(retrieveDomain(id, "retrieve"))
-  }
+  suspend fun domain(id: UUID): EmailDomainDto = toDto(retrieveDomain(id, "retrieve"))
 
   @Throws(EmailDomainAdditionBarredException::class)
   suspend fun addDomain(newDomain: CreateEmailDomainDto): EmailDomainDto {
@@ -66,16 +64,12 @@ class EmailDomainService(
     emailDomain.description.toString(),
   )
 
-  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain =
-    emailDomainRepository.findById(uuid)
-      ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
+  private suspend fun retrieveDomain(uuid: UUID, action: String): EmailDomain = emailDomainRepository.findById(uuid)
+    ?: throw EmailDomainNotFoundException(action, uuid, "notfound")
 
-  private fun cleanDomainNameForDisplay(persistedDomainName: String): String =
-    persistedDomainName.removePrefix(PERCENT).removePrefix(".")
+  private fun cleanDomainNameForDisplay(persistedDomainName: String): String = persistedDomainName.removePrefix(PERCENT).removePrefix(".")
 }
 
-class EmailDomainAdditionBarredException(domain: String, val reason: String) :
-  Exception("Unable to add email domain: Email domain $domain $reason")
+class EmailDomainAdditionBarredException(domain: String, val reason: String) : Exception("Unable to add email domain: Email domain $domain $reason")
 
-class EmailDomainNotFoundException(action: String, id: UUID, errorCode: String) :
-  Exception("Unable to $action email domain id: $id with reason: $errorCode")
+class EmailDomainNotFoundException(action: String, id: UUID, errorCode: String) : Exception("Unable to $action email domain id: $id with reason: $errorCode")

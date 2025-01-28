@@ -15,19 +15,17 @@ import java.util.function.BiFunction
 @Repository
 class UserGroupRepository(private val databaseClient: DatabaseClient) {
 
-  suspend fun getUserGroup(userId: UUID, groupId: UUID): UserGroup? =
-    databaseClient
-      .sql("SELECT * FROM user_group WHERE user_id = :userId and group_id = :groupId")
-      .bind("userId", userId)
-      .bind("groupId", groupId)
-      .map(userGroupMappingFunction)
-      .awaitSingleOrNull()
+  suspend fun getUserGroup(userId: UUID, groupId: UUID): UserGroup? = databaseClient
+    .sql("SELECT * FROM user_group WHERE user_id = :userId and group_id = :groupId")
+    .bind("userId", userId)
+    .bind("groupId", groupId)
+    .map(userGroupMappingFunction)
+    .awaitSingleOrNull()
 
-  fun getAllUserGroups(): Flow<UserGroup> =
-    databaseClient
-      .sql("SELECT * FROM user_group ")
-      .map(userGroupMappingFunction)
-      .all().asFlow()
+  fun getAllUserGroups(): Flow<UserGroup> = databaseClient
+    .sql("SELECT * FROM user_group ")
+    .map(userGroupMappingFunction)
+    .all().asFlow()
 
   suspend fun deleteUserGroup(userId: UUID, groupId: UUID): Long {
     val sql = "delete from user_group " +
@@ -43,14 +41,13 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       .awaitFirst()
   }
 
-  suspend fun insertUserGroup(userId: UUID, groupId: UUID) =
-    databaseClient
-      .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
-      .bind("userId", userId)
-      .bind("groupId", groupId)
-      .fetch()
-      .rowsUpdated()
-      .awaitFirst()
+  suspend fun insertUserGroup(userId: UUID, groupId: UUID) = databaseClient
+    .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
+    .bind("userId", userId)
+    .bind("groupId", groupId)
+    .fetch()
+    .rowsUpdated()
+    .awaitFirst()
 
   private val userGroupMappingFunction: BiFunction<Row, RowMetadata, UserGroup> =
     BiFunction<Row, RowMetadata, UserGroup> { row, _ ->

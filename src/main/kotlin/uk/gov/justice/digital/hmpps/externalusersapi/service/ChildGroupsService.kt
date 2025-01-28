@@ -22,9 +22,7 @@ class ChildGroupsService(
   @Throws(ChildGroupNotFoundException::class)
   suspend fun getChildGroupDetail(
     groupCode: String,
-  ): ChildGroup {
-    return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
-  }
+  ): ChildGroup = childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
 
   @Transactional
   @Throws(ChildGroupNotFoundException::class)
@@ -87,13 +85,9 @@ class ChildGroupsService(
     )
   }
 
-  private suspend fun retrieveChildGroup(groupCode: String): ChildGroup {
-    return childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
-  }
+  private suspend fun retrieveChildGroup(groupCode: String): ChildGroup = childGroupRepository.findByGroupCode(groupCode) ?: throw ChildGroupNotFoundException(groupCode, "notfound")
 }
 
-class ChildGroupNotFoundException(group: String, errorCode: String) :
-  Exception("Unable to get child group: $group with reason: $errorCode")
+class ChildGroupNotFoundException(group: String, errorCode: String) : Exception("Unable to get child group: $group with reason: $errorCode")
 
-class ChildGroupExistsException(group: String, errorCode: String) :
-  Exception("Unable to create child group: $group with reason: $errorCode")
+class ChildGroupExistsException(group: String, errorCode: String) : Exception("Unable to create child group: $group with reason: $errorCode")

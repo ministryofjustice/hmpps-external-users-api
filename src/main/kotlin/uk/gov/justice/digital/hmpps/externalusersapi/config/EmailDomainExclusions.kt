@@ -7,7 +7,5 @@ import org.springframework.stereotype.Component
 data class EmailDomainExclusions(
   @Value("\${application.email.domain.exclude}") val exclude: Set<String>,
 ) {
-  fun contains(domain: String): Boolean {
-    return exclude.contains(domain)
-  }
+  fun contains(domain: String): Boolean = exclude.contains(domain)
 }

@@ -74,8 +74,7 @@ class UserSearchService(
     return flowOf()
   }
 
-  suspend fun getUserByUsername(username: String): User =
-    userRepository.findByUsernameAndSource(upperCase(StringUtils.trim(username))) ?: throw UserNotFoundException("Account for username $username not found")
+  suspend fun getUserByUsername(username: String): User = userRepository.findByUsernameAndSource(upperCase(StringUtils.trim(username))) ?: throw UserNotFoundException("Account for username $username not found")
 
   suspend fun getUserByUserId(userId: UUID): User {
     val user = userRepository.findById(userId) ?: throw UserNotFoundException("User with id $userId not found")
@@ -85,15 +84,12 @@ class UserSearchService(
 
   // NOTE: this function ensures that the response is flagged as sorted, matching the hard coded order by clause in the SQL in UserFilter.
   // The property names do not appear in the response.
-  private fun defaultSortOrder(): List<Sort.Order> {
-    return listOf(
-      Sort.Order.asc("last_name"),
-      Sort.Order.asc("first_name"),
-    )
-  }
+  private fun defaultSortOrder(): List<Sort.Order> = listOf(
+    Sort.Order.asc("last_name"),
+    Sort.Order.asc("first_name"),
+  )
 
-  private suspend fun formatName(emailInput: String): String =
-    // Single quotes need to be replaced with 2x single quotes to prevent SQLGrammarExceptions. The first single quote is an escape char.
+  private suspend fun formatName(emailInput: String): String = // Single quotes need to be replaced with 2x single quotes to prevent SQLGrammarExceptions. The first single quote is an escape char.
     replace(replace(StringUtils.lowerCase(StringUtils.trim(emailInput)), "'", "''"), "’", "''")
 
   private suspend fun limitGroupSearchCodesByUserAuthority(groupCodes: List<String>?): List<String>? {
@@ -109,5 +105,4 @@ class UserSearchService(
   }
 }
 
-class UserNotFoundException(message: String) :
-  Exception(message)
+class UserNotFoundException(message: String) : Exception(message)

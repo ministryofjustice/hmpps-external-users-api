@@ -36,8 +36,6 @@ class UserSearchRepository(private val databaseClient: DatabaseClient) {
     return query.map(userMapper).all().asFlow()
   }
 
-  suspend fun countAllBy(userFilter: UserFilter): Long {
-    return databaseClient.sql(userFilter.countSQL)
-      .map(countMapper).awaitOne()
-  }
+  suspend fun countAllBy(userFilter: UserFilter): Long = databaseClient.sql(userFilter.countSQL)
+    .map(countMapper).awaitOne()
 }

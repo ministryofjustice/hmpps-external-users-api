@@ -10,7 +10,9 @@ import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import java.util.UUID
 
 @Repository
-interface RoleRepository : CoroutineCrudRepository<Authority, String>, CoroutineSortingRepository<Authority, String> {
+interface RoleRepository :
+  CoroutineCrudRepository<Authority, String>,
+  CoroutineSortingRepository<Authority, String> {
 
   fun findByAdminTypeContainingOrderByRoleName(adminType: String): Flow<Authority>
 

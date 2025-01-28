@@ -13,26 +13,23 @@ import java.util.stream.Collectors
 @Component
 class AuthenticationFacade {
 
-  suspend fun getAuthentication(): Authentication =
-    ReactiveSecurityContextHolder.getContext().awaitSingle().authentication
+  suspend fun getAuthentication(): Authentication = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication
 
-  suspend fun getUsername(): String {
-    return when (val userPrincipal = getAuthentication().principal) {
-      is String -> {
-        userPrincipal
-      }
+  suspend fun getUsername(): String = when (val userPrincipal = getAuthentication().principal) {
+    is String -> {
+      userPrincipal
+    }
 
-      is UserDetails -> {
-        userPrincipal.username
-      }
+    is UserDetails -> {
+      userPrincipal.username
+    }
 
-      is Map<*, *> -> {
-        userPrincipal["username"] as String
-      }
+    is Map<*, *> -> {
+      userPrincipal["username"] as String
+    }
 
-      else -> {
-        "anonymous"
-      }
+    else -> {
+      "anonymous"
     }
   }
 
@@ -43,11 +40,9 @@ class AuthenticationFacade {
     return hasMatchingRole(roles, getAuthentication())
   }
 
-  private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean {
-    return authentication != null &&
-      authentication.authorities.stream()
-        .anyMatch { a: GrantedAuthority? -> roles.contains(RegExUtils.replaceFirst(a!!.authority, "ROLE_", "")) }
-  }
+  private fun hasMatchingRole(roles: List<String>, authentication: Authentication?): Boolean = authentication != null &&
+    authentication.authorities.stream()
+      .anyMatch { a: GrantedAuthority? -> roles.contains(RegExUtils.replaceFirst(a!!.authority, "ROLE_", "")) }
 
   suspend fun isMaintainImsUser() = getAuthentication().authorities.map { it.authority }
     .any { it == "ROLE_MAINTAIN_IMS_USERS" }

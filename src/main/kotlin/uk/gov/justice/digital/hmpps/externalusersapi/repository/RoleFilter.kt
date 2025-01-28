@@ -126,12 +126,10 @@ class RoleFilter(
     sql = sqlBuilder.toString()
   }
 
-  private fun resolveToSortColumn(fieldName: String): String {
-    return if (sortFieldsMap.containsKey(fieldName)) {
-      sortFieldsMap[fieldName]!!
-    } else {
-      "r.role_name"
-    }
+  private fun resolveToSortColumn(fieldName: String): String = if (sortFieldsMap.containsKey(fieldName)) {
+    sortFieldsMap[fieldName]!!
+  } else {
+    "r.role_name"
   }
 
   private fun <T> Optional<T>.unwrap(): T? = orElse(null)

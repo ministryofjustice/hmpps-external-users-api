@@ -127,7 +127,5 @@ class CreateUserService(
   }
 }
 
-class CreateUserException(val field: String, val errorCode: String) :
-  Exception("Create user failed for field $field with reason: $errorCode")
-class UserExistsException(val field: String, val errorCode: String) :
-  Exception("User already exists, for field $field with reason: $errorCode")
+class CreateUserException(val field: String, val errorCode: String) : Exception("Create user failed for field $field with reason: $errorCode")
+class UserExistsException(val field: String, val errorCode: String) : Exception("User already exists, for field $field with reason: $errorCode")

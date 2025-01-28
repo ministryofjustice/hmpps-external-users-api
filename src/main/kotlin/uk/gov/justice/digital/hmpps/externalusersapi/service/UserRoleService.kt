@@ -51,33 +51,30 @@ class UserRoleService(
   val imsRoles: Flow<Authority>
     get() = roleRepository.findByAdminTypeContainingOrderByRoleName(AdminType.IMS_HIDDEN.adminTypeCode)
 
-  suspend fun getUserRoles(userId: UUID) =
-    userRepository.findById(userId)?.let { user: User ->
-      // MaintainImsUser doesn't need to check user relationship as is system role
-      if (!authenticationFacade.isMaintainImsUser()) {
-        maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
-      }
-      roleRepository.findRolesByUserId(userId).toList()
+  suspend fun getUserRoles(userId: UUID) = userRepository.findById(userId)?.let { user: User ->
+    // MaintainImsUser doesn't need to check user relationship as is system role
+    if (!authenticationFacade.isMaintainImsUser()) {
+      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
     }
+    roleRepository.findRolesByUserId(userId).toList()
+  }
 
-  suspend fun getAssignableRolesByUserId(userId: UUID) =
-    userRepository.findById(userId)?.let {
-      Sets.difference(
-        getAllAssignableRolesByUserId(userId).toSet(),
-        roleRepository.findRolesByUserId(userId).toSet(),
-      )
-        .sortedBy { it.roleName }
-    } ?: throw UsernameNotFoundException("User $userId not found")
+  suspend fun getAssignableRolesByUserId(userId: UUID) = userRepository.findById(userId)?.let {
+    Sets.difference(
+      getAllAssignableRolesByUserId(userId).toSet(),
+      roleRepository.findRolesByUserId(userId).toSet(),
+    )
+      .sortedBy { it.roleName }
+  } ?: throw UsernameNotFoundException("User $userId not found")
 
-  suspend fun getAllAssignableRolesByUserId(userId: UUID) =
-    if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
-      // only allow oauth admins to see that role
-      extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
-        .toSet()
-      // otherwise they can assign all roles that can be assigned to any of their groups
-    } else {
-      roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
-    }
+  suspend fun getAllAssignableRolesByUserId(userId: UUID) = if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
+    // only allow oauth admins to see that role
+    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
+      .toSet()
+    // otherwise they can assign all roles that can be assigned to any of their groups
+  } else {
+    roleRepository.findByGroupAssignableRolesForUserId(userId).toSet()
+  }
 
   @Transactional
   suspend fun addRolesByUserId(
@@ -186,21 +183,18 @@ class UserRoleService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
-  suspend fun getAllAssignableRoles() =
-    if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
-      // only allow oauth admins to see that role
-      extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
-        .toSet()
-      // otherwise they can assign all roles that can be assigned to any of their groups
-    } else {
-      roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
-    }
+  suspend fun getAllAssignableRoles() = if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
+    // only allow oauth admins to see that role
+    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
+      .toSet()
+    // otherwise they can assign all roles that can be assigned to any of their groups
+  } else {
+    roleRepository.findByGroupAssignableRolesForUserName(authenticationFacade.getUsername()).toSet()
+  }
 
-  private fun formatRole(role: String) =
-    Authority.removeRolePrefixIfNecessary(StringUtils.upperCase(StringUtils.trim(role)))
+  private fun formatRole(role: String) = Authority.removeRolePrefixIfNecessary(StringUtils.upperCase(StringUtils.trim(role)))
 
-  open class UserRoleException(val field: String, val errorCode: String) :
-    Exception("Modify role failed for field $field with reason: $errorCode")
+  open class UserRoleException(val field: String, val errorCode: String) : Exception("Modify role failed for field $field with reason: $errorCode")
 
   class UserRoleExistsException : UserRoleException("role", "role.exists")
 
