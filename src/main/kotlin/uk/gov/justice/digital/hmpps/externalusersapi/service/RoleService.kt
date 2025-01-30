@@ -64,36 +64,34 @@ class RoleService(
     roleCode: String?,
     adminTypes: List<AdminType>?,
     pageable: Pageable,
-  ): Page<Authority> =
-    coroutineScope {
-      val rolesFilter = RoleFilter(
-        roleName = roleName,
-        adminTypes = adminTypes,
-        roleCode = roleCode,
-        pageable = pageable,
-      )
+  ): Page<Authority> = coroutineScope {
+    val rolesFilter = RoleFilter(
+      roleName = roleName,
+      adminTypes = adminTypes,
+      roleCode = roleCode,
+      pageable = pageable,
+    )
 
-      val roles = async {
-        roleSearchRepository.searchForRoles(rolesFilter)
-      }
-
-      val count = async {
-        roleSearchRepository.countAllBy(rolesFilter)
-      }
-
-      PageImpl(
-        roles.await().toList(),
-        pageable,
-        count.await(),
-      )
+    val roles = async {
+      roleSearchRepository.searchForRoles(rolesFilter)
     }
 
+    val count = async {
+      roleSearchRepository.countAllBy(rolesFilter)
+    }
+
+    PageImpl(
+      roles.await().toList(),
+      pageable,
+      count.await(),
+    )
+  }
+
   @Throws(RoleNotFoundException::class)
-  suspend fun getRoleDetails(roleCode: String): RoleDetailsDto =
-    roleRepository.findByRoleCode(roleCode)
-      ?.let {
-        RoleDetailsDto(it)
-      } ?: throw RoleNotFoundException("get", roleCode, "notfound")
+  suspend fun getRoleDetails(roleCode: String): RoleDetailsDto = roleRepository.findByRoleCode(roleCode)
+    ?.let {
+      RoleDetailsDto(it)
+    } ?: throw RoleNotFoundException("get", roleCode, "notfound")
 
   @Transactional
   @Throws(RoleNotFoundException::class)
@@ -127,43 +125,36 @@ class RoleService(
 
   @Transactional
   @Throws(RoleNotFoundException::class)
-  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) =
-    roleRepository.findByRoleCode(roleCode)
-      ?.let { role ->
-        val immutableAdminTypesInDb = immutableTypes(role.adminType)
-        val updatedList = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
+  suspend fun updateRoleAdminType(roleCode: String, roleAmendment: RoleAdminTypeAmendmentDto) = roleRepository.findByRoleCode(roleCode)
+    ?.let { role ->
+      val immutableAdminTypesInDb = immutableTypes(role.adminType)
+      val updatedList = (roleAmendment.adminType.addDpsAdmTypeIfRequired() + immutableAdminTypesInDb).toList()
 
-        role.adminType = convertAdminTypeListToString(updatedList)
-        roleRepository.save(role)
+      role.adminType = convertAdminTypeListToString(updatedList)
+      roleRepository.save(role)
 
-        telemetryClient.trackEvent(
-          "RoleAdminTypeUpdateSuccess",
-          mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to role.adminType),
-          null,
-        )
-      }
-      ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
+      telemetryClient.trackEvent(
+        "RoleAdminTypeUpdateSuccess",
+        mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode, "newRoleAdminType" to role.adminType),
+        null,
+      )
+    }
+    ?: throw RoleNotFoundException("maintain", roleCode, "notfound")
 
   private fun Set<AdminType>.addDpsAdmTypeIfRequired() = (if (AdminType.DPS_LSA in this) (this + AdminType.DPS_ADM) else this)
 
-  private fun convertAdminTypeListToString(stringList: List<AdminType>): String =
-    stringList.joinToString(",") { it.adminTypeCode }
+  private fun convertAdminTypeListToString(stringList: List<AdminType>): String = stringList.joinToString(",") { it.adminTypeCode }
 
-  private fun immutableTypes(adminTypesAsString: String): List<AdminType> =
-    convertStringToAdminTypeList(adminTypesAsString).filter { it != AdminType.DPS_LSA }
+  private fun immutableTypes(adminTypesAsString: String): List<AdminType> = convertStringToAdminTypeList(adminTypesAsString).filter { it != AdminType.DPS_LSA }
 
-  private fun convertStringToAdminTypeList(string: String): List<AdminType> {
-    return string.split(",").map {
-      it.trim()
-      AdminType.valueOf(it)
-    }
+  private fun convertStringToAdminTypeList(string: String): List<AdminType> = string.split(",").map {
+    it.trim()
+    AdminType.valueOf(it)
   }
 
-  class RoleNotFoundException(action: String, role: String, errorCode: String) :
-    Exception("Unable to $action role: $role with reason: $errorCode")
+  class RoleNotFoundException(action: String, role: String, errorCode: String) : Exception("Unable to $action role: $role with reason: $errorCode")
 
-  class RoleExistsException(role: String, errorCode: String) :
-    Exception("Unable to create role: $role with reason: $errorCode")
+  class RoleExistsException(role: String, errorCode: String) : Exception("Unable to create role: $role with reason: $errorCode")
 }
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)

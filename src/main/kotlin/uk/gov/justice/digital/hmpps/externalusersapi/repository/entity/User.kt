@@ -83,6 +83,5 @@ class User(
 
   fun hasPassword() = password != null
 
-  override fun toString(): String =
-    "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
+  override fun toString(): String = "User(username='$username',  source=$source, id=$id, enabled='$enabled', lastLoggedIn=$lastLoggedIn, inactiveReason=$inactiveReason, email=$email)"
 }

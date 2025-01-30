@@ -81,10 +81,9 @@ class UserRoleController(
     @Parameter(description = "The userId of the user.", required = true)
     @PathVariable
     userId: UUID,
-  ): Set<UserRoleDto> =
-    userRoleService.getUserRoles(userId)
-      ?.map { role -> UserRoleDto(role) }?.toSet()
-      ?: throw UsernameNotFoundException("User $userId not found")
+  ): Set<UserRoleDto> = userRoleService.getUserRoles(userId)
+    ?.map { role -> UserRoleDto(role) }?.toSet()
+    ?: throw UsernameNotFoundException("User $userId not found")
 
   @DeleteMapping("/users/{userId}/roles/{role}")
   @ResponseStatus(HttpStatus.NO_CONTENT)

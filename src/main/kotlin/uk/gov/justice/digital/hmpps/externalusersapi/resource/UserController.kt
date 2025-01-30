@@ -279,14 +279,13 @@ class UserController(
     status: Status,
     @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
     @RequestParam(value = "size", defaultValue = "10", required = false) size: Int,
-  ): Page<UserDto> =
-    userSearchService.findUsers(
-      name,
-      roles,
-      groups,
-      PageRequest.of(page, size),
-      status,
-    )
+  ): Page<UserDto> = userSearchService.findUsers(
+    name,
+    roles,
+    groups,
+    PageRequest.of(page, size),
+    status,
+  )
 
   @GetMapping("/lastnames")
   @Operation(
@@ -592,20 +591,18 @@ data class UserDto(
   val inactiveReason: String? = null,
 ) {
   companion object {
-    fun fromUser(user: User): UserDto {
-      return UserDto(
-        userId = user.id.toString(),
-        username = user.name,
-        email = user.email,
-        firstName = user.getFirstName(),
-        lastName = user.lastName,
-        locked = user.locked,
-        enabled = user.isEnabled(),
-        verified = user.verified,
-        lastLoggedIn = user.lastLoggedIn,
-        inactiveReason = user.inactiveReason,
-      )
-    }
+    fun fromUser(user: User): UserDto = UserDto(
+      userId = user.id.toString(),
+      username = user.name,
+      email = user.email,
+      firstName = user.getFirstName(),
+      lastName = user.lastName,
+      locked = user.locked,
+      enabled = user.isEnabled(),
+      verified = user.verified,
+      lastLoggedIn = user.lastLoggedIn,
+      inactiveReason = user.inactiveReason,
+    )
   }
 }
 

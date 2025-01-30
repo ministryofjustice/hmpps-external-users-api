@@ -85,33 +85,31 @@ class GroupsService(
 
   @Transactional
   @Throws(GroupNotFoundException::class, GroupHasChildGroupException::class)
-  suspend fun deleteGroup(groupCode: String) {
-    return groupRepository.findByGroupCode(groupCode)
-      ?.let { group ->
-        val children = childGroupRepository.findAllByGroup(group.groupId).toList()
+  suspend fun deleteGroup(groupCode: String) = groupRepository.findByGroupCode(groupCode)
+    ?.let { group ->
+      val children = childGroupRepository.findAllByGroup(group.groupId).toList()
 
-        when {
-          children.isEmpty() -> {
-            removeUsersFromGroup(
-              groupCode,
-              authenticationFacade.getUsername(),
-              authenticationFacade.getAuthentication().authorities,
-            )
-            groupRepository.delete(group)
+      when {
+        children.isEmpty() -> {
+          removeUsersFromGroup(
+            groupCode,
+            authenticationFacade.getUsername(),
+            authenticationFacade.getAuthentication().authorities,
+          )
+          groupRepository.delete(group)
 
-            telemetryClient.trackEvent(
-              "GroupDeleteSuccess",
-              mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode),
-              null,
-            )
-          }
-          else -> {
-            throw GroupHasChildGroupException(groupCode, "child group exists")
-          }
+          telemetryClient.trackEvent(
+            "GroupDeleteSuccess",
+            mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode),
+            null,
+          )
+        }
+        else -> {
+          throw GroupHasChildGroupException(groupCode, "child group exists")
         }
       }
-      ?: throw GroupNotFoundException("delete", groupCode, "notfound")
-  }
+    }
+    ?: throw GroupNotFoundException("delete", groupCode, "notfound")
 
   private suspend fun removeUsersFromGroup(groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val usersWithGroup = userRepository.findAllByGroupCode(groupCode).toList()
@@ -119,11 +117,8 @@ class GroupsService(
   }
 }
 
-class GroupNotFoundException(action: String, group: String, errorCode: String) :
-  Exception("Unable to $action group: $group with reason: $errorCode")
+class GroupNotFoundException(action: String, group: String, errorCode: String) : Exception("Unable to $action group: $group with reason: $errorCode")
 
-class GroupHasChildGroupException(group: String, errorCode: String) :
-  Exception("Unable to delete group: $group with reason: $errorCode")
+class GroupHasChildGroupException(group: String, errorCode: String) : Exception("Unable to delete group: $group with reason: $errorCode")
 
-class GroupExistsException(group: String, errorCode: String) :
-  Exception("Unable to create group: $group with reason: $errorCode")
+class GroupExistsException(group: String, errorCode: String) : Exception("Unable to create group: $group with reason: $errorCode")

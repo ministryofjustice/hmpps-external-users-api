@@ -572,12 +572,11 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[1].adminType[0].adminTypeName").isEqualTo("External Administrator")
     }
 
-    private fun WebTestClient.BodyContentSpec.assertPageOfMany() =
-      this.jsonPath("$.content.length()").isEqualTo(3)
-        .jsonPath("$.size").isEqualTo(3)
-        .jsonPath("$.totalElements").isEqualTo(72)
-        .jsonPath("$.totalPages").isEqualTo(24)
-        .jsonPath("$.last").isEqualTo(false)
+    private fun WebTestClient.BodyContentSpec.assertPageOfMany() = this.jsonPath("$.content.length()").isEqualTo(3)
+      .jsonPath("$.size").isEqualTo(3)
+      .jsonPath("$.totalElements").isEqualTo(72)
+      .jsonPath("$.totalPages").isEqualTo(24)
+      .jsonPath("$.last").isEqualTo(false)
   }
 
   @Nested

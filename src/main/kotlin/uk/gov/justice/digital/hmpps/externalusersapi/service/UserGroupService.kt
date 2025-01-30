@@ -38,9 +38,8 @@ class UserGroupService(
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    fun hasViewUserGroupsRole(authorities: Collection<GrantedAuthority>): Boolean =
-      authorities.map { it.authority }
-        .any { it == "ROLE_VIEW_USER_GROUPS" }
+    fun hasViewUserGroupsRole(authorities: Collection<GrantedAuthority>): Boolean = authorities.map { it.authority }
+      .any { it == "ROLE_VIEW_USER_GROUPS" }
   }
 
   suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
@@ -151,8 +150,7 @@ class UserGroupService(
       userGroup.map { it }
         .filter { it.groupCode == groupFormatted }
         .map {
-          it.groupId?.let {
-              it1 ->
+          it.groupId?.let { it1 ->
             userGroupRepository.deleteUserGroup(userId, it1)
           }
         }
@@ -209,30 +207,23 @@ class UserGroupService(
 
   private fun formatGroup(group: String) = group.trim().uppercase()
 
-  suspend fun getGroupsByUserName(username: String?): Set<Group>? =
-    username?.let {
-      userRepository.findByUsernameAndSource(username.trim().uppercase())?.let {
-        groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
-      }
+  suspend fun getGroupsByUserName(username: String?): Set<Group>? = username?.let {
+    userRepository.findByUsernameAndSource(username.trim().uppercase())?.let {
+      groupRepository.findGroupsByUsername(username.trim().uppercase()).toSet()
     }
-
-  suspend fun getMyAssignableGroups(): List<Group> {
-    return getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
   }
 
-  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> =
-    if (canMaintainExternalUsers(authorities)) {
-      groupRepository.findAllByOrderByGroupName().toList()
-    } else {
-      getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
-    }
+  suspend fun getMyAssignableGroups(): List<Group> = getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
+
+  suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> = if (canMaintainExternalUsers(authorities)) {
+    groupRepository.findAllByOrderByGroupName().toList()
+  } else {
+    getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
+  }
 }
 
-class UserGroupException(action: String = "add", field: String, errorCode: String) :
-  Exception("$action group failed for field $field with reason: $errorCode")
+class UserGroupException(action: String = "add", field: String, errorCode: String) : Exception("$action group failed for field $field with reason: $errorCode")
 
-class UserGroupManagerException(action: String = "add", field: String, errorCode: String) :
-  Exception("$action group failed for field $field with reason: $errorCode")
+class UserGroupManagerException(action: String = "add", field: String, errorCode: String) : Exception("$action group failed for field $field with reason: $errorCode")
 
-class UserLastGroupException(field: String, errorCode: String) :
-  Exception("remove group failed for field $field with reason: $errorCode")
+class UserLastGroupException(field: String, errorCode: String) : Exception("remove group failed for field $field with reason: $errorCode")

@@ -30,8 +30,6 @@ class RoleSearchRepository(private val databaseClient: DatabaseClient) {
     return query.map(authorityMapper).all().asFlow()
   }
 
-  suspend fun countAllBy(roleFilter: RoleFilter): Long {
-    return databaseClient.sql(roleFilter.countSQL)
-      .map(countMapper).awaitOne()
-  }
+  suspend fun countAllBy(roleFilter: RoleFilter): Long = databaseClient.sql(roleFilter.countSQL)
+    .map(countMapper).awaitOne()
 }

@@ -14,7 +14,8 @@ class ChildGroup(
   override var groupName: String,
   @Column(value = "group_id")
   var group: UUID?,
-) : GroupIdentity, Serializable {
+) : GroupIdentity,
+  Serializable {
   @Id
   @Column(value = "child_group_id")
   var id: UUID? = null

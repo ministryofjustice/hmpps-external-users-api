@@ -141,9 +141,7 @@ class UserFilter(
     sql = sqlBuilder.toString()
   }
 
-  private fun toInString(parameters: List<String>): String {
-    return parameters.joinToString(prefix = "('", postfix = "')", separator = "','")
-  }
+  private fun toInString(parameters: List<String>): String = parameters.joinToString(prefix = "('", postfix = "')", separator = "','")
 
   private fun toLikeString(input: String): String {
     val words = whiteSpace.split(input.trim())

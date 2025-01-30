@@ -16,9 +16,8 @@ class MaintainUserCheck(
   private val groupRepository: GroupRepository,
 ) {
   companion object {
-    fun canMaintainExternalUsers(authorities: Collection<GrantedAuthority>): Boolean =
-      authorities.map { it.authority }
-        .any { it == "ROLE_MAINTAIN_OAUTH_USERS" }
+    fun canMaintainExternalUsers(authorities: Collection<GrantedAuthority>): Boolean = authorities.map { it.authority }
+      .any { it == "ROLE_MAINTAIN_OAUTH_USERS" }
   }
 
   @Throws(GroupRelationshipException::class)
@@ -53,8 +52,6 @@ class MaintainUserCheck(
   }
 }
 
-class UserGroupRelationshipException(username: String, errorCode: String) :
-  Exception("Unable to maintain user: $username with reason: $errorCode")
+class UserGroupRelationshipException(username: String, errorCode: String) : Exception("Unable to maintain user: $username with reason: $errorCode")
 
-class GroupRelationshipException(group: String, errorCode: String) :
-  Exception("Unable to maintain group: $group with reason: $errorCode")
+class GroupRelationshipException(group: String, errorCode: String) : Exception("Unable to maintain group: $group with reason: $errorCode")

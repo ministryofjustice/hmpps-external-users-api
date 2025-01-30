@@ -24,16 +24,12 @@ enum class AuthSource(val description: String) {
 
   companion object {
     @JvmStatic
-    fun fromNullableString(source: String?): AuthSource {
-      return source?.let { valueOf(source.lowercase()) } ?: none
-    }
+    fun fromNullableString(source: String?): AuthSource = source?.let { valueOf(source.lowercase()) } ?: none
 
-    fun getSourceLegacyName(source: String?): String? {
-      return when (fromNullableString(source)) {
-        delius -> "nDelius"
-        nomis -> "NOMIS"
-        else -> null
-      }
+    fun getSourceLegacyName(source: String?): String? = when (fromNullableString(source)) {
+      delius -> "nDelius"
+      nomis -> "NOMIS"
+      else -> null
     }
   }
 }

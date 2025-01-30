@@ -20,8 +20,7 @@ data class Authority(
 
   companion object {
     const val ROLE_PREFIX = "ROLE_"
-    fun removeRolePrefixIfNecessary(role: String): String =
-      if (StringUtils.startsWith(role, ROLE_PREFIX)) StringUtils.substring(role, ROLE_PREFIX.length) else role
+    fun removeRolePrefixIfNecessary(role: String): String = if (StringUtils.startsWith(role, ROLE_PREFIX)) StringUtils.substring(role, ROLE_PREFIX.length) else role
   }
 
   override fun equals(other: Any?): Boolean {

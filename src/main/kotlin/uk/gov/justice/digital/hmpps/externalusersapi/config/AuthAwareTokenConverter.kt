@@ -20,16 +20,13 @@ class AuthAwareTokenConverter : Converter<Jwt, Mono<AuthAwareAuthenticationToken
     return Mono.just(AuthAwareAuthenticationToken(jwt, userName, clientId, authorities))
   }
 
-  private fun findUserName(claims: Map<String, Any?>): String? {
-    return if (claims.containsKey("user_name")) {
-      claims["user_name"] as String
-    } else {
-      null
-    }
+  private fun findUserName(claims: Map<String, Any?>): String? = if (claims.containsKey("user_name")) {
+    claims["user_name"] as String
+  } else {
+    null
   }
 
-  private fun findClientId(claims: Map<String, Any?>) =
-    claims["client_id"] as String
+  private fun findClientId(claims: Map<String, Any?>) = claims["client_id"] as String
 
   private fun extractAuthorities(jwt: Jwt): Collection<GrantedAuthority> {
     val authorities = mutableListOf<GrantedAuthority>().apply { addAll(jwtGrantedAuthoritiesConverter.convert(jwt)!!) }
@@ -48,7 +45,5 @@ class AuthAwareAuthenticationToken(
   private val clientId: String,
   authorities: Collection<GrantedAuthority>,
 ) : JwtAuthenticationToken(jwt, authorities) {
-  override fun getPrincipal(): String {
-    return userName ?: clientId
-  }
+  override fun getPrincipal(): String = userName ?: clientId
 }
