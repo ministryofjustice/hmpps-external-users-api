@@ -62,6 +62,11 @@ private const val PAGE_DETAILS =
   LIMIT %d OFFSET %d
   """
 
+private const val HIDDEN_ROLE_FILTER =
+  """
+    (r.hidden_date IS NULL)
+  """
+
 class RoleFilter(
   roleName: String? = null,
   roleCode: String? = null,
@@ -83,14 +88,18 @@ class RoleFilter(
   init {
     val sqlBuilder = StringBuilder(PROJECTION)
 
+    // Exclude roles where hide_role is true
+    sqlBuilder.append(FILTER_START)
+    sqlBuilder.append(HIDDEN_ROLE_FILTER)
+    filterStarted = true
+
     if (!roleName.isNullOrBlank()) {
-      sqlBuilder.append(FILTER_START)
+      appendAnd(sqlBuilder)
       sqlBuilder.append(format(ROLE_NAME_FILTER, toLikeString(roleName.trim())).lowercase())
       filterStarted = true
     }
 
     if (!roleCode.isNullOrBlank()) {
-      appendWhere(sqlBuilder)
       appendAnd(sqlBuilder)
       sqlBuilder.append(format(ROLE_CODE_FILTER, toLikeString(roleCode.trim())).uppercase())
       filterStarted = true

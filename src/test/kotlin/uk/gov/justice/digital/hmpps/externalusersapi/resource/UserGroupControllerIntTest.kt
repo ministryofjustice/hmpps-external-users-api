@@ -53,6 +53,7 @@ class UserGroupControllerIntTest : IntegrationTestBase() {
         .isEqualTo(mapOf("groupCode" to "SITE_1_GROUP_2", "groupName" to "Site 1 - Group 2"))
     }
 
+    // this
     @Test
     fun `add group to a user as group manager`() {
       callGetGroups(userId = "90F930E1-2195-4AFD-92CE-0EB5672DA030")

@@ -71,3 +71,7 @@ VALUES ('a7f59e44-cbf0-4913-ba11-0764f39c06c2', 'ADD_SENSITIVE_CASE_NOTES', 'Add
        ('5f73771c-a965-4194-8705-454c78ff2c20', 'USE_OF_FORCE_REVIEWER', 'Use of force reviewer', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA'),
        ('83e27e2f-989f-44aa-b91a-61c2010471bf', 'VIDEO_LINK_COURT_USER', 'Video Link Court User', '2021-10-15 21:35:48.843333', null, 'EXT_ADM'),
        ('789a6389-54a6-4538-9d54-8a5eb7af0be4', 'VIEW_SENSITIVE_CASE_NOTES', 'View Secure Case Notes', '2021-10-15 21:35:52.056667', null, 'DPS_ADM,DPS_LSA');
+
+
+INSERT INTO roles (role_id, role_code, role_name, create_datetime, role_description, admin_type, hidden_date)
+VALUES ('a7f59e44-cbf0-4913-ba11-0764f39caaaa', 'HIDDEN_ROLE', 'Role hidden, will not be returned in get roles', '2025-01-25 23:35:52.000000', null, 'DPS_ADM,DPS_LSA','2025-01-30 00:00:00.000000');

@@ -20,6 +20,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleAdminTypeAmend
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDescriptionAmendmentDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleDetailsDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.RoleNameAmendmentDto
+import java.time.LocalDate
 
 @Service
 @Transactional(readOnly = true)
@@ -84,6 +85,20 @@ class RoleService(
       roles.await().toList(),
       pageable,
       count.await(),
+    )
+  }
+
+  @Transactional
+  @Throws(RoleNotFoundException::class)
+  suspend fun hideRole(roleCode: String) {
+    val role = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("find", roleCode, "not found")
+    role.hiddenDate = LocalDate.now()
+    roleRepository.save(role)
+
+    telemetryClient.trackEvent(
+      "RoleHiddenSuccess",
+      mapOf("username" to authenticationFacade.getUsername(), "roleCode" to roleCode),
+      null,
     )
   }
 

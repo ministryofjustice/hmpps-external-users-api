@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
+import java.time.LocalDate
 import java.util.UUID
 
 @Table(name = "ROLES")
@@ -16,6 +17,7 @@ data class Authority(
   var roleName: String,
   var roleDescription: String? = null,
   var adminType: String,
+  var hiddenDate: LocalDate? = null,
 ) {
 
   companion object {

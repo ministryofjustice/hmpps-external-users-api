@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -337,6 +338,47 @@ class RoleController(
     @RequestBody
     roleAmendment: RoleAdminTypeAmendmentDto,
   ) = roleService.updateRoleAdminType(roleCode, roleAmendment)
+
+  @Hidden
+  @PutMapping("/roles/{roleCode}/hide")
+  @PreAuthorize("hasRole('ROLE_ROLES_ADMIN')")
+  @Operation(
+    summary = "Hide role.",
+    description = "Hide a role by its role code. Requires role ROLE_ROLES_ADMIN",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Role not found.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  suspend fun hideRole(
+    @Parameter(description = "The role code of the role.", required = true)
+    @PathVariable
+    roleCode: String,
+  ) = roleService.hideRole(roleCode)
 }
 
 @Schema(description = "Role Details")

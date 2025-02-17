@@ -378,6 +378,23 @@ class RoleControllerIntTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `Get Roles endpoint returns all excluding hidden roles if no adminType set`() {
+      webTestClient
+        .get().uri("/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleName").value<List<String>> {
+          assertThat(it).hasSizeGreaterThanOrEqualTo(68)
+        }
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).doesNotContain("HIDDEN_ROLE")
+        }
+    }
+
+    @Test
     fun `Get Roles endpoint returns roles filter requested adminType`() {
       webTestClient
         .get().uri("/roles?adminTypes=DPS_LSA")
@@ -392,6 +409,7 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$[0].adminType[0].adminTypeCode").isEqualTo("DPS_ADM")
         .jsonPath("$[0].adminType[1].adminTypeCode").isEqualTo("DPS_LSA")
         .jsonPath("$[0].adminType[2].adminTypeCode").doesNotExist()
+        .jsonPath("$.[*].roleCode").value<List<String>> { assertThat(it).doesNotContain("HIDDEN_ROLE") }
     }
 
     @Test
@@ -529,6 +547,18 @@ class RoleControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.content[0].adminType[2].adminTypeCode").doesNotExist()
         .jsonPath("$.totalElements").isEqualTo(1)
     }
+
+    @Test
+    fun `Get Paged Roles endpoint returns roles filter requested excluding hidden roles`() {
+      webTestClient
+        .get().uri("/roles/paged?roleName=add&roleCode=HIDDEN_ROLES&adminTypes=DPS_ADM&adminTypes=DPS_LSA")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> { assertThat(it).doesNotContain("HIDDEN_ROLE") }
+    }
   }
 
   @Nested
@@ -577,6 +607,101 @@ class RoleControllerIntTest : IntegrationTestBase() {
       .jsonPath("$.totalElements").isEqualTo(72)
       .jsonPath("$.totalPages").isEqualTo(24)
       .jsonPath("$.last").isEqualTo(false)
+  }
+
+  @Nested
+  inner class HideRole {
+
+    @Test
+    fun `Role details endpoint not accessible without valid token`() {
+      webTestClient.put().uri("/roles/ANY_ROLE/hide")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Role details endpoint returns forbidden when does not have admin role`() {
+      webTestClient
+        .put().uri("/roles/ANY_ROLE/hide")
+        .headers(setAuthorisation("bob"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Role details endpoint returns error when role does not exist`() {
+      webTestClient
+        .put().uri("/roles/ROLE_DOES_NOT_EXIST/hide")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to HttpStatus.NOT_FOUND.value(),
+              "developerMessage" to "Unable to find role: ROLE_DOES_NOT_EXIST with reason: not found",
+              "userMessage" to "Unable to find role: Unable to find role: ROLE_DOES_NOT_EXIST with reason: not found",
+              "moreInfo" to null,
+            ),
+          )
+        }
+    }
+
+    @Test
+    fun `Hide role endpoint returns success`() {
+      webTestClient
+        .post().uri("/roles")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .body(
+          fromValue(
+            mapOf(
+              "roleCode" to "RC_HIDE",
+              "roleName" to "New role to hide",
+              "roleDescription" to "New role description to hide",
+              "adminType" to listOf("EXT_ADM"),
+            ),
+          ),
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      webTestClient
+        .get().uri("/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).contains("RC_HIDE")
+        }
+
+      webTestClient
+        .put().uri("/roles/RC_HIDE/hide")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/roles")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.[*].roleCode").value<List<String>> {
+          assertThat(it).doesNotContain("RC_HIDE")
+        }
+
+      runBlocking {
+        val role = roleRepository.findByRoleCode("RC_HIDE")
+        if (role != null) {
+          roleRepository.delete(role)
+        }
+      }
+    }
   }
 
   @Nested

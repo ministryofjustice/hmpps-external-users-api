@@ -59,9 +59,9 @@ class GroupsRepositoryTest {
 
     @Test
     fun findGroupsByUserId(): Unit = runBlocking {
-      var uuid = UUID.fromString("1f650f15-0993-4db7-9a32-5b930ff86035")
+      val uuid = UUID.fromString("1f650f15-0993-4db7-9a32-5b930ff86035")
       assertThat(repository.findGroupsByUserId(uuid).toList()).extracting<String> { it.groupCode }
-        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2")
+        .contains("SITE_1_GROUP_1", "SITE_1_GROUP_2")
     }
 
     @Test
