@@ -741,7 +741,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it).hasSize(2) }
+        .jsonPath("$.[*].groupCode").value<List<String>> { assertThat(it).hasSize(3) }
         .jsonPath("$.[0].groupCode").isEqualTo("SITE_1_GROUP_1")
         .jsonPath("$.[0].groupName").isEqualTo("Site 1 - Group 1")
     }

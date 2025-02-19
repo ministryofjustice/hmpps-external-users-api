@@ -54,7 +54,7 @@ class GroupsRepositoryTest {
     @Test
     fun findAllByOrderByGroupName(): Unit = runBlocking {
       assertThat(repository.findAllByOrderByGroupName().toList()).extracting<String> { it.groupCode }
-        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2", "SITE_2_GROUP_1", "SITE_3_GROUP_1")
+        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2", "SITE_1_GROUP_3", "SITE_2_GROUP_1", "SITE_3_GROUP_1")
     }
 
     @Test
