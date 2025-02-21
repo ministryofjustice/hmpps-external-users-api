@@ -351,6 +351,7 @@ INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups,
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_RO_USER_TEST7' and group_code = 'GC_DEL_4';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER' and group_code = 'SITE_1_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER' and group_code = 'SITE_1_GROUP_2';
+INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER' and group_code = 'SITE_1_GROUP_3';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_DELETEALL' and group_code = 'SITE_3_GROUP_1';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_GROUP_MANAGER2' and group_code = 'PF_LONDON';
 INSERT INTO user_group (group_id, user_id) SELECT group_id, user_id from groups, users where username = 'AUTH_CHANGE_TEST' and group_code = 'GC_DEL_2';

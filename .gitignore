@@ -6,6 +6,7 @@
 .idea/
 .gradle/
 build/
+.DS_Store
 
 # CMake
 cmake-build-debug/
@@ -64,9 +65,14 @@ dist
 
 # AWS DOcker build
 ecr.repo
-dps-gradle-spring-boot-suppressions.xml
+/dps-gradle-spring-boot-suppressions.xml
 .editorconfig
 sonar-project.properties
 
 #Helm
+**/charts
 **/Chart.lock
+
+#Docker
+volume
+.kotlin

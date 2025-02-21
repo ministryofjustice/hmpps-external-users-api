@@ -54,14 +54,14 @@ class GroupsRepositoryTest {
     @Test
     fun findAllByOrderByGroupName(): Unit = runBlocking {
       assertThat(repository.findAllByOrderByGroupName().toList()).extracting<String> { it.groupCode }
-        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2", "SITE_2_GROUP_1", "SITE_3_GROUP_1")
+        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2", "SITE_1_GROUP_3", "SITE_2_GROUP_1", "SITE_3_GROUP_1")
     }
 
     @Test
     fun findGroupsByUserId(): Unit = runBlocking {
-      var uuid = UUID.fromString("1f650f15-0993-4db7-9a32-5b930ff86035")
+      val uuid = UUID.fromString("1f650f15-0993-4db7-9a32-5b930ff86035")
       assertThat(repository.findGroupsByUserId(uuid).toList()).extracting<String> { it.groupCode }
-        .containsSequence("SITE_1_GROUP_1", "SITE_1_GROUP_2")
+        .contains("SITE_1_GROUP_1", "SITE_1_GROUP_2")
     }
 
     @Test
