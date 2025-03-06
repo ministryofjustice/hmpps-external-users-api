@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.1.3"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10"
   kotlin("plugin.spring") version "2.1.10"
 }
@@ -19,7 +19,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.3.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.3.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.1")
@@ -36,19 +36,19 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.5")
   implementation("io.opentelemetry:opentelemetry-api")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.5")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
+  testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("org.wiremock:wiremock-standalone:3.12.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.12.1")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.20.4")
+  testImplementation("org.testcontainers:postgresql:1.20.6")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
 }
