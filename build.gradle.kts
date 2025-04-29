@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.1.0"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.1.20"
   kotlin("plugin.spring") version "2.1.20"
 }
@@ -19,15 +19,15 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.4")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:2.4.5.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:2.4.6.Final")
 
-  implementation("org.apache.commons:commons-text:1.13.0")
-  implementation("com.google.guava:guava:33.4.6-jre")
+  implementation("org.apache.commons:commons-text:1.13.1")
+  implementation("com.google.guava:guava:33.4.8-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
@@ -38,7 +38,7 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.3")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -46,11 +46,11 @@ dependencies {
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("org.wiremock:wiremock-standalone:3.12.1")
+  testImplementation("org.wiremock:wiremock-standalone:3.13.0")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.20.6")
+  testImplementation("org.testcontainers:postgresql:1.21.0")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
 
 kotlin {
