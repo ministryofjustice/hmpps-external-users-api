@@ -33,10 +33,10 @@ dependencies {
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
-  runtimeOnly("org.postgresql:postgresql:42.7.6")
+  runtimeOnly("org.postgresql:postgresql:42.7.7")
   implementation("io.opentelemetry:opentelemetry-api")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.8")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
@@ -46,9 +46,9 @@ dependencies {
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("org.wiremock:wiremock-standalone:3.13.0")
+  testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.21.0")
+  testImplementation("org.testcontainers:postgresql:1.21.1")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
