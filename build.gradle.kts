@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.1.21"
   kotlin("plugin.spring") version "2.1.21"
 }
@@ -24,7 +24,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:3.0.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:3.0.1.Final")
 
   implementation("org.apache.commons:commons-text:1.13.1")
   implementation("com.google.guava:guava:33.4.8-jre")
@@ -38,7 +38,7 @@ dependencies {
 
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.1")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -48,7 +48,7 @@ dependencies {
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.21.1")
+  testImplementation("org.testcontainers:postgresql:1.21.2")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
@@ -59,8 +59,6 @@ kotlin {
 
 tasks {
   withType<KotlinCompile> {
-    kotlinOptions {
-      compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-    }
+    compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
   }
 }
