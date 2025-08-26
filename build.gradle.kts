@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.7"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.2.10"
   kotlin("plugin.spring") version "2.2.10"
 }
@@ -36,7 +36,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.7")
   implementation("io.opentelemetry:opentelemetry-api")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.11")
 
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
@@ -44,8 +44,8 @@ dependencies {
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.7")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:postgresql:1.21.3")
