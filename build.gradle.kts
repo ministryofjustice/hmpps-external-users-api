@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.1"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.2.10"
   kotlin("plugin.spring") version "2.2.10"
 }
@@ -36,9 +36,9 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.7")
   implementation("io.opentelemetry:opentelemetry-api")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.11")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.13")
 
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
   developmentOnly("org.springframework.boot:spring-boot-devtools")
