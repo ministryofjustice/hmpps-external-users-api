@@ -36,6 +36,7 @@ class UserGroupService(
   private val userRoleService: UserRoleService,
 ) {
   companion object {
+    private const val CRS_GROUP_CODE_PREFIX = "INT_CR_PRJ_"
     private val log = LoggerFactory.getLogger(this::class.java)
 
     fun hasViewUserGroupsRole(authorities: Collection<GrantedAuthority>): Boolean = authorities.map { it.authority }
@@ -217,9 +218,14 @@ class UserGroupService(
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> = if (canMaintainExternalUsers(authorities)) {
     groupRepository.findAllByOrderByGroupName().toList()
+  } else if (hasContractManagerViewGroupAuthority(authorities)) {
+    groupRepository.findAllByOrderByGroupName().toList().filter { it.groupCode.startsWith(CRS_GROUP_CODE_PREFIX) }
   } else {
     getGroupsByUserName(username)?.sortedBy { it.groupName } ?: listOf()
   }
+
+  private fun hasContractManagerViewGroupAuthority(authorities: Collection<GrantedAuthority>) = authorities.map { it.authority }
+    .any { it == "ROLE_CONTRACT_MANAGER_VIEW_GROUP" }
 }
 
 class UserGroupException(action: String = "add", field: String, errorCode: String) : Exception("$action group failed for field $field with reason: $errorCode")

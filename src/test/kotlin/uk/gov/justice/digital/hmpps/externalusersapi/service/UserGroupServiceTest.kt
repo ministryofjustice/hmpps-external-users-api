@@ -371,6 +371,22 @@ class UserGroupServiceTest {
       val groups = service.getMyAssignableGroups()
       assertThat(groups).extracting<String> { it.groupCode }.containsOnly("JOE", "LICENCE_VARY")
     }
+
+    @Test
+    fun myAssignableGroups_contractManager(): Unit = runBlocking {
+      givenRolesForUser("BOB", setOf(SimpleGrantedAuthority("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(
+        flowOf(
+          Group("NOT_CRS_1", "desc"),
+          Group("INT_CR_PRJ_CRS_1", "desc2"),
+          Group("INT_CR_PRJ_CRS_2", "desc3"),
+          Group("NOT_CRS_2", "desc4"),
+        ),
+      )
+
+      val groups = service.getMyAssignableGroups()
+      assertThat(groups).extracting<String> { it.groupCode }.contains("INT_CR_PRJ_CRS_1", "INT_CR_PRJ_CRS_2")
+    }
   }
 
   @Nested
