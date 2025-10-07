@@ -61,7 +61,7 @@ class GroupsController(
   suspend fun allGroups() = groupsService.getAllGroups().map { UserGroupDto(it) }
 
   @GetMapping("/groups/subset/crs")
-  @PreAuthorize("hasAnyRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')")
+  @PreAuthorize("hasRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')")
   @Operation(
     summary = "Get the subset of groups that are CRS groups.",
     description = "Get all CRS groups. Requires role ROLE_CONTRACT_MANAGER_VIEW_GROUP",

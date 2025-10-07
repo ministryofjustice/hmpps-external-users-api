@@ -38,7 +38,7 @@ class GroupsService(
 
   suspend fun getAllGroups() = groupRepository.findAllByOrderByGroupName()
 
-  suspend fun getAllCRSGroups() = groupRepository.findAllByOrderByGroupName().filter { it.groupCode.startsWithOneOf(*CRS_GROUP_CODE_PREFIXES.toTypedArray()) }
+  suspend fun getAllCRSGroups() = groupRepository.findAllByOrderByGroupName().filter { CRS_GROUP_CODE_PREFIXES.any(it.groupCode::startsWith) }
 
   @Throws(GroupNotFoundException::class)
   suspend fun getGroupDetail(groupCode: String): GroupDetails = coroutineScope {
@@ -121,13 +121,6 @@ class GroupsService(
   private suspend fun removeUsersFromGroup(groupCode: String, modifier: String?, authorities: Collection<GrantedAuthority>) {
     val usersWithGroup = userRepository.findAllByGroupCode(groupCode).toList()
     usersWithGroup.forEach { userGroupService.removeUserGroup(it.getUserName(), groupCode, modifier, authorities) }
-  }
-
-  fun String.startsWithOneOf(vararg possiblePrefixes: String): Boolean {
-    for (prefix in possiblePrefixes) {
-      if (this.startsWith(prefix)) return true
-    }
-    return false
   }
 }
 
