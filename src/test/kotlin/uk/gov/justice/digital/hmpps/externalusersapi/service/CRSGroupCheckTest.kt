@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class CRSGroupCheckTest {
 
