@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.IntegrationTestBase
+import java.time.LocalDateTime
 
 class UserControllerIntTest : IntegrationTestBase() {
 
@@ -145,6 +146,50 @@ class UserControllerIntTest : IntegrationTestBase() {
         .jsonPath("$.username").isEqualTo("JO_BLOGGS")
         .jsonPath("$.email").isEqualTo("jo@bloggs.com")
         .jsonPath("$.verified").isEqualTo(false)
+    }
+  }
+
+  @Nested
+  inner class CRSGroupMembers {
+    @Test
+    fun `Not accessible without valid token`() {
+      webTestClient.get().uri("/users/crsgroup/INT_CR_GROUP_1")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `Not accessible without correct role`() {
+      webTestClient.get().uri("/users/crsgroup/INT_CR_GROUP_1")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_WRONG_CREDENTIALS")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `CRS Group users endpoint returns user data`() {
+      webTestClient
+        .get().uri("/users/crsgroup/INT_CR_0001")
+        .headers(setAuthorisation("AUTH_ADM", listOf("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(MediaType.APPLICATION_JSON)
+        .expectBodyList<UserDto>(UserDto::class.java)
+        .hasSize(1)
+        .contains(
+          UserDto(
+            userId = "6c4036b7-e87d-44fb-864f-5a06c1c492f3",
+            username = "TEST_INTERVENTIONS_SP_1",
+            email = "test.interventions.sp.1@digital.justice.gov.uk",
+            firstName = "Robin",
+            lastName = "Croswell",
+            locked = false,
+            enabled = true,
+            verified = true,
+            lastLoggedIn = LocalDateTime.of(2040, 3, 5, 11, 48, 34, 272364 * 1000),
+            inactiveReason = null,
+          ),
+        )
     }
   }
 

@@ -46,7 +46,37 @@ class UserSearchServiceTest {
 
   @BeforeEach
   fun setUp() {
-    userSearchService = UserSearchService(userGroupService, userSearchRepository, userRepository, maintainUserCheck, authenticationFacade)
+    userSearchService = UserSearchService(
+      userGroupService,
+      userSearchRepository,
+      userRepository,
+      maintainUserCheck,
+      authenticationFacade,
+      CRSGroupCheck(),
+    )
+  }
+
+  @Nested
+  inner class FindCRSGroupUsers {
+    @Test
+    fun `should find users for crs group`(): Unit = runBlocking {
+      val groupCode = "INT_SP_GROUP_1"
+      val expectedUser = givenAUser()
+      whenever(userSearchRepository.searchForUsers(any())).thenReturn(flowOf(expectedUser))
+
+      val actualUsers = userSearchService.findCRSGroupUsers(groupCode)
+      assertThat(actualUsers.toList()).containsExactly(expectedUser)
+      verify(userSearchRepository).searchForUsers(any())
+    }
+
+    @Test
+    fun `should respond with empty flow when not crs group code`(): Unit = runBlocking {
+      val groupCode = "GROUP_1"
+
+      val actualUsers = userSearchService.findCRSGroupUsers(groupCode)
+      assertThat(actualUsers.toList()).isEmpty()
+      verify(userSearchRepository, never()).searchForUsers(any())
+    }
   }
 
   @Nested

@@ -16,6 +16,7 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
@@ -231,6 +232,34 @@ class UserController(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String,
   ) = UserDto.fromUser(userSearchService.getUserByUsername(username))
+
+  @GetMapping("/crsgroup/{crsgroupcode}")
+  @Operation(
+    summary = "Find members of a CRS Group.",
+    description = "Returns an un-paged list of members of a CRS Group. Requires role ROLE_CONTRACT_MANAGER_VIEW_GROUP",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @PreAuthorize(
+    "hasRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')",
+  )
+  suspend fun searchForCrsGroupMembers(@PathVariable crsgroupcode: String): List<UserDto> = userSearchService.findCRSGroupUsers(crsgroupcode).toList()
 
   @GetMapping("/search")
   @Operation(
