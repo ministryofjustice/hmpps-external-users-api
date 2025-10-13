@@ -30,15 +30,11 @@ class GroupsService(
   private val userGroupService: UserGroupService,
   private val groupAssignableRoleRepository: GroupAssignableRoleRepository,
   private val maintainUserCheck: MaintainUserCheck,
+  private val crsGroupCheck: CRSGroupCheck,
 ) {
-
-  companion object {
-    private val CRS_GROUP_CODE_PREFIXES = listOf("INT_CR_", "INT_SP_")
-  }
-
   suspend fun getAllGroups() = groupRepository.findAllByOrderByGroupName()
 
-  suspend fun getAllCRSGroups() = groupRepository.findAllByOrderByGroupName().filter { CRS_GROUP_CODE_PREFIXES.any(it.groupCode::startsWith) }
+  suspend fun getAllCRSGroups() = groupRepository.findAllByOrderByGroupName().filter { crsGroupCheck.isCRSGroupCode(it.groupCode) }
 
   @Throws(GroupNotFoundException::class)
   suspend fun getGroupDetail(groupCode: String): GroupDetails = coroutineScope {

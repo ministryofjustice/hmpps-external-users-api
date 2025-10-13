@@ -50,6 +50,7 @@ class GroupsServiceTest {
     userGroupService,
     groupAssignableRoleRepository,
     maintainUserCheck,
+    CRSGroupCheck(),
   )
 
   @BeforeEach
