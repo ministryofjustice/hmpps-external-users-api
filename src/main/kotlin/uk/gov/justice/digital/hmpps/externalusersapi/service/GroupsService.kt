@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
@@ -29,9 +30,11 @@ class GroupsService(
   private val userGroupService: UserGroupService,
   private val groupAssignableRoleRepository: GroupAssignableRoleRepository,
   private val maintainUserCheck: MaintainUserCheck,
+  private val crsGroupCheck: CRSGroupCheck,
 ) {
-
   suspend fun getAllGroups() = groupRepository.findAllByOrderByGroupName()
+
+  suspend fun getAllCRSGroups() = groupRepository.findAllByOrderByGroupName().filter { crsGroupCheck.isCRSGroupCode(it.groupCode) }
 
   @Throws(GroupNotFoundException::class)
   suspend fun getGroupDetail(groupCode: String): GroupDetails = coroutineScope {

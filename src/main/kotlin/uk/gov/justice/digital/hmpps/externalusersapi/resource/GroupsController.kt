@@ -60,6 +60,32 @@ class GroupsController(
   )
   suspend fun allGroups() = groupsService.getAllGroups().map { UserGroupDto(it) }
 
+  @GetMapping("/groups/subset/crs")
+  @PreAuthorize("hasRole('ROLE_CONTRACT_MANAGER_VIEW_GROUP')")
+  @Operation(
+    summary = "Get the subset of groups that are CRS groups.",
+    description = "Get all CRS groups. Requires role ROLE_CONTRACT_MANAGER_VIEW_GROUP",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  suspend fun allCRSGroups() = groupsService.getAllCRSGroups().map { UserGroupDto(it) }
+
   @GetMapping("/groups/{group}")
   @PreAuthorize("hasAnyRole('ROLE_MAINTAIN_OAUTH_USERS', 'ROLE_AUTH_GROUP_MANAGER')")
   @Operation(

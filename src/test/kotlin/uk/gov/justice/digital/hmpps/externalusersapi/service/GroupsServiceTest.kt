@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.externalusersapi.service
 
 import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
@@ -49,6 +50,7 @@ class GroupsServiceTest {
     userGroupService,
     groupAssignableRoleRepository,
     maintainUserCheck,
+    CRSGroupCheck(),
   )
 
   @BeforeEach
@@ -67,6 +69,37 @@ class GroupsServiceTest {
 
       val actualGroups = groupsService.getAllGroups()
       assertThat(actualGroups).isEqualTo(allGroups)
+      verify(groupRepository).findAllByOrderByGroupName()
+    }
+  }
+
+  @Nested
+  inner class CRSGroups {
+    @Test
+    fun `get all crs groups`(): Unit = runBlocking {
+      val dbGroup1 = Group("GROUP_1", "first group")
+      val dbGroup2 = Group("GROUP_2", "second group")
+      val dbCRSGroup1 = Group("INT_CR_GROUP_1", "first crs group")
+      val dbCRSGroup2 = Group("INT_SP_GROUP_2", "second crs group")
+
+      val allGroups = flowOf(dbGroup1, dbGroup2, dbCRSGroup1, dbCRSGroup2)
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
+
+      val actualGroups = groupsService.getAllCRSGroups()
+      assertThat(actualGroups.toList()).containsExactly(dbCRSGroup1, dbCRSGroup2)
+      verify(groupRepository).findAllByOrderByGroupName()
+    }
+
+    @Test
+    fun `no crs groups`(): Unit = runBlocking {
+      val dbGroup1 = Group("GROUP_1", "first group")
+      val dbGroup2 = Group("GROUP_2", "second group")
+
+      val allGroups = flowOf(dbGroup1, dbGroup2)
+      whenever(groupRepository.findAllByOrderByGroupName()).thenReturn(allGroups)
+
+      val actualGroups = groupsService.getAllCRSGroups()
+      assertThat(actualGroups.toList()).isEmpty()
       verify(groupRepository).findAllByOrderByGroupName()
     }
   }

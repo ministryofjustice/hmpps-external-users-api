@@ -35,7 +35,19 @@ class UserSearchService(
   private val userRepository: UserRepository,
   private val maintainUserCheck: MaintainUserCheck,
   private val authenticationFacade: AuthenticationFacade,
+  private val crsGroupCheck: CRSGroupCheck,
 ) {
+  suspend fun findCRSGroupUsers(crsGroupCode: String): Flow<UserDto> = coroutineScope {
+    if (crsGroupCheck.isCRSGroupCode(crsGroupCode)) {
+      val userFilter = UserFilter(
+        groupCodes = listOf(crsGroupCode),
+        pageable = PageRequest.of(0, 20000),
+      )
+      userSearchRepository.searchForUsers(userFilter)
+    } else {
+      flowOf()
+    }
+  }
 
   suspend fun findUsers(
     name: String?,

@@ -60,6 +60,51 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class CRSGroups {
+    @Test
+    fun `All CRS Groups endpoint not accessible without valid token`() {
+      webTestClient.get().uri("/groups/subset/crs")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `All CRS Groups endpoint returns forbidden when does not have  role `() {
+      webTestClient
+        .get().uri("/groups/subset/crs")
+        .headers(setAuthorisation())
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it).containsAllEntriesOf(
+            mapOf(
+              "status" to FORBIDDEN.value(),
+              "developerMessage" to "Denied",
+              "userMessage" to "Denied",
+            ),
+          )
+        }
+    }
+
+    @Test
+    fun `All CRS Groups endpoint returns all possible CRS groups`() {
+      webTestClient
+        .get().uri("/groups/subset/crs")
+        .headers(setAuthorisation(roles = listOf("ROLE_CONTRACT_MANAGER_VIEW_GROUP")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("[?(@.groupCode == 'INT_CR_0001')]")
+        .isEqualTo(mapOf("groupCode" to "INT_CR_0001", "groupName" to "Intervention Contract - 0001"))
+        .jsonPath("[*].groupCode").value<List<String>> {
+          assertThat(it).hasSize(8)
+        }
+    }
+  }
+
+  @Nested
   inner class GroupDetails {
     @Test
     fun `Group details endpoint returns details of group when user has ROLE_MAINTAIN_OAUTH_USERS`() {

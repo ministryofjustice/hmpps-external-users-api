@@ -45,6 +45,24 @@ class GroupsControllerTest {
   }
 
   @Nested
+  inner class CRSGroups {
+    @Test
+    fun crsGroups(): Unit = runBlocking {
+      val group1 = Group("INT_CR_PRJ_GROUP_1", "first group")
+      val group2 = Group("INT_CR_PRJ_GROUP_2", "global search")
+      val userGroup1 = UserGroupDto(group1)
+      val userGroup2 = UserGroupDto(group2)
+      val allGroups = flowOf(group1, group2)
+      val allUserGroups = flowOf(userGroup1, userGroup2)
+
+      whenever(groupsService.getAllCRSGroups()).thenReturn(allGroups)
+      val response = groupsController.allCRSGroups()
+      verify(groupsService).getAllCRSGroups()
+      assertThat(response.toList()).isEqualTo(allUserGroups.toList())
+    }
+  }
+
+  @Nested
   inner class `parent group` {
     @Test
     fun create(): Unit = runBlocking {
