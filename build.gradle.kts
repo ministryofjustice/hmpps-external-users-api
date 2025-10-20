@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.3"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.2.20"
   kotlin("plugin.spring") version "2.2.20"
 }
@@ -19,19 +19,19 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.11")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.5.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.10.2")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.1.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.1.2.Final")
 
   implementation("org.apache.commons:commons-text:1.14.0")
   implementation("com.google.guava:guava:33.5.0-jre")
 
   implementation("org.flywaydb:flyway-core")
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
-  runtimeOnly("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
+  runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.0.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.7.8")
   implementation("io.opentelemetry:opentelemetry-api")
