@@ -61,6 +61,8 @@ jobs:
       postgres-db: auth-db
       postgres-username: admin
       postgres-password: admin_password
+    needs:
+      - app_version
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
