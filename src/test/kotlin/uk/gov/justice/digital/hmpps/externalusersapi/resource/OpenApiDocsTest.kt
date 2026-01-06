@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.resource
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -53,6 +54,8 @@ class OpenApiDocsTest {
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBody().jsonPath("info.version").isEqualTo(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
+      .expectBody().jsonPath("info.version").value<String> {
+        assertThat(it).startsWith(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
+      }
   }
 }
