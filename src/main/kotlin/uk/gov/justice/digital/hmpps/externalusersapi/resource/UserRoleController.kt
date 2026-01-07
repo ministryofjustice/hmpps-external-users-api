@@ -303,7 +303,7 @@ class UserRoleController(
   @GetMapping("/users/username/{username}/roles")
   @Operation(
     summary = "List of roles for user.",
-    description = "List of roles for user. Currently restricted to service specific roles: ROLE_PF_USER_ADMIN, ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
+    description = "List of roles for user. Currently restricted to service specific roles: ROLE_USER_PERMISSIONS__RO, ROLE_PF_USER_ADMIN, ROLE_INTEL_ADMIN or ROLE_PCMS_USER_ADMIN.",
   )
   @ApiResponses(
     value = [
@@ -333,7 +333,7 @@ class UserRoleController(
       ),
     ],
   )
-  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN')")
+  @PreAuthorize("hasAnyRole('ROLE_INTEL_ADMIN', 'ROLE_PCMS_USER_ADMIN','ROLE_PF_USER_ADMIN', 'ROLE_USER_PERMISSIONS__RO')")
   suspend fun userRoles(
     @Parameter(description = "The username of the user.", required = true) @PathVariable
     username: String,
