@@ -7,10 +7,6 @@ WORKDIR /builder
 COPY hmpps-external-users-api-${BUILD_NUMBER}.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted
 
-ADD --chown=appuser:appgroup https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem ./global-bundle.pem
-COPY ./split-pem.bash split-pem.bash
-RUN ./split-pem.bash global-bundle.pem aws-certs.jks
-
 FROM eclipse-temurin:25-jre-jammy
 LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 
@@ -27,11 +23,13 @@ RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezo
 RUN addgroup --gid 2000 --system appgroup && \
     adduser --uid 2000 --system appuser --gid 2000
 
+# Install AWS RDS Root cert into Java truststore
+RUN mkdir /home/appuser/.postgresql
+ADD --chown=appuser:appgroup https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem /home/appuser/.postgresql/root.crt
+
 WORKDIR /app
 COPY --chown=appuser:appgroup applicationinsights.json ./
 COPY --chown=appuser:appgroup applicationinsights.dev.json ./
-# Add AWS RDS Root key store to image
-COPY --from=builder --chown=appuser:appgroup /builder/aws-certs.jks ./
 COPY --chown=appuser:appgroup applicationinsights-agent*.jar ./agent.jar
 COPY --from=builder --chown=appuser:appgroup /builder/extracted/dependencies/ ./
 COPY --from=builder --chown=appuser:appgroup /builder/extracted/spring-boot-loader/ ./
