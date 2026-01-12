@@ -1,8 +1,7 @@
 version: "3"
 services:
   hmpps-external-users-api:
-    build:
-      context: .
+    image: quay.io/hmpps/hmpps-external-users-api:latest
     network_mode: "host"
     container_name: hmpps-external-users-api
     ports:
@@ -17,7 +16,7 @@ services:
       - SPRING_FLYWAY_URL=jdbc:postgresql://auth-db:5432/auth-db?sslmode=prefer
 
   localstack:
-    image: localstack/localstack:3
+    image: localstack/localstack:4
     networks:
       - hmpps
     container_name: localstack-pl
