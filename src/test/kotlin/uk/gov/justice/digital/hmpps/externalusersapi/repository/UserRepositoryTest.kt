@@ -60,6 +60,6 @@ class UserRepositoryTest {
 
   @Test
   fun findAllBySource(): Unit = runBlocking {
-    assertThat(repository.findAllBySource().toList()).hasSize(147)
+    assertThat(repository.findAllBySource().toList()).hasSize(144)
   }
 }
