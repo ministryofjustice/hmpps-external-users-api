@@ -4,9 +4,11 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
+import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
 
+@Repository
 interface GroupRepository :
   CoroutineCrudRepository<Group, String>,
   CoroutineSortingRepository<Group, String> {

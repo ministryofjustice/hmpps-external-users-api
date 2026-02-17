@@ -108,13 +108,13 @@ class CreateUserService(
     groupCodes: Set<String>?,
   ): Set<Group> {
     if (groupCodes.isNullOrEmpty()) {
-      return if (authenticationFacade.getAuthentication()!!.authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
+      return if (authenticationFacade.getAuthentication().authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
         emptySet()
       } else {
         throw CreateUserException("groupCode", "missing")
       }
     }
-    val authUserGroups = userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication()!!.authorities)
+    val authUserGroups = userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
     val groups = authUserGroups.filter { it.groupCode in groupCodes }.toSet()
     if (groups.isEmpty()) {
       throw CreateUserException("groupCode", "notfound")

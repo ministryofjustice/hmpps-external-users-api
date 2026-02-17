@@ -97,7 +97,7 @@ class GroupsService(
           removeUsersFromGroup(
             groupCode,
             authenticationFacade.getUsername(),
-            authenticationFacade.getAuthentication()!!.authorities,
+            authenticationFacade.getAuthentication().authorities,
           )
           groupRepository.delete(group)
 

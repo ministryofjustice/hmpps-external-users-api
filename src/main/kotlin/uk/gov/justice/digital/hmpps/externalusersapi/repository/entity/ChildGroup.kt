@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.io.Serializable
 import java.util.UUID
 
-@Table(name = "CHILD_GROUP")
+@Table(name = "child_group")
 class ChildGroup(
   @Column(value = "child_group_code")
   override val groupCode: String,

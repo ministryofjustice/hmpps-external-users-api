@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDate
 import java.util.UUID
 
-@Table(name = "ROLES")
+@Table(name = "roles")
 data class Authority(
   @Id
   @Column(value = "role_id")

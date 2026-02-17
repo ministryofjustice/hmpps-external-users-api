@@ -53,10 +53,8 @@ class UserRoleService(
 
   suspend fun getUserRoles(userId: UUID) = userRepository.findById(userId)?.let { user: User ->
     // MaintainImsUser doesn't need to check user relationship as is system role
-    authenticationFacade.isMaintainImsUser()?.let {
-      if (!it) {
-        maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
-      }
+    if (!authenticationFacade.isMaintainImsUser()) {
+      maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
     }
     roleRepository.findRolesByUserId(userId).toList()
   }
@@ -69,9 +67,9 @@ class UserRoleService(
       .sortedBy { it.roleName }
   } ?: throw UsernameNotFoundException("User $userId not found")
 
-  suspend fun getAllAssignableRolesByUserId(userId: UUID) = if (canMaintainExternalUsers(authenticationFacade.getAuthentication()!!.authorities)) {
+  suspend fun getAllAssignableRolesByUserId(userId: UUID) = if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
     // only allow oauth admins to see that role
-    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication()!!.authorities) }
+    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
       .toSet()
     // otherwise they can assign all roles that can be assigned to any of their groups
   } else {
@@ -87,11 +85,9 @@ class UserRoleService(
     userRepository.findById(userId)?.let { user: User ->
 
       // MaintainImsUser doesn't need to check user relationship as is system role
-      authenticationFacade.isMaintainImsUser()?.let {
-        if (!it) {
-          // check that the logged in user has permission to modify user
-          maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
-        }
+      if (!authenticationFacade.isMaintainImsUser()) {
+        // check that the logged in user has permission to modify user
+        maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       }
 
       val formattedRoles = roleCodes.map { formatRole(it) }
@@ -105,7 +101,7 @@ class UserRoleService(
           throw UserRoleExistsException()
         }
         // get correct roles set
-        if (authenticationFacade.isMaintainImsUser() == true) {
+        if (authenticationFacade.isMaintainImsUser()) {
           if (!imsRoles.toSet().contains(role)) {
             throw UserRoleException("role", "invalid")
           }
@@ -149,11 +145,9 @@ class UserRoleService(
     // already checked that user exists
     userRepository.findById(userId)?.let { user: User ->
       // MaintainImsUser doesn't need to check user relationship as is system role
-      authenticationFacade.isMaintainImsUser()?.let {
-        if (!it) {
-          // check that the logged in user has permission to modify user
-          maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
-        }
+      if (!authenticationFacade.isMaintainImsUser()) {
+        // check that the logged in user has permission to modify user
+        maintainUserCheck.ensureUserLoggedInUserRelationship(user.name)
       }
 
       val roleFormatted = formatRole(roleCode)
@@ -164,7 +158,7 @@ class UserRoleService(
         ?: throw UserRoleException("role", "role.missing")
 
       // get correct roles set
-      if (authenticationFacade.isMaintainImsUser() == true) {
+      if (authenticationFacade.isMaintainImsUser()) {
         if (!imsRoles.toSet().contains(role)) {
           throw UserRoleException("role", "invalid")
         }
@@ -189,9 +183,9 @@ class UserRoleService(
     } ?: throw UsernameNotFoundException("User $userId not found")
   }
 
-  suspend fun getAllAssignableRoles() = if (canMaintainExternalUsers(authenticationFacade.getAuthentication()!!.authorities)) {
+  suspend fun getAllAssignableRoles() = if (canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
     // only allow oauth admins to see that role
-    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication()!!.authorities) }
+    extAdmRoles.filter { r: Authority -> "OAUTH_ADMIN" != r.roleCode || canAddAuthClients(authenticationFacade.getAuthentication().authorities) }
       .toSet()
     // otherwise they can assign all roles that can be assigned to any of their groups
   } else {

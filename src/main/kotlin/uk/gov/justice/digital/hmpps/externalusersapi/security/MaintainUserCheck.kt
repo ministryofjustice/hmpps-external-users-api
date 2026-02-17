@@ -39,7 +39,7 @@ class MaintainUserCheck(
   @Throws(UserGroupRelationshipException::class)
   suspend fun ensureUserLoggedInUserRelationship(userName: String) = coroutineScope {
     // All good if user holds maintain privilege
-    if (!canMaintainExternalUsers(authenticationFacade.getAuthentication()!!.authorities)) {
+    if (!canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
       // Otherwise, group managers must have a group in common for maintenance
       val loggedInUserGroups = async { groupRepository.findGroupsByUsername(authenticationFacade.getUsername()) }
       val userGroups = async { groupRepository.findGroupsByUsername(userName) }

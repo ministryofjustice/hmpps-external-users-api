@@ -43,14 +43,14 @@ class UserGroupService(
   }
 
   suspend fun getParentGroups(userId: UUID): List<GroupIdentity> {
-    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication()!!.authorities)) {
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
       userSecurityCheck(userId)
     }
     return groupRepository.findGroupsByUserId(userId).toList()
   }
 
   suspend fun getAllGroupsUsingChildGroupsInLieuOfParentGroup(userId: UUID): List<GroupIdentity> {
-    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication()!!.authorities)) {
+    if (!hasViewUserGroupsRole(authenticationFacade.getAuthentication().authorities)) {
       userSecurityCheck(userId)
     }
     val groups = groupRepository.findGroupsByUserId(userId).toList()
@@ -94,7 +94,7 @@ class UserGroupService(
       // check that modifier is able to add user to group
       if (!checkGroupModifier(
           groupCode,
-          authenticationFacade.getAuthentication()!!.authorities,
+          authenticationFacade.getAuthentication().authorities,
           authenticationFacade.getUsername(),
         )
       ) {
@@ -139,11 +139,11 @@ class UserGroupService(
       ) {
         throw UserGroupException("Remove", "group", "missing")
       }
-      if (!checkGroupModifier(groupFormatted, authenticationFacade.getAuthentication()!!.authorities, authenticationFacade.getUsername())) {
+      if (!checkGroupModifier(groupFormatted, authenticationFacade.getAuthentication().authorities, authenticationFacade.getUsername())) {
         throw UserGroupManagerException("delete", "group", "managerNotMember")
       }
 
-      if (userGroup.count() == 1 && !canMaintainExternalUsers(authenticationFacade.getAuthentication()!!.authorities)) {
+      if (userGroup.count() == 1 && !canMaintainExternalUsers(authenticationFacade.getAuthentication().authorities)) {
         throw UserLastGroupException("group", "last")
       }
       log.info("Removing group {} from userId {}", groupFormatted, userId)
@@ -213,7 +213,7 @@ class UserGroupService(
     }
   }
 
-  suspend fun getMyAssignableGroups(): List<Group> = getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication()!!.authorities)
+  suspend fun getMyAssignableGroups(): List<Group> = getAssignableGroups(authenticationFacade.getUsername(), authenticationFacade.getAuthentication().authorities)
 
   suspend fun getAssignableGroups(username: String?, authorities: Collection<GrantedAuthority>): List<Group> = if (canMaintainExternalUsers(authorities)) {
     groupRepository.findAllByOrderByGroupName().toList()

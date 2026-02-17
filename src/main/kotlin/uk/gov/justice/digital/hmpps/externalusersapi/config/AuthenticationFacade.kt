@@ -13,9 +13,9 @@ import java.util.stream.Collectors
 @Component
 class AuthenticationFacade {
 
-  suspend fun getAuthentication(): Authentication? = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication
+  suspend fun getAuthentication(): Authentication = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication!!
 
-  suspend fun getUsername(): String = when (val userPrincipal = getAuthentication()!!.principal) {
+  suspend fun getUsername(): String = when (val userPrincipal = getAuthentication().principal) {
     is String -> {
       userPrincipal
     }
@@ -44,6 +44,6 @@ class AuthenticationFacade {
     authentication.authorities.stream()
       .anyMatch { a: GrantedAuthority? -> roles.contains(RegExUtils.replaceFirst(a!!.authority, "ROLE_", "")) }
 
-  suspend fun isMaintainImsUser() = getAuthentication()!!.authorities.map { it.authority }
+  suspend fun isMaintainImsUser() = getAuthentication().authorities.map { it.authority }
     .any { it == "ROLE_MAINTAIN_IMS_USERS" }
 }

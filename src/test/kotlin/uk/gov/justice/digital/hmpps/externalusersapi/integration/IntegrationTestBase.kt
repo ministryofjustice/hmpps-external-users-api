@@ -13,8 +13,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.externalusersapi.helper.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.wiremock.HmppsAuthMockServer
 
-@AutoConfigureWebTestClient(timeout = "10000")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient(timeout = "10000")
 @ActiveProfiles("test")
 @Import(JwtAuthHelper::class)
 abstract class IntegrationTestBase {

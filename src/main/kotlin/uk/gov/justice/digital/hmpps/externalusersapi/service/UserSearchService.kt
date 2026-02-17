@@ -105,7 +105,7 @@ class UserSearchService(
   private suspend fun formatName(emailInput: String): String = StringUtils.lowerCase(StringUtils.trim(emailInput)).replace("'", "''").replace("’", "''")
 
   private suspend fun limitGroupSearchCodesByUserAuthority(groupCodes: List<String>?): List<String>? {
-    val authorities = authenticationFacade.getAuthentication()!!.authorities
+    val authorities = authenticationFacade.getAuthentication().authorities
     return if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {

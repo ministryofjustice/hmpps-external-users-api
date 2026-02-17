@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.util.UUID
 
-@Table(name = "EMAIL_DOMAIN")
+@Table(name = "email_domain")
 data class EmailDomain(
   @Id
   @Column(value = "email_domain_id")
