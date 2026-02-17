@@ -57,7 +57,7 @@ class CreateUserServiceTest {
       MockitoAnnotations.openMocks(this)
       whenever(authenticationFacade.getUsername()).thenReturn("adminuser")
       whenever(authenticationFacade.getAuthentication()).thenReturn(authentication)
-      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(groupManager)
+      whenever(authenticationFacade.getAuthentication()!!.authorities).thenReturn(groupManager)
     }
 
     @Test
@@ -105,7 +105,7 @@ class CreateUserServiceTest {
     @Test
     fun `createUserByEmail fails if group is missing`(): Unit = runBlocking {
       createUser = CreateUser("email@email.com", "first_name", "last_name", null)
-      whenever(authenticationFacade.getAuthentication().authorities).thenReturn(emptySet())
+      whenever(authenticationFacade.getAuthentication()!!.authorities).thenReturn(emptySet())
       whenever(userRepository.findByUsernameAndSource(anyString(), anyOrNull())).thenReturn(null)
       whenever(userRepository.findByEmailAndSourceOrderByUsername(anyString(), anyOrNull())).thenReturn(emptyFlow())
       assertThatThrownBy {

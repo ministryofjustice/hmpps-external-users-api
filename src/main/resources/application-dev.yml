@@ -23,3 +23,8 @@ hmpps.sqs:
     audit:
       queueName: audit-queue
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

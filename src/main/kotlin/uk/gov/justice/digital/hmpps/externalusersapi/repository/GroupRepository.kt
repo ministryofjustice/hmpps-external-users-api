@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
-import org.springframework.lang.NonNull
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
 import java.util.UUID
 
@@ -15,7 +14,6 @@ interface GroupRepository :
 
   suspend fun findByGroupCode(groupCode: String?): Group?
 
-  @NonNull
   @Query(
     """
       select g.* from  groups g
@@ -26,7 +24,6 @@ interface GroupRepository :
   )
   fun findGroupsByUserId(userId: UUID): Flow<Group>
 
-  @NonNull
   @Query(
     """
       select g.* from groups g

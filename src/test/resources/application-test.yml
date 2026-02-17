@@ -26,6 +26,8 @@ spring:
     properties:
       sslMode: DISABLE
       sslRootCert:
+    pool:
+      max-idle-time: 5ms
   flyway:
     locations: classpath:db/migration/auth,db/migration/auth_{vendor},db/migration/dev/data/auth_{vendor},db/migration/dev/data/auth
     enabled: true
@@ -47,5 +49,9 @@ hmpps.sqs:
     audit:
       queueName: ${random.uuid}
 
-
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 

@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
-import org.springframework.lang.NonNull
 import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 
@@ -13,7 +12,6 @@ interface GroupAssignableRoleRepository :
   CoroutineCrudRepository<UserAssignableRoleDto, String>,
   CoroutineSortingRepository<UserAssignableRoleDto, String> {
 
-  @NonNull
   @Query(
     """
       select distinct  r.role_name,r.role_code, gs.automatic 

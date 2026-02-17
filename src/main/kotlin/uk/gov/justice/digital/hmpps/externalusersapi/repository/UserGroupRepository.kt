@@ -17,8 +17,8 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
 
   suspend fun getUserGroup(userId: UUID, groupId: UUID): UserGroup? = databaseClient
     .sql("SELECT * FROM user_group WHERE user_id = :userId and group_id = :groupId")
-    .bind("userId", userId)
-    .bind("groupId", groupId)
+    .bind("userId", userId.toString())
+    .bind("groupId", groupId.toString())
     .map(userGroupMappingFunction)
     .awaitSingleOrNull()
 
@@ -34,8 +34,8 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
       "and group_id = :groupId"
 
     return databaseClient.sql(sql)
-      .bind("userId", userId)
-      .bind("groupId", groupId)
+      .bind("userId", userId.toString())
+      .bind("groupId", groupId.toString())
       .fetch()
       .rowsUpdated()
       .awaitFirst()
@@ -43,14 +43,14 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
 
   suspend fun insertUserGroup(userId: UUID, groupId: UUID) = databaseClient
     .sql("INSERT INTO user_group VALUES( :groupId, :userId)")
-    .bind("userId", userId)
-    .bind("groupId", groupId)
+    .bind("userId", userId.toString())
+    .bind("groupId", groupId.toString())
     .fetch()
     .rowsUpdated()
     .awaitFirst()
 
   private val userGroupMappingFunction: BiFunction<Row, RowMetadata, UserGroup> =
     BiFunction<Row, RowMetadata, UserGroup> { row, _ ->
-      UserGroup(row.get("user_id", UUID::class.java), row.get("group_id", UUID::class.java))
+      UserGroup(row.get("user_id", UUID::class.java)!!, row.get("group_id", UUID::class.java)!!)
     }
 }

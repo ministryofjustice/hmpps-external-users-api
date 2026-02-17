@@ -58,7 +58,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .returnResult().responseBody
 
       assertNotNull(hasPassword)
-      assertTrue(hasPassword)
+      assertTrue(hasPassword == true)
     }
 
     @Test
@@ -71,7 +71,7 @@ class UserControllerIntTest : IntegrationTestBase() {
         .returnResult().responseBody
 
       assertNotNull(hasPassword)
-      assertFalse(hasPassword)
+      assertFalse(hasPassword == true)
     }
   }
 
