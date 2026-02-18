@@ -146,7 +146,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(RoleExistsException::class)
-  fun handleRoleExistsException(e: RoleExistsException): ResponseEntity<ErrorResponse?>? {
+  fun handleRoleExistsException(e: RoleExistsException): ResponseEntity<ErrorResponse> {
     log.error("Unable to add role", e)
     return ResponseEntity
       .status(CONFLICT)
@@ -160,7 +160,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(CreateUserException::class)
-  fun handleCreateUserException(e: CreateUserException): ResponseEntity<ErrorResponse?>? {
+  fun handleCreateUserException(e: CreateUserException): ResponseEntity<ErrorResponse> {
     log.error("Create User exception caught: {}", e.message)
     return ResponseEntity
       .status(BAD_REQUEST)
@@ -174,7 +174,7 @@ class HmppsExternalUsersApiExceptionHandler {
   }
 
   @ExceptionHandler(UserExistsException::class)
-  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse?>? {
+  fun handleUserExistsException(e: UserExistsException): ResponseEntity<ErrorResponse> {
     log.error("User exists exception caught: {}", e.message)
     return ResponseEntity
       .status(CONFLICT)

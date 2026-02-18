@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR2dbc
+import org.springframework.boot.data.r2dbc.test.autoconfigure.AutoConfigureDataR2dbc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.EmailDomain

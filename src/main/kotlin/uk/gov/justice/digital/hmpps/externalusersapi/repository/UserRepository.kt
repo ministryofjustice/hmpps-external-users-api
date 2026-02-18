@@ -3,10 +3,12 @@ package uk.gov.justice.digital.hmpps.externalusersapi.repository
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
+import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.User
 import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.util.UUID
 
+@Repository
 interface UserRepository : CoroutineCrudRepository<User, UUID> {
 
   suspend fun findByUsernameAndSource(username: String, source: AuthSource = AuthSource.auth): User?

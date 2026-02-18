@@ -3,9 +3,9 @@ package uk.gov.justice.digital.hmpps.externalusersapi.integration
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
@@ -14,12 +14,11 @@ import uk.gov.justice.digital.hmpps.externalusersapi.helper.JwtAuthHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.integration.wiremock.HmppsAuthMockServer
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient(timeout = "10000")
 @ActiveProfiles("test")
 @Import(JwtAuthHelper::class)
-@AutoConfigureWebTestClient(timeout = "10000")
 abstract class IntegrationTestBase {
 
-  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   lateinit var webTestClient: WebTestClient
 

@@ -1,13 +1,12 @@
 package uk.gov.justice.digital.hmpps.externalusersapi.repository.entity
 
-import org.apache.commons.lang3.StringUtils
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDate
 import java.util.UUID
 
-@Table(name = "ROLES")
+@Table(name = "roles")
 data class Authority(
   @Id
   @Column(value = "role_id")
@@ -22,7 +21,7 @@ data class Authority(
 
   companion object {
     const val ROLE_PREFIX = "ROLE_"
-    fun removeRolePrefixIfNecessary(role: String): String = if (StringUtils.startsWith(role, ROLE_PREFIX)) StringUtils.substring(role, ROLE_PREFIX.length) else role
+    fun removeRolePrefixIfNecessary(role: String): String = if (role.startsWith(ROLE_PREFIX)) role.substring(ROLE_PREFIX.length) else role
   }
 
   override fun equals(other: Any?): Boolean {

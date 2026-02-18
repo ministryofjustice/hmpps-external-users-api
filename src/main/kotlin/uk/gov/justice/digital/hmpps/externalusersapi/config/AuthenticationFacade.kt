@@ -13,7 +13,7 @@ import java.util.stream.Collectors
 @Component
 class AuthenticationFacade {
 
-  suspend fun getAuthentication(): Authentication = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication
+  suspend fun getAuthentication(): Authentication = ReactiveSecurityContextHolder.getContext().awaitSingle().authentication!!
 
   suspend fun getUsername(): String = when (val userPrincipal = getAuthentication().principal) {
     is String -> {

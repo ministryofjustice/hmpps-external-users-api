@@ -6,9 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR2dbc
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
+import org.springframework.boot.data.r2dbc.test.autoconfigure.AutoConfigureDataR2dbc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
@@ -17,7 +15,6 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.AdminType
 @SpringBootTest
 @AutoConfigureDataR2dbc
 @ActiveProfiles("test")
-@AutoConfigureTestDatabase(replace = NONE)
 class RoleRepositoryTest {
   @Autowired
   private lateinit var repository: RoleRepository

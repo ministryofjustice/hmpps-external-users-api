@@ -51,6 +51,6 @@ class UserGroupRepository(private val databaseClient: DatabaseClient) {
 
   private val userGroupMappingFunction: BiFunction<Row, RowMetadata, UserGroup> =
     BiFunction<Row, RowMetadata, UserGroup> { row, _ ->
-      UserGroup(row.get("user_id", UUID::class.java), row.get("group_id", UUID::class.java))
+      UserGroup(row.get("user_id", UUID::class.java)!!, row.get("group_id", UUID::class.java)!!)
     }
 }

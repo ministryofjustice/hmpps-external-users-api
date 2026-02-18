@@ -5,7 +5,7 @@ import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.util.UUID
 
-@Table(name = "GROUPS")
+@Table(name = "groups")
 data class Group(
 
   @Column(value = "group_code")

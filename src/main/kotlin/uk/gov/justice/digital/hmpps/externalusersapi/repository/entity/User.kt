@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.security.AuthSource
 import java.time.LocalDateTime
 import java.util.UUID
 
-@Table(name = "USERS")
+@Table(name = "users")
 class User(
   private var username: String,
 

@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.kotlin.CoroutineSortingRepository
-import org.springframework.lang.NonNull
 import org.springframework.stereotype.Repository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import java.util.UUID
@@ -18,7 +17,6 @@ interface RoleRepository :
 
   suspend fun findByRoleCode(roleCode: String?): Authority?
 
-  @NonNull
   @Query(
     """
       select r.*
@@ -30,7 +28,6 @@ interface RoleRepository :
   )
   fun findRolesByUserId(userId: UUID): Flow<Authority>
 
-  @NonNull
   @Query(
     """
       select distinct r.*
@@ -81,7 +78,6 @@ interface RoleRepository :
   )
   fun findByUserRolesForUserName(userName: String): Flow<Authority>
 
-  @NonNull
   @Query(
     """
       select distinct r.*

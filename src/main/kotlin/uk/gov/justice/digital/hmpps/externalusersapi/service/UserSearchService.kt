@@ -101,15 +101,16 @@ class UserSearchService(
     Sort.Order.asc("first_name"),
   )
 
-  private suspend fun formatName(emailInput: String): String = // Single quotes need to be replaced with 2x single quotes to prevent SQLGrammarExceptions. The first single quote is an escape char.
-    replace(replace(StringUtils.lowerCase(StringUtils.trim(emailInput)), "'", "''"), "’", "''")
+  // Single quotes need to be replaced with 2x single quotes to prevent SQLGrammarExceptions. The first single quote is an escape char.
+  private suspend fun formatName(emailInput: String): String = StringUtils.lowerCase(StringUtils.trim(emailInput)).replace("'", "''").replace("’", "''")
 
   private suspend fun limitGroupSearchCodesByUserAuthority(groupCodes: List<String>?): List<String>? {
     val authorities = authenticationFacade.getAuthentication().authorities
     return if (authorities.any { it.authority == "ROLE_MAINTAIN_OAUTH_USERS" }) {
       groupCodes
     } else if (authorities.any { it.authority == "ROLE_AUTH_GROUP_MANAGER" }) {
-      val assignableGroupCodes = userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authorities).map { it.groupCode }
+      val assignableGroupCodes =
+        userGroupService.getAssignableGroups(authenticationFacade.getUsername(), authorities).map { it.groupCode }
       if (groupCodes.isNullOrEmpty()) assignableGroupCodes else groupCodes.filter { g -> assignableGroupCodes.any { it == g } }
     } else {
       emptyList()
