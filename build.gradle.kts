@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.3"
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.3.0"
-  kotlin("plugin.spring") version "2.3.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.4"
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
+  kotlin("plugin.spring") version "2.3.10"
 }
 
 configurations {
@@ -22,18 +22,18 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.security:spring-security-access")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.1")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.2.2.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.2.3.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.1")
 
