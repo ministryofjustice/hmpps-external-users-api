@@ -4,13 +4,15 @@ import com.microsoft.applicationinsights.TelemetryClient
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
@@ -22,14 +24,19 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.UserHelper
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Authority
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.ChildGroup
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.UserAssignableRoleDto
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 import java.util.UUID
+import kotlin.jvm.java
 
 class GroupsServiceTest {
   private val groupRepository: GroupRepository = mock()
@@ -38,6 +45,7 @@ class GroupsServiceTest {
   private val telemetryClient: TelemetryClient = mock()
   private val authenticationFacade: AuthenticationFacade = mock()
   private val userRepository: UserRepository = mock()
+  private val roleRepository: RoleRepository = mock()
   private val userGroupService: UserGroupService = mock()
   private val authentication: Authentication = mock()
   private val groupAssignableRoleRepository: GroupAssignableRoleRepository = mock()
@@ -47,6 +55,7 @@ class GroupsServiceTest {
     telemetryClient,
     authenticationFacade,
     userRepository,
+    roleRepository,
     userGroupService,
     groupAssignableRoleRepository,
     maintainUserCheck,
@@ -128,7 +137,7 @@ class GroupsServiceTest {
       val createGroup = CreateGroupDto(groupCode = "CG", groupName = "Group")
       whenever(groupRepository.findByGroupCode(anyString())).thenReturn(Group("code", "name"))
 
-      Assertions.assertThatThrownBy {
+      assertThatThrownBy {
         runBlocking {
           groupsService.createGroup(createGroup)
         }
@@ -170,6 +179,83 @@ class GroupsServiceTest {
       assertThat(group.children).isNotNull
       verify(groupRepository).findByGroupCode("bob")
       verify(maintainUserCheck).ensureMaintainerGroupRelationship("username", "bob")
+    }
+  }
+
+  @Nested
+  inner class AddGroupAutoAssignRole {
+    @Test
+    fun `adds auto-assign role when group and role exist and not already assigned`() = runBlocking {
+      val group = Group(groupCode = "GROUP1", groupName = "Group 1", groupId = UUID.randomUUID())
+      val role = Authority(id = UUID.randomUUID(), roleCode = "ROLE1", roleName = "Role 1", roleDescription = "", adminType = "GENERAL")
+      whenever(groupRepository.findByGroupCode("GROUP1")).thenReturn(group)
+      whenever(roleRepository.findByRoleCode("ROLE1")).thenReturn(role)
+      whenever(groupAssignableRoleRepository.findGroupAssignableRoleByGroupCodeAndRoleCode("GROUP1", "ROLE1")).thenReturn(flowOf())
+      whenever(authenticationFacade.getUsername()).thenReturn("testuser")
+
+      groupsService.addGroupAutoAssignRole("GROUP1", "ROLE1")
+
+      verify(groupRepository).findByGroupCode("GROUP1")
+      verify(roleRepository).findByRoleCode("ROLE1")
+      verify(groupAssignableRoleRepository).findGroupAssignableRoleByGroupCodeAndRoleCode("GROUP1", "ROLE1")
+      verify(groupAssignableRoleRepository).save(
+        org.mockito.kotlin.check {
+          assertThat(it.groupId).isEqualTo(group.groupId)
+          assertThat(it.roleId).isEqualTo(role.id)
+        },
+      )
+      verify(telemetryClient).trackEvent(
+        eq("GroupAssignRoleSuccess"),
+        eq(mapOf("username" to "testuser", "groupCode" to "GROUP1", "roleCode" to "ROLE1")),
+        isNull(),
+      )
+    }
+
+    @Test
+    fun `does not add auto-assign role if already assigned`() = runBlocking {
+      val group = Group("GROUP1", "Group 1", UUID.randomUUID())
+      val role = Authority(id = UUID.randomUUID(), roleCode = "ROLE1", roleName = "Role 1", roleDescription = "", adminType = "GENERAL")
+      whenever(groupRepository.findByGroupCode("GROUP1")).thenReturn(group)
+      whenever(roleRepository.findByRoleCode("ROLE1")).thenReturn(role)
+      whenever(groupAssignableRoleRepository.findGroupAssignableRoleByGroupCodeAndRoleCode("GROUP1", "ROLE1")).thenReturn(
+        flowOf(
+          GroupAssignableRole(group.groupId!!, role.id!!),
+        ),
+      )
+
+      groupsService.addGroupAutoAssignRole("GROUP1", "ROLE1")
+
+      verify(groupRepository).findByGroupCode("GROUP1")
+      verify(roleRepository).findByRoleCode("ROLE1")
+      verify(groupAssignableRoleRepository).findGroupAssignableRoleByGroupCodeAndRoleCode("GROUP1", "ROLE1")
+      verify(groupAssignableRoleRepository, times(0)).save(any())
+      verify(telemetryClient, times(0)).trackEvent(any(), any(), any())
+    }
+
+    @Test
+    fun `throws GroupNotFoundException if group does not exist`(): Unit = runBlocking {
+      whenever(groupRepository.findByGroupCode("GROUP1")).thenReturn(null)
+
+      assertThatThrownBy {
+        runBlocking {
+          groupsService.addGroupAutoAssignRole("GROUP1", "ROLE1")
+        }
+      }.isInstanceOf(GroupNotFoundException::class.java)
+        .hasMessage("Unable to auto-assign role to group: GROUP1 with reason:  notfound")
+    }
+
+    @Test
+    fun `throws RoleNotFoundException if role does not exist`(): Unit = runBlocking {
+      val group = Group("GROUP1", "Group 1", UUID.randomUUID())
+      whenever(groupRepository.findByGroupCode("GROUP1")).thenReturn(group)
+      whenever(roleRepository.findByRoleCode("ROLE1")).thenReturn(null)
+
+      assertThatThrownBy {
+        runBlocking {
+          groupsService.addGroupAutoAssignRole("GROUP1", "ROLE1")
+        }
+      }.isInstanceOf(RoleNotFoundException::class.java)
+        .hasMessage("Unable to auto-assign role: ROLE1 with reason: notfound")
     }
   }
 

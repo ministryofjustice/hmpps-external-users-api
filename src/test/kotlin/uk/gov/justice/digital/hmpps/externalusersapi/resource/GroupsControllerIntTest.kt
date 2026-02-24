@@ -500,6 +500,54 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   }
 
   @Nested
+  inner class AddGroupAutoAssignRole {
+    @Test
+    fun `add group auto-assign role succeeds with correct role`() {
+      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `add group auto-assign role returns forbidden without admin role`() {
+      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/ROLE_GLOBAL_SEARCH")
+        .headers(setAuthorisation("bob"))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("Denied")
+          assertThat(it["developerMessage"] as String).contains("Denied")
+        }
+    }
+
+    @Test
+    fun `add group auto-assign role returns not found for unknown group`() {
+      webTestClient.post().uri("/groups/UNKNOWN_GROUP/roles/ROLE_GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("Unable to auto-assign role to group: UNKNOWN_GROUP with reason:  notfound")
+        }
+    }
+
+    @Test
+    fun `add group auto-assign role returns not found for unknown role`() {
+      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/ROLE_UNKNOWN")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$").value<Map<String, Any>> {
+          assertThat(it["userMessage"] as String).contains("Unable to auto-assign role: ROLE_UNKNOWN with reason: notfound")
+        }
+    }
+  }
+
+  @Nested
   inner class DeleteGroupCode {
     @Test
     fun `Delete Group - no child groups and no members`() {

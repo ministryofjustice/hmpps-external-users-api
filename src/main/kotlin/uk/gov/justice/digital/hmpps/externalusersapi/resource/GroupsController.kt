@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsExceptio
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupHasChildGroupException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 @Validated
 @RestController
@@ -212,6 +213,50 @@ class GroupsController(
     @RequestBody
     createGroup: CreateGroupDto,
   ) = groupsService.createGroup(createGroup)
+
+  @PostMapping("/groups/{group}/roles/{role}")
+  @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
+  @Operation(
+    summary = "Add group auto-assign role.",
+    description = "Add auto-assign role to group. Requires role ROLE_MAINTAIN_OAUTH_USERS",
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "OK",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "409",
+        description = "Group already exists.",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  @Throws(RoleNotFoundException::class, GroupNotFoundException::class)
+  suspend fun addGroupAutoAssignRole(
+    @Parameter(description = "The group code of the group.", required = true)
+    @PathVariable
+    group: String,
+    @Parameter(description = "The role code of the role to be added.", required = true)
+    @PathVariable
+    role: String,
+  ) = groupsService.addGroupAutoAssignRole(group, role)
 
   @DeleteMapping("/groups/{group}")
   @PreAuthorize("hasRole('ROLE_MAINTAIN_OAUTH_USERS')")
