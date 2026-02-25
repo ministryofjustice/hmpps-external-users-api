@@ -33,7 +33,6 @@ dependencies {
   implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.1")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.1")
 
