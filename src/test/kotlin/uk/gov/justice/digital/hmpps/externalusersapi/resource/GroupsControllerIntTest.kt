@@ -502,16 +502,58 @@ class GroupsControllerIntTest : IntegrationTestBase() {
   @Nested
   inner class AddGroupAutoAssignRole {
     @Test
-    fun `add group auto-assign role succeeds with correct role`() {
-      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/GLOBAL_SEARCH")
+    fun `add group auto-assign role succeeds`() {
+      webTestClient.post().uri("/groups/AUTO_ROLE/roles/GLOBAL_SEARCH")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isOk
     }
 
     @Test
+    fun `add group auto-assign role succeeds if role tried to be added twice`() {
+      webTestClient.post().uri("/groups/AUTO_ROLE_1/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+      webTestClient.post().uri("/groups/AUTO_ROLE_1/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/groups/AUTO_ROLE_1")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("group_details_data1.json".readFile())
+    }
+
+    @Test
+    fun `add group auto-assign roles multiple calls`() {
+      webTestClient.post().uri("/groups/AUTO_ROLE_2/roles/GLOBAL_SEARCH")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+      webTestClient.post().uri("/groups/AUTO_ROLE_2/roles/HPA_USER")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+
+      webTestClient
+        .get().uri("/groups/AUTO_ROLE_2")
+        .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectHeader().contentType(APPLICATION_JSON)
+        .expectBody()
+        .json("group_details_data2.json".readFile())
+    }
+
+    @Test
     fun `add group auto-assign role returns forbidden without admin role`() {
-      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/ROLE_GLOBAL_SEARCH")
+      webTestClient.post().uri("/groups/AUTO_ROLE_1/roles/ROLE_GLOBAL_SEARCH")
         .headers(setAuthorisation("bob"))
         .exchange()
         .expectStatus().isForbidden
@@ -536,7 +578,7 @@ class GroupsControllerIntTest : IntegrationTestBase() {
 
     @Test
     fun `add group auto-assign role returns not found for unknown role`() {
-      webTestClient.post().uri("/groups/SITE_1_GROUP_1/roles/ROLE_UNKNOWN")
+      webTestClient.post().uri("/groups/AUTO_ROLE_1/roles/ROLE_UNKNOWN")
         .headers(setAuthorisation("ITAG_USER_ADM", listOf("ROLE_MAINTAIN_OAUTH_USERS")))
         .exchange()
         .expectStatus().isNotFound
