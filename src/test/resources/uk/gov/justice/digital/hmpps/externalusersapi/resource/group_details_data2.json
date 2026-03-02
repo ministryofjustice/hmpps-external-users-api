@@ -1,0 +1,18 @@
+{
+  "groupCode": "AUTO_ROLE_2",
+  "groupName": "Test group2 for auto assign role ",
+  "assignableRoles": [
+    {
+      "roleCode": "GLOBAL_SEARCH",
+      "roleName": "Global Search",
+      "automatic": true
+    },
+    {
+      "roleCode": "HPA_USER",
+      "roleName": "Historical Prisoner Application User",
+      "automatic": true
+    }
+  ],
+  "children": []
+}
+|

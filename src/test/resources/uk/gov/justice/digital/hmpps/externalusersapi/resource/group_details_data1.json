@@ -1,0 +1,12 @@
+{
+  "groupCode": "AUTO_ROLE_1",
+  "groupName": "Test group1 for auto assign role ",
+  "assignableRoles": [
+    {
+      "roleCode": "GLOBAL_SEARCH",
+      "roleName": "Global Search",
+      "automatic": true
+    }
+  ],
+  "children": []
+}

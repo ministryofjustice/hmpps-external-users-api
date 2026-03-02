@@ -21,6 +21,8 @@ import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.UserGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupExistsException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupNotFoundException
 import uk.gov.justice.digital.hmpps.externalusersapi.service.GroupsService
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
+import kotlin.jvm.java
 
 class GroupsControllerTest {
   private val groupsService: GroupsService = mock()
@@ -137,6 +139,41 @@ class GroupsControllerTest {
     fun `delete group`(): Unit = runBlocking {
       groupsController.deleteGroup("GroupCode")
       verify(groupsService).deleteGroup("GroupCode")
+    }
+  }
+
+  @Nested
+  inner class AddGroupAutoAssignRole {
+    @Test
+    fun `add group auto-assign role calls service with correct params`() = runBlocking {
+      groupsController.addGroupAutoAssignRole("GROUP1", "ROLE1")
+      verify(groupsService).addGroupAutoAssignRole("GROUP1", "ROLE1")
+    }
+
+    @Test
+    fun `add group auto-assign role throws GroupNotFoundException`() {
+      runBlocking {
+        doThrow(GroupNotFoundException("auto-assign role to", "GROUP1", "notfound")).whenever(groupsService)
+          .addGroupAutoAssignRole(anyString(), anyString())
+      }
+
+      assertThatThrownBy {
+        runBlocking { groupsController.addGroupAutoAssignRole("GROUP1", "ROLE1") }
+      }.isInstanceOf(GroupNotFoundException::class.java)
+        .hasMessage("Unable to auto-assign role to group: GROUP1 with reason: notfound")
+    }
+
+    @Test
+    fun `add group auto-assign role throws RoleNotFoundException`() {
+      runBlocking {
+        doThrow(RoleNotFoundException("auto-assign", "ROLE1", "notfound")).whenever(groupsService)
+          .addGroupAutoAssignRole(anyString(), anyString())
+      }
+
+      assertThatThrownBy {
+        runBlocking { groupsController.addGroupAutoAssignRole("GROUP1", "ROLE1") }
+      }.isInstanceOf(RoleNotFoundException::class.java)
+        .hasMessage("Unable to auto-assign role: ROLE1 with reason: notfound")
     }
   }
 }

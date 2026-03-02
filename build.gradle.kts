@@ -41,8 +41,6 @@ dependencies {
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.7.10")
 
-  developmentOnly("org.springframework.boot:spring-boot-devtools")
-
   testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
   testImplementation("org.springframework.boot:spring-boot-starter-gson-test")
   testImplementation("org.springframework.boot:spring-boot-starter-security-oauth2-client-test")

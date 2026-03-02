@@ -12,12 +12,15 @@ import uk.gov.justice.digital.hmpps.externalusersapi.config.AuthenticationFacade
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.ChildGroupRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupAssignableRoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.GroupRepository
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.RoleRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.UserRepository
 import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.Group
+import uk.gov.justice.digital.hmpps.externalusersapi.repository.entity.GroupAssignableRole
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.CreateGroupDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.GroupAmendmentDto
 import uk.gov.justice.digital.hmpps.externalusersapi.resource.data.GroupDetails
 import uk.gov.justice.digital.hmpps.externalusersapi.security.MaintainUserCheck
+import uk.gov.justice.digital.hmpps.externalusersapi.service.RoleService.RoleNotFoundException
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +30,7 @@ class GroupsService(
   private val telemetryClient: TelemetryClient,
   private val authenticationFacade: AuthenticationFacade,
   private val userRepository: UserRepository,
+  private val roleRepository: RoleRepository,
   private val userGroupService: UserGroupService,
   private val groupAssignableRoleRepository: GroupAssignableRoleRepository,
   private val maintainUserCheck: MaintainUserCheck,
@@ -84,6 +88,23 @@ class GroupsService(
       mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode, "groupName" to groupName),
       null,
     )
+  }
+
+  @Transactional
+  @Throws(RoleNotFoundException::class, GroupNotFoundException::class)
+  suspend fun addGroupAutoAssignRole(groupCode: String, roleCode: String) {
+    val group = groupRepository.findByGroupCode(groupCode) ?: throw GroupNotFoundException("auto-assign role to", groupCode, " notfound")
+    val role = roleRepository.findByRoleCode(roleCode) ?: throw RoleNotFoundException("auto-assign", roleCode, "notfound")
+    val autoAssignGroupRole = GroupAssignableRole(groupId = group.groupId!!, roleId = role.id!!)
+    if (groupAssignableRoleRepository.findGroupAssignableRoleByGroupCodeAndRoleCode(group.groupCode, role.roleCode).toList().isEmpty()) {
+      groupAssignableRoleRepository.save(autoAssignGroupRole)
+
+      telemetryClient.trackEvent(
+        "GroupAssignRoleSuccess",
+        mapOf("username" to authenticationFacade.getUsername(), "groupCode" to groupCode, "roleCode" to roleCode),
+        null,
+      )
+    }
   }
 
   @Transactional
