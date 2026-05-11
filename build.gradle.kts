@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.4"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.3.21"
   kotlin("plugin.spring") version "2.3.21"
 }
@@ -22,7 +22,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.security:spring-security-access")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.3.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.3.2")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
@@ -42,7 +42,7 @@ dependencies {
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.1.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
-  runtimeOnly("org.postgresql:postgresql:42.7.10")
+  runtimeOnly("org.postgresql:postgresql:42.7.11")
 
   testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
   testImplementation("org.springframework.boot:spring-boot-starter-gson-test")
