@@ -1,6 +1,0 @@
-# Suppression for spring-security: Broken Access Control With Direct Use of AuthenticatedVoter as we don't use it
-CVE-2024-22257
-
-# Suppression for springframework: URL Parsing with Host Validation
-# Can't upgrade to spring boot 3.2.4 at present - see https://github.com/spring-projects/spring-framework/issues/32510
-CVE-2024-22259
