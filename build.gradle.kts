@@ -27,7 +27,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.3.3.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.3.4.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.6.0-jre")
