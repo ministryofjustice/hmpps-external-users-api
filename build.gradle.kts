@@ -35,7 +35,7 @@ dependencies {
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
   // Temporarily pin spring doc at 3.0.2 whilst waiting for 3.0.4 upgrade
-  val springDocVersion = ":3.0.2"
+  val springDocVersion = "3.0.2"
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springDocVersion")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
