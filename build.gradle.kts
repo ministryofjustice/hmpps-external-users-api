@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.3.1"
-  id("org.jetbrains.kotlin.plugin.serialization") version "2.3.21"
-  kotlin("plugin.spring") version "2.3.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.2"
+  id("org.jetbrains.kotlin.plugin.serialization") version "2.4.0"
+  kotlin("plugin.spring") version "2.4.0"
 }
 
 configurations {
@@ -22,25 +22,27 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.security:spring-security-access")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.3.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.4.0.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.0.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.0.2")
+  // Temporarily pin spring doc at 3.0.2 whilst waiting for 3.0.4 upgrade
+  val springDocVersion = "3.0.2"
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springDocVersion")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
 
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
-  runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.1.RELEASE")
+  runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.7.11")
 
