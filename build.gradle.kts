@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.3"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.0"
   kotlin("plugin.spring") version "2.4.0"
 }
@@ -61,7 +61,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:testcontainers-postgresql:2.0.1")
   testImplementation("io.projectreactor:reactor-test")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.37") {
     exclude(group = "io.swagger.core.v3")
   }
