@@ -38,7 +38,7 @@ dependencies {
   val springDocVersion = "3.0.2"
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springDocVersion")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
+    implementation("org.webjars:swagger-ui:5.32.11")
   }
 
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
