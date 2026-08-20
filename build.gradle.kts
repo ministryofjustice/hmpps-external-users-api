@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.5"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
   kotlin("plugin.spring") version "2.4.10"
 }
@@ -27,10 +27,10 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.1.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.4.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
-  implementation("com.google.guava:guava:33.6.0-jre")
+  implementation("com.google.guava:guava:33.7.1-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
@@ -38,7 +38,7 @@ dependencies {
   val springDocVersion = "3.0.2"
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:$springDocVersion")
   constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
+    implementation("org.webjars:swagger-ui:5.32.11")
   }
 
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
