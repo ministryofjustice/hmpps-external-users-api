@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.5"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.6"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
   kotlin("plugin.spring") version "2.4.10"
 }
@@ -27,7 +27,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.4.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.5.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.7.1-jre")
