@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.7"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.8"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.10"
   kotlin("plugin.spring") version "2.4.10"
 }
@@ -34,7 +34,7 @@ dependencies {
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.1.1")
 
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
