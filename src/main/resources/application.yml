@@ -58,6 +58,7 @@ server:
 azure:
   application-insights:
     web:
+      enabled: false
 
 management:
   endpoints:
