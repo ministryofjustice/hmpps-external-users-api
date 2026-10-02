@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.11"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.20"
   kotlin("plugin.spring") version "2.4.20"
 }
