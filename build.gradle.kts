@@ -27,7 +27,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.10.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.11.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.7.2-jre")
@@ -40,6 +40,11 @@ dependencies {
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.3.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
   runtimeOnly("org.postgresql:postgresql:42.7.14")
+
+  constraints {
+    implementation("com.ongres.scram:scram-client:3.4")
+    implementation("com.ongres.scram:scram-common:3.4")
+  }
 
   testImplementation("org.springframework.boot:spring-boot-starter-data-r2dbc-test")
   testImplementation("org.springframework.boot:spring-boot-starter-gson-test")
