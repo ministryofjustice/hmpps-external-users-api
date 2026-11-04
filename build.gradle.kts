@@ -27,10 +27,10 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.12.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.13.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
-  implementation("com.google.guava:guava:33.7.2-jre")
+  implementation("com.google.guava:guava:33.8.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
