@@ -27,14 +27,18 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.12.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.13.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
-  implementation("com.google.guava:guava:33.7.2-jre")
+  implementation("com.google.guava:guava:33.8.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.2.0")
+  // Temporarily pin swagger-ui for dompurify issues CVE-2026-11680(2-4)
+  constraints {
+    implementation("org.webjars:swagger-ui:5.34.1")
+  }
 
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.3.RELEASE")
