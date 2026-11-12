@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.14"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.15"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.21"
   kotlin("plugin.spring") version "2.4.21"
 }
@@ -27,13 +27,13 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.13.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.14.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.8.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
-  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
   implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.2.0")
   // Temporarily pin swagger-ui for dompurify issues CVE-2026-11680(2-4)
   constraints {
