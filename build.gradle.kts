@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.15"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.1.2"
   id("org.jetbrains.kotlin.plugin.serialization") version "2.4.21"
   kotlin("plugin.spring") version "2.4.21"
 }
@@ -22,19 +22,19 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.security:spring-security-access")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.6.0")
 
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
-  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.14.Final")
+  implementation("org.hibernate.reactive:hibernate-reactive-core:4.5.15.Final")
 
   implementation("org.apache.commons:commons-text:1.15.0")
   implementation("com.google.guava:guava:33.8.0-jre")
   implementation("org.flywaydb:flyway-core")
   implementation("io.opentelemetry:opentelemetry-api")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.2.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:3.2.1")
   // Temporarily pin swagger-ui for dompurify issues CVE-2026-11680(2-4)
   constraints {
     implementation("org.webjars:swagger-ui:5.34.1")
@@ -43,7 +43,7 @@ dependencies {
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
   runtimeOnly("org.postgresql:r2dbc-postgresql:1.1.3.RELEASE")
   runtimeOnly("org.springframework.boot:spring-boot-starter-jdbc")
-  runtimeOnly("org.postgresql:postgresql:42.7.14")
+  runtimeOnly("org.postgresql:postgresql:42.7.15")
 
   constraints {
     implementation("com.ongres.scram:scram-client:3.4")
@@ -66,7 +66,7 @@ dependencies {
   testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.48") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.49") {
     exclude(group = "io.swagger.core.v3")
   }
 }
